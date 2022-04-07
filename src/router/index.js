@@ -4,7 +4,7 @@ import ProjectList from "@/components/ProjectList.vue";
 
 Vue.use(VueRouter);
 
-const routes = [{ path: "/Projectlist", component: ProjectList }];
+const routes = [{ path: "/", component: ProjectList }];
 
 const router = new VueRouter({
   mode: "history",

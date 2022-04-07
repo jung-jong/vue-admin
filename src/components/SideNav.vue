@@ -6,11 +6,11 @@
           <div class="nav">
             <!-- <div class="sb-sidenav-menu-heading">Interface</div> -->
             <a
-              class="nav-link collapsed"
-              href="#"
+              class="nav-link"
+              href=""
               data-bs-toggle="collapse"
               data-bs-target="#monitoring"
-              aria-expanded="false"
+              aria-expanded="true"
               aria-controls="monitoring"
             >
               <!-- <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div> -->
@@ -20,18 +20,16 @@
               </div>
             </a>
             <div
-              class="collapse"
+              class="collapse show"
               id="monitoring"
               aria-labelledby="headingOne"
               data-bs-parent="#sidenavAccordion"
             >
               <nav class="sb-sidenav-menu-nested nav">
-                <a class="nav-link" href="#">
-                  <router-link to="/ProjectList">프로젝트 현황</router-link>
-                </a>
-                <a class="nav-link" href="layout-sidenav-light.html"
-                  >스토리지 현황</a
+                <router-link to="/Projectlist" class="nav-link"
+                  >프로젝트 현황</router-link
                 >
+                <router-link to="" class="nav-link">스토리지 현황</router-link>
               </nav>
             </div>
             <a
@@ -80,10 +78,7 @@
             <!-- <div class="sb-sidenav-menu-heading">Addons</div> -->
           </div>
         </div>
-        <div class="sb-sidenav-footer">
-          <div class="small">Logged in as:</div>
-          Start Bootstrap
-        </div>
+        <div class="sb-sidenav-footer"></div>
       </nav>
     </div>
   </div>
