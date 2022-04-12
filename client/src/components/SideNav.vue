@@ -26,9 +26,7 @@
               data-bs-parent="#sidenavAccordion"
             >
               <nav class="sb-sidenav-menu-nested nav">
-                <router-link to="/Projectlist" class="nav-link"
-                  >프로젝트 현황</router-link
-                >
+                <router-link to="/" class="nav-link">프로젝트 현황</router-link>
                 <router-link to="" class="nav-link">스토리지 현황</router-link>
               </nav>
             </div>

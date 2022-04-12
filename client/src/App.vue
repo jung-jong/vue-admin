@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div>
     <body class="sb-nav-fixed">
       <nav-bar></nav-bar>
       <div id="layoutSidenav">

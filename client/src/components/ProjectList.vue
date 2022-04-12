@@ -14,7 +14,7 @@
           <div class="card-body">
             <table id="example" class="table table-striped" style="width: 100%">
               <thead>
-                <tr>
+                <tr class="text-center">
                   <th>No</th>
                   <th>ID</th>
                   <th>제목</th>
@@ -28,17 +28,17 @@
                   <th>삭제</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr>
-                  <th scope="row">1</th>
-                  <td>user1</td>
-                  <td style="text-align: left">프레젠테이션 발표자료</td>
-                  <td>px</td>
-                  <td>1024</td>
-                  <td>767</td>
-                  <td><a href="">주소</a></td>
-                  <td>22-00-00</td>
-                  <td>22-00-00</td>
+              <tbody class="text-center">
+                <tr :key="i" v-for="(projectList, i) in projectList">
+                  <td>{{ projectList.id }}</td>
+                  <td>{{ projectList.USER_ID }}</td>
+                  <td>{{ projectList.TITLE }}</td>
+                  <td>{{ projectList.SCALE_CD }}</td>
+                  <td>{{ projectList.WIDTH }}</td>
+                  <td>{{ projectList.HEIGHT }}</td>
+                  <td>{{ projectList.SHARE_URL }}</td>
+                  <td>{{ projectList.A_DATE }}</td>
+                  <td>{{ projectList.U_DATE }}</td>
                   <td>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -81,8 +81,31 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   name: "ProjectList",
+  data() {
+    return {
+      projectList: [],
+    };
+  },
+  mounted() {
+    this.getProjectList();
+  },
+  methods: {
+    async getProjectList() {
+      this.projectList = await axios
+        .get(
+          // eslint-disable-next-line
+          "/api/project.json"
+        )
+        .catch((e) => {
+          console.log(e);
+        });
+      this.projectList = this.projectList.data;
+    },
+  },
 };
 </script>
 
