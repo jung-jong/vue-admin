@@ -1,6 +1,6 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
-import ProjectList from "@/components/ProjectList.vue";
+import ProjectList from "@/views/ProjectList";
 
 Vue.use(VueRouter);
 
