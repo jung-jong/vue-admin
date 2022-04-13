@@ -32,7 +32,7 @@
               </thead>
               <tbody class="text-center">
                 <tr :key="i" v-for="(projectList, i) in projectList">
-                  <td>{{ projectList.id }}</td>
+                  <td>{{ projectList.SEQ_ID }}</td>
                   <td>{{ projectList.USER_ID }}</td>
                   <td>{{ projectList.TITLE }}</td>
                   <td>{{ sacleFormat(projectList.SCALE_CD) }}</td>
@@ -85,14 +85,16 @@ export default {
     };
   },
   created() {
+    // this.id = this.$route.query.SEQ_ID;
     this.getProjectList();
+    // this.deleteProject();
   },
   methods: {
     async getProjectList() {
       this.projectList = await axios
         .get(
           // eslint-disable-next-line
-          "http://localhost/project.php"
+          "http://localhost/api/project.php?action=read"
         )
         .catch((e) => {
           console.log(e);
@@ -100,6 +102,15 @@ export default {
       this.tableLoding = false;
       this.projectList = this.projectList.data;
     },
+    // async deleteProject() {
+    //   this.deleteProject = await axios
+    //     .delete("http://localhost/api/project.php", {
+    //       data: {},
+    //     })
+    //     .catch((e) => {
+    //       console.log(e);
+    //     });
+    // },
     sacleFormat(value) {
       if (value == 0) return "px";
       if (value == 1) return "mm";

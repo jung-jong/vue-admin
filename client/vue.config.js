@@ -5,7 +5,7 @@ module.exports = defineConfig({
   transpileDependencies: true,
 });
 
-const target = "http://localhost:8080";
+const target = "http://localhost";
 module.exports = {
   outputDir: path.resolve(__dirname, "../server/dist"),
   devServer: {
@@ -17,4 +17,5 @@ module.exports = {
       },
     },
   },
+  publicPath: process.env.NODE_ENV === "production" ? "" : "/",
 };
