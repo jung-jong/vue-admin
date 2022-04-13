@@ -2,13 +2,18 @@
   <div id="layoutSidenav_content">
     <main>
       <div class="container-fluid px-4">
-        <PageName :main="main" :sub="sub" />
+        <PageName :mainMenu="main" :subMenu="sub" />
         <div class="card mb-4">
           <div class="card-header">
             <i class="fas fa-table me-1"></i>
             {{ sub }}
           </div>
           <div class="card-body">
+            <div v-if="tableLoding" class="d-flex justify-content-center">
+              <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
             <table id="example" class="table table-striped" style="width: 100%">
               <thead>
                 <tr class="text-center">
@@ -30,7 +35,7 @@
                   <td>{{ projectList.id }}</td>
                   <td>{{ projectList.USER_ID }}</td>
                   <td>{{ projectList.TITLE }}</td>
-                  <td>{{ projectList.SCALE_CD }}</td>
+                  <td>{{ sacleFormat(projectList.SCALE_CD) }}</td>
                   <td>{{ projectList.WIDTH }}</td>
                   <td>{{ projectList.HEIGHT }}</td>
                   <td>{{ projectList.SHARE_URL }}</td>
@@ -41,7 +46,7 @@
                       width="30"
                       height="30"
                       src="@/assets/editor.png"
-                      alt=""
+                      alt="editor"
                     />
                   </td>
                   <td>
@@ -49,7 +54,7 @@
                       width="30"
                       height="30"
                       src="@/assets/delete.png"
-                      alt=""
+                      alt="delete"
                     />
                   </td>
                 </tr>
@@ -74,6 +79,7 @@ export default {
   data() {
     return {
       projectList: [],
+      tableLoding: true,
       main: "작업모니터링",
       sub: "프로젝트 현황",
     };
@@ -86,12 +92,19 @@ export default {
       this.projectList = await axios
         .get(
           // eslint-disable-next-line
-          "/api/project.json"
+          "http://localhost/project.php"
         )
         .catch((e) => {
           console.log(e);
         });
+      this.tableLoding = false;
       this.projectList = this.projectList.data;
+    },
+    sacleFormat(value) {
+      if (value == 0) return "px";
+      if (value == 1) return "mm";
+      if (value == 2) return "cm";
+      if (value == 3) return "in";
     },
   },
 };
