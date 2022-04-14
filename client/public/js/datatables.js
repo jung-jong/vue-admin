@@ -13,10 +13,6 @@ $(document).ready(function () {
       timeout = setTimeout(() => {
         table();
         deleteTable();
-      }, 1000);
-      timeout = setTimeout(() => {
-        table();
-        deleteTable();
       }, 2000);
       timeout = setTimeout(() => {
         table();

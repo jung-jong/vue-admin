@@ -31,7 +31,10 @@
                 </tr>
               </thead>
               <tbody class="text-center">
-                <tr :key="i" v-for="(projectList, i) in projectList">
+                <tr
+                  v-for="projectList in allProjectList"
+                  :key="projectList.SEQ_ID"
+                >
                   <td>{{ projectList.SEQ_ID }}</td>
                   <td>{{ projectList.USER_ID }}</td>
                   <td>{{ projectList.TITLE }}</td>
@@ -50,16 +53,60 @@
                     />
                   </td>
                   <td>
-                    <img
-                      width="30"
-                      height="30"
-                      src="@/assets/delete.png"
-                      alt="delete"
-                    />
+                    <div data-bs-toggle="modal" data-bs-target="#exampleModal">
+                      <img
+                        width="30"
+                        height="30"
+                        src="@/assets/delete.png"
+                        alt="delete"
+                      />
+                    </div>
                   </td>
                 </tr>
               </tbody>
             </table>
+            <!-- Modal -->
+            <div
+              class="modal fade"
+              id="exampleModal"
+              tabindex="-1"
+              aria-labelledby="exampleModalLabel"
+              aria-hidden="true"
+            >
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">
+                      프로젝트 삭제
+                    </h5>
+                    <button
+                      type="button"
+                      class="btn-close"
+                      data-bs-dismiss="modal"
+                      aria-label="Close"
+                    ></button>
+                  </div>
+                  <div class="modal-body">삭제 하시겠습니까?</div>
+                  <div class="modal-footer">
+                    <button
+                      @click="deleteProject()"
+                      type="button"
+                      class="btn btn-danger"
+                      data-bs-dismiss="modal"
+                    >
+                      삭제
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-secondary"
+                      data-bs-dismiss="modal"
+                    >
+                      닫기
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -69,6 +116,8 @@
 
 <script>
 import axios from "axios";
+axios.defaults.headers.post["Content-Type"] = "application/json;charset=utf-8";
+axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
 import PageName from "@/components/PageName.vue";
 
 export default {
@@ -78,38 +127,51 @@ export default {
   },
   data() {
     return {
-      projectList: [],
+      allProjectList: [],
+      currentProject: {},
       tableLoding: true,
       main: "작업모니터링",
       sub: "프로젝트 현황",
+      successMsg: "",
     };
   },
-  created() {
-    // this.id = this.$route.query.SEQ_ID;
-    this.getProjectList();
-    // this.deleteProject();
-  },
+
   methods: {
-    async getProjectList() {
-      this.projectList = await axios
+    getProjectList() {
+      this.projectList = axios
         .get(
           // eslint-disable-next-line
-          "http://localhost/api/project.php?action=read"
+          "http://localhost/api/read.php"
         )
+        .then((response) => {
+          this.allProjectList = response.data;
+          this.tableLoding = false;
+          console.log(this.allProjectList);
+        })
         .catch((e) => {
           console.log(e);
         });
-      this.tableLoding = false;
-      this.projectList = this.projectList.data;
     },
-    // async deleteProject() {
-    //   this.deleteProject = await axios
-    //     .delete("http://localhost/api/project.php", {
-    //       data: {},
-    //     })
-    //     .catch((e) => {
-    //       console.log(e);
-    //     });
+    deleteProject() {
+      axios
+        .post("http://localhost/api/delete.php")
+        .then((response) => {
+          if (response.data.result == "success") {
+            this.getProjectList();
+            alert("삭제 성공");
+          } else {
+            alert("삭제 실패");
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    // formData() {
+    //   let fd = new FormData();
+    //   for (let i in obj) {
+    //     fd.append(i, obj[i]);
+    //   }
     // },
     sacleFormat(value) {
       if (value == 0) return "px";
@@ -118,7 +180,14 @@ export default {
       if (value == 3) return "in";
     },
   },
+  mounted() {
+    this.getProjectList();
+  },
 };
 </script>
 
-<style lang="scss" scoped></style>
+<style scoped>
+img {
+  cursor: pointer;
+}
+</style>
