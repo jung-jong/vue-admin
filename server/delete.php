@@ -1,8 +1,8 @@
 <?php
 
-if(isset($_POST['SEQ_ID'])){
+if(isset($_POST['id'])){
 
-  $id = $_POST['SEQ_ID'];
+  $id = $_POST['id'];
   
   include 'model.php';
   

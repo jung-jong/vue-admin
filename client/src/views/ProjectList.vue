@@ -32,7 +32,7 @@
               </thead>
               <tbody class="text-center">
                 <tr
-                  v-for="projectList in allProjectList"
+                  v-for="projectList in projectList"
                   :key="projectList.SEQ_ID"
                 >
                   <td>{{ projectList.SEQ_ID }}</td>
@@ -45,71 +45,77 @@
                   <td>{{ projectList.A_DATE }}</td>
                   <td>{{ projectList.U_DATE }}</td>
                   <td>
-                    <img
-                      width="30"
-                      height="30"
-                      src="@/assets/editor.png"
-                      alt="editor"
-                    />
+                    <a href="">
+                      <img
+                        width="30"
+                        height="30"
+                        src="@/assets/editor.png"
+                        alt="editor"
+                      />
+                    </a>
                   </td>
                   <td>
-                    <div data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    <a
+                      href=""
+                      data-bs-toggle="modal"
+                      data-bs-target="#exampleModal"
+                      @click="
+                        selectProject(projectList);
+                        deleteProject(projectList.SEQ_ID);
+                      "
+                    >
                       <img
                         width="30"
                         height="30"
                         src="@/assets/delete.png"
                         alt="delete"
                       />
-                    </div>
+                    </a>
                   </td>
                 </tr>
               </tbody>
             </table>
-            <!-- Modal -->
-            <div
-              class="modal fade"
-              id="exampleModal"
-              tabindex="-1"
-              aria-labelledby="exampleModalLabel"
-              aria-hidden="true"
-            >
-              <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">
-                      프로젝트 삭제
-                    </h5>
-                    <button
-                      type="button"
-                      class="btn-close"
-                      data-bs-dismiss="modal"
-                      aria-label="Close"
-                    ></button>
-                  </div>
-                  <div class="modal-body">삭제 하시겠습니까?</div>
-                  <div class="modal-footer">
-                    <button
-                      @click="deleteProject()"
-                      type="button"
-                      class="btn btn-danger"
-                      data-bs-dismiss="modal"
-                    >
-                      삭제
-                    </button>
-                    <button
-                      type="button"
-                      class="btn btn-secondary"
-                      data-bs-dismiss="modal"
-                    >
-                      닫기
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
+
+      <!-- Modal -->
+      <!-- <div class="modal fade" id="exampleModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">프로젝트 삭제</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              {{ currentProject.TITLE }} 삭제하시겠습니까?
+            </div>
+            <div class="modal-footer">
+              <button
+                v-bind="projectList.SEQ_ID"
+                @click="deleteProject(projectList.SEQ_ID)"
+                type="button"
+                class="btn btn-danger"
+                data-bs-dismiss="modal"
+              >
+                삭제
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                닫기
+              </button>
+            </div>
+          </div>
+        </div>
+      </div> -->
     </main>
   </div>
 </template>
@@ -127,57 +133,55 @@ export default {
   },
   data() {
     return {
-      allProjectList: [],
+      projectList: [],
       currentProject: {},
       tableLoding: true,
       main: "작업모니터링",
       sub: "프로젝트 현황",
-      successMsg: "",
+      dialog: false,
     };
   },
 
   methods: {
     getProjectList() {
       this.projectList = axios
-        .get(
-          // eslint-disable-next-line
-          "http://localhost/api/read.php"
-        )
+        .get("http://localhost/api/project.php")
         .then((response) => {
-          this.allProjectList = response.data;
+          this.projectList = response.data;
           this.tableLoding = false;
-          console.log(this.allProjectList);
         })
         .catch((e) => {
           console.log(e);
         });
     },
-    deleteProject() {
-      axios
-        .post("http://localhost/api/delete.php")
-        .then((response) => {
-          if (response.data.result == "success") {
+    deleteProject(id) {
+      if (window.confirm("삭제 하시겠습니까?")) {
+        let fd = new FormData();
+        fd.append("id", id);
+        axios
+          .post("http://localhost/api/delete.php", fd)
+          .then((response) => {
             this.getProjectList();
-            alert("삭제 성공");
-          } else {
-            alert("삭제 실패");
-          }
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+            this.currentProject = {};
+            if (response.data.result == "success") {
+              alert("삭제 성공");
+            } else {
+              alert("삭제 실패");
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }
     },
-    // formData() {
-    //   let fd = new FormData();
-    //   for (let i in obj) {
-    //     fd.append(i, obj[i]);
-    //   }
-    // },
     sacleFormat(value) {
       if (value == 0) return "px";
       if (value == 1) return "mm";
       if (value == 2) return "cm";
       if (value == 3) return "in";
+    },
+    selectProject(project) {
+      this.currentProject = project;
     },
   },
   mounted() {
@@ -186,8 +190,4 @@ export default {
 };
 </script>
 
-<style scoped>
-img {
-  cursor: pointer;
-}
-</style>
+<style scoped></style>
