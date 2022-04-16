@@ -32,10 +32,10 @@
               </thead>
               <tbody class="text-center">
                 <tr
-                  v-for="projectList in projectList"
+                  v-for="(projectList, i) in projectList"
                   :key="projectList.SEQ_ID"
                 >
-                  <td>{{ projectList.SEQ_ID }}</td>
+                  <td>{{ i + 1 }}</td>
                   <td>{{ projectList.USER_ID }}</td>
                   <td>{{ projectList.TITLE }}</td>
                   <td>{{ sacleFormat(projectList.SCALE_CD) }}</td>
@@ -59,10 +59,7 @@
                       href=""
                       data-bs-toggle="modal"
                       data-bs-target="#exampleModal"
-                      @click="
-                        selectProject(projectList);
-                        deleteProject(projectList.SEQ_ID);
-                      "
+                      @click="selectProject(projectList)"
                     >
                       <img
                         width="30"
@@ -80,7 +77,7 @@
       </div>
 
       <!-- Modal -->
-      <!-- <div class="modal fade" id="exampleModal" tabindex="-1">
+      <div class="modal fade" id="exampleModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header">
@@ -97,8 +94,10 @@
             </div>
             <div class="modal-footer">
               <button
-                v-bind="projectList.SEQ_ID"
-                @click="deleteProject(projectList.SEQ_ID)"
+                @click="
+                  deleteProject();
+                  tableLoding = true;
+                "
                 type="button"
                 class="btn btn-danger"
                 data-bs-dismiss="modal"
@@ -115,7 +114,7 @@
             </div>
           </div>
         </div>
-      </div> -->
+      </div>
     </main>
   </div>
 </template>
@@ -154,31 +153,31 @@ export default {
           console.log(e);
         });
     },
-    deleteProject(id) {
-      if (window.confirm("삭제 하시겠습니까?")) {
-        let fd = new FormData();
-        fd.append("id", id);
-        axios
-          .post("http://localhost/api/delete.php", fd)
-          .then((response) => {
-            this.getProjectList();
-            this.currentProject = {};
-            if (response.data.result == "success") {
-              alert("삭제 성공");
-            } else {
-              alert("삭제 실패");
-            }
-          })
-          .catch((error) => {
-            console.log(error);
-          });
-      }
+    deleteProject() {
+      const fd = this.formData(this.currentProject);
+      axios
+        .post("http://localhost/api/delete.php", fd)
+        .then(() => {
+          this.currentProject = {};
+          this.getProjectList();
+          this.tableLoding = false;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     },
     sacleFormat(value) {
       if (value == 0) return "px";
       if (value == 1) return "mm";
       if (value == 2) return "cm";
       if (value == 3) return "in";
+    },
+    formData(id) {
+      let fd = new FormData();
+      for (let i in id) {
+        fd.append(i, id[i]);
+      }
+      return fd;
     },
     selectProject(project) {
       this.currentProject = project;

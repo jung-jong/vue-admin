@@ -32,7 +32,7 @@
             </div>
             <a
               class="nav-link collapsed"
-              href="#"
+              href=""
               data-bs-toggle="collapse"
               data-bs-target="#collapsePages"
               aria-expanded="false"
@@ -45,7 +45,7 @@
             </a>
             <a
               class="nav-link collapsed"
-              href="#"
+              href=""
               data-bs-toggle="collapse"
               data-bs-target="#systemSetting"
               aria-expanded="false"
@@ -64,13 +64,9 @@
               data-bs-parent="#sidenavAccordion"
             >
               <nav class="sb-sidenav-menu-nested nav">
-                <a class="nav-link" href="layout-static.html">카테고리 관리</a>
-                <a class="nav-link" href="layout-sidenav-light.html"
-                  >작업크기 관리</a
-                >
-                <a class="nav-link" href="layout-sidenav-light.html"
-                  >관리자 ID 설정</a
-                >
+                <a class="nav-link" href="">카테고리 관리</a>
+                <a class="nav-link" href="">작업크기 관리</a>
+                <a class="nav-link" href="">관리자 ID 설정</a>
               </nav>
             </div>
             <!-- <div class="sb-sidenav-menu-heading">Addons</div> -->
