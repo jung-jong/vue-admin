@@ -1,6 +1,4 @@
 $(document).ready(function () {
-  let timeout;
-
   table();
 
   //데이터가 없으면 삭제
@@ -9,28 +7,17 @@ $(document).ready(function () {
   createTable();
 
   function createTable() {
-    if ($(".dataTables_empty").length == 0) {
-      timeout = setTimeout(() => {
-        table();
-        deleteTable();
-      }, 2000);
+    let timeout;
+    if ($(".dataTables_empty").length !== 0) {
       timeout = setTimeout(() => {
         table();
         deleteTable();
       }, 3000);
-      timeout = setTimeout(() => {
-        table();
-        deleteTable();
-      }, 4000);
-      timeout = setTimeout(() => {
-        table();
-        deleteTable();
-      }, 5000);
     }
   }
 
   function deleteTable() {
-    if ($(".dataTables_empty").length > 0 && $(".dataTables_info").length > 0) {
+    if ($(".dataTables_empty").length !== 0) {
       $("#example").DataTable().destroy();
     }
   }

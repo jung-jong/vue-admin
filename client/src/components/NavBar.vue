@@ -1,7 +1,11 @@
 <template>
   <div class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
     <!-- Navbar Brand-->
-    <a class="navbar-brand ps-3" href="">로고</a>
+    <router-link to="/">
+      <a class="navbar-brand ps-3" href=""
+        ><img src="@/assets/logo.png" alt=""
+      /></a>
+    </router-link>
     <!-- Sidebar Toggle-->
     <button
       class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0"

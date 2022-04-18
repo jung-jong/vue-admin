@@ -2,14 +2,14 @@
   <div id="layoutSidenav_content">
     <main>
       <div class="container-fluid px-4">
-        <PageName :mainMenu="main" :subMenu="sub" />
+        <page-name :mainMenu="main" :subMenu="sub" />
         <div class="card mb-4">
           <div class="card-header">
             <i class="fas fa-table me-1"></i>
             {{ sub }}
           </div>
           <div class="card-body">
-            <div v-if="tableLoding" class="d-flex justify-content-center">
+            <div v-if="tableLoading" class="d-flex justify-content-center">
               <div class="spinner-border" role="status">
                 <span class="visually-hidden">Loading...</span>
               </div>
@@ -37,11 +37,11 @@
                 >
                   <td>{{ i + 1 }}</td>
                   <td>{{ projectList.USER_ID }}</td>
-                  <td>{{ projectList.TITLE }}</td>
+                  <td class="text-start">{{ projectList.TITLE }}</td>
                   <td>{{ sacleFormat(projectList.SCALE_CD) }}</td>
                   <td>{{ projectList.WIDTH }}</td>
                   <td>{{ projectList.HEIGHT }}</td>
-                  <td>{{ projectList.SHARE_URL }}</td>
+                  <td class="text-start">{{ projectList.SHARE_URL }}</td>
                   <td>{{ projectList.A_DATE }}</td>
                   <td>{{ projectList.U_DATE }}</td>
                   <td>
@@ -94,10 +94,7 @@
             </div>
             <div class="modal-footer">
               <button
-                @click="
-                  deleteProject();
-                  tableLoding = true;
-                "
+                @click="deleteProject()"
                 type="button"
                 class="btn btn-danger"
                 data-bs-dismiss="modal"
@@ -120,10 +117,8 @@
 </template>
 
 <script>
-import axios from "axios";
-axios.defaults.headers.post["Content-Type"] = "application/json;charset=utf-8";
-axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
 import PageName from "@/components/PageName.vue";
+import tableLoading from "@/mixins.js";
 
 export default {
   name: "ProjectList",
@@ -134,33 +129,31 @@ export default {
     return {
       projectList: [],
       currentProject: {},
-      tableLoding: true,
       main: "작업모니터링",
       sub: "프로젝트 현황",
-      dialog: false,
     };
   },
-
+  mixins: [tableLoading],
   methods: {
     getProjectList() {
-      this.projectList = axios
+      this.projectList = this.$axios
         .get("http://nemolabs.iptime.org:1080/admin/api/project.php")
         .then((response) => {
           this.projectList = response.data;
-          this.tableLoding = false;
+          this.endloading();
         })
         .catch((e) => {
           console.log(e);
         });
     },
     deleteProject() {
+      this.loading();
       const fd = this.formData(this.currentProject);
-      axios
+      this.$axios
         .post("http://nemolabs.iptime.org:1080/admin/api/delete.php", fd)
         .then(() => {
           this.currentProject = {};
           this.getProjectList();
-          this.tableLoding = false;
         })
         .catch((error) => {
           console.log(error);

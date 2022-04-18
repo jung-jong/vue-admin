@@ -2,7 +2,7 @@
 include("connect.php");
 
 
-$sql = "SELECT * FROM tb_project";
+$sql = "SELECT * FROM TB_PROJECT";
 //전체조회
 if(!isset($_GET['id'])){
   $result = mysqli_query($conn, $sql);
@@ -13,7 +13,7 @@ if(!isset($_GET['id'])){
 }
 //?ID=조회
 if(isset($_GET['id'])){
-  $sql ="SELECT * FROM `tb_project` WHERE `SEQ_ID`={$_GET['id']}";
+  $sql ="SELECT * FROM `TB_PROJECT` WHERE `SEQ_ID`={$_GET['id']}";
   $result = mysqli_query($conn, $sql);
   $row = mysqli_fetch_assoc($result);
   $data[] = $row;
