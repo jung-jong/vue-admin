@@ -1,20 +1,24 @@
 <?php
 include("connect.php");
 
-$sql = "SELECT * FROM TB_FILE";
-
-$result = mysqli_query($conn, $sql);
-$data = array();
-while($row = mysqli_fetch_assoc($result)){
-  $data[] = $row;
+if (isset($_POST['id'])) {
+  $sql = "SELECT * FROM TB_FILE WHERE FILE_DIR = '{$_POST['id']}'";
+  
+  $result = mysqli_query($conn, $sql);
+  $data = array();
+  while($row = mysqli_fetch_assoc($result)){
+    $data[] = $row;
+  }
 }
 
-if (isset($_POST["SEQ_ID"])) {
-  $user_id = isset($_POST['USER_ID']);
-  $file_name = isset($_POST['FILE_DIR']);
-  $file_url = "http://nemolabs.iptime.org:1080/admin/upload/$user_id/$file_name";
-  echo pathinfo($file_url, PATHINFO_DIRNAME); // 상위, 루트 경로를 반환
-  echo $file_url;
+
+if (isset($_POST["FILE_DIR"])) {
+  $file_dir = "{$_POST['FILE_DIR']}";
+  $file_name = "{$_POST['FILE_NAME']}";
+  // $file_url = "http://nemolabs.iptime.org:1080/admin/upload/{$file_dir}/{$file_name}";
+  $file_url = "../upload/{$file_dir}/{$file_name}";
+  $file_size = filesize($file_url);
+  $data = floor($file_size);
 };
 
 echo json_encode($data);

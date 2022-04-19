@@ -4,7 +4,9 @@
       <nav-bar></nav-bar>
       <div id="layoutSidenav">
         <side-nav></side-nav>
-        <router-view></router-view>
+        <keep-alive>
+          <router-view :key="$route.fullPath"></router-view>
+        </keep-alive>
       </div>
     </body>
   </div>

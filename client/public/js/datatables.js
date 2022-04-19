@@ -1,18 +1,16 @@
 $(document).ready(function () {
   table();
-
   //데이터가 없으면 삭제
   deleteTable();
   // 테이블 재생성
   createTable();
 
   function createTable() {
-    let timeout;
     if ($(".dataTables_empty").length !== 0) {
-      timeout = setTimeout(() => {
+      setTimeout(() => {
         table();
         deleteTable();
-      }, 3000);
+      }, 2000);
     }
   }
 

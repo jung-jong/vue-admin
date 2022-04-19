@@ -5,13 +5,13 @@ module.exports = defineConfig({
   transpileDependencies: true,
 });
 
-const target = "localhost:8080";
+const target = "http://nemolabs.iptime.org:1080/admin/";
 module.exports = {
   // outputDir: path.resolve(__dirname, "../server/dist"),
   devServer: {
     port: 3000,
     proxy: {
-      "^/api": {
+      "^api": {
         target,
         changeOrigin: true,
       },

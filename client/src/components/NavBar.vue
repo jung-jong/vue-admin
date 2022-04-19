@@ -1,11 +1,10 @@
 <template>
   <div class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
     <!-- Navbar Brand-->
-    <router-link to="/">
-      <a class="navbar-brand ps-3" href=""
-        ><img src="@/assets/logo.png" alt=""
-      /></a>
-    </router-link>
+    <a class="navbar-brand ps-3" href=""
+      ><img src="@/assets/logo.png" alt="" /> <router-link to="/"></router-link
+    ></a>
+
     <!-- Sidebar Toggle-->
     <button
       class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0"

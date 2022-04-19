@@ -38,7 +38,10 @@
                       href=""
                       data-bs-toggle="modal"
                       data-bs-target="#storage"
-                      @click="selectProject(projectList)"
+                      @click="
+                        selectProject(projectList);
+                        getFile(projectList.USER_ID);
+                      "
                     >
                       <img
                         width="30"
@@ -60,7 +63,7 @@
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title" id="exampleModalLabel">
-                스토리지 상세 내역 - {{ userId.USER_ID }}
+                스토리지 상세 내역 - {{ project.USER_ID }}
               </h5>
               <button
                 type="button"
@@ -87,7 +90,7 @@
                       <td>{{ i + 1 }}</td>
                       <td class="text-start">{{ file.FILE_NAME }}</td>
                       <td>{{ file.FILE_EXTENSION }}</td>
-                      <td class="text-end">bytes</td>
+                      <td class="text-end">{{ getFileSize(file) }}bytes</td>
                       <td>
                         <a href="">
                           <img
@@ -132,8 +135,9 @@ export default {
       main: "작업모니터링",
       sub: "스토리지 현황",
       projectList: [],
-      userId: {},
+      project: {},
       file: [],
+      fileSize: "",
     };
   },
   mixins: [tableLoading],
@@ -150,11 +154,13 @@ export default {
         });
     },
     selectProject(project) {
-      this.userId = project;
+      this.project = project;
     },
-    getFile() {
+    getFile(USER_ID) {
+      const fd = new FormData();
+      fd.append("id", USER_ID);
       this.file = this.$axios
-        .get("http://nemolabs.iptime.org:1080/admin/api/file.php")
+        .post("http://nemolabs.iptime.org:1080/admin/api/file.php", fd)
         .then((response) => {
           this.file = response.data;
         })
@@ -162,10 +168,25 @@ export default {
           console.log(e);
         });
     },
+    getFileSize(file) {
+      const fd = this.formData(file);
+      this.fileSize = this.$axios
+        .post("http://nemolabs.iptime.org:1080/admin/api/file.php", fd)
+        .then((response) => {
+          file = "";
+          return (file = response.data);
+        });
+    },
+    formData(id) {
+      let fd = new FormData();
+      for (let i in id) {
+        fd.append(i, id[i]);
+      }
+      return fd;
+    },
   },
   mounted() {
     this.getProjectList();
-    this.getFile();
   },
 };
 </script>

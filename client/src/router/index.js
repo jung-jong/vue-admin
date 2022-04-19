@@ -7,7 +7,16 @@ Vue.use(VueRouter);
 
 const routes = [
   { path: "/", component: ProjectList },
-  { path: "/storage", component: StorageList },
+  {
+    path: "/storage",
+    component: StorageList,
+    routes: [
+      {
+        path: "/storage/",
+        component: StorageList,
+      },
+    ],
+  },
 ];
 
 const router = new VueRouter({
