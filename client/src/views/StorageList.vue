@@ -90,7 +90,7 @@
                       <td>{{ i + 1 }}</td>
                       <td class="text-start">{{ file.FILE_NAME }}</td>
                       <td>{{ file.FILE_EXTENSION }}</td>
-                      <td class="text-end">{{ getFileSize(file) }}bytes</td>
+                      <td class="text-end">{{ getFileSize(file) }}KB</td>
                       <td>
                         <a href="">
                           <img
@@ -136,7 +136,7 @@ export default {
       sub: "스토리지 현황",
       projectList: [],
       project: {},
-      file: [],
+      file: {},
       fileSize: "",
     };
   },
@@ -144,7 +144,7 @@ export default {
   methods: {
     getProjectList() {
       this.projectList = this.$axios
-        .get("http://nemolabs.iptime.org:1080/admin/api/project.php")
+        .get("/admin/api/project.php")
         .then((response) => {
           this.projectList = response.data;
           this.endloading();
@@ -159,8 +159,9 @@ export default {
     getFile(USER_ID) {
       const fd = new FormData();
       fd.append("id", USER_ID);
+      console.log(USER_ID);
       this.file = this.$axios
-        .post("http://nemolabs.iptime.org:1080/admin/api/file.php", fd)
+        .post("/admin/api/file.php", fd)
         .then((response) => {
           this.file = response.data;
         })
@@ -168,14 +169,13 @@ export default {
           console.log(e);
         });
     },
-    getFileSize(file) {
-      const fd = this.formData(file);
-      this.fileSize = this.$axios
-        .post("http://nemolabs.iptime.org:1080/admin/api/file.php", fd)
-        .then((response) => {
-          file = "";
-          return (file = response.data);
-        });
+    getFileSize(dir) {
+      const fd = this.formData(dir);
+      console.log(dir);
+      this.$axios.post("/admin/api/file.php", fd).then((response) => {
+        this.fileSize = response.data;
+      });
+      return this.fileSize;
     },
     formData(id) {
       let fd = new FormData();
@@ -186,6 +186,7 @@ export default {
     },
   },
   mounted() {
+    console.log("mounted");
     this.getProjectList();
   },
 };

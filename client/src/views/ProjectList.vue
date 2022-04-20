@@ -137,7 +137,7 @@ export default {
   methods: {
     getProjectList() {
       this.projectList = this.$axios
-        .get("http://nemolabs.iptime.org:1080/admin/api/project.php")
+        .get("/admin/api/project.php")
         .then((response) => {
           this.projectList = response.data;
           this.endloading();
@@ -150,7 +150,7 @@ export default {
       this.loading();
       const fd = this.formData(this.currentProject);
       this.$axios
-        .post("http://nemolabs.iptime.org:1080/admin/api/delete.php", fd)
+        .post("/admin/api/delete.php", fd)
         .then(() => {
           this.currentProject = {};
           this.getProjectList();
