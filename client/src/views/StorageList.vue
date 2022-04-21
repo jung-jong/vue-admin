@@ -90,7 +90,7 @@
                       <td>{{ i + 1 }}</td>
                       <td class="text-start">{{ file.FILE_NAME }}</td>
                       <td>{{ file.FILE_EXTENSION }}</td>
-                      <td class="text-end">{{ getFileSize(file) }}KB</td>
+                      <td class="text-end">{{ file.FILE_SIZE }}KB</td>
                       <td>
                         <a href="">
                           <img
@@ -136,11 +136,12 @@ export default {
       sub: "스토리지 현황",
       projectList: [],
       project: {},
-      file: {},
-      fileSize: "",
+      file: [],
+      fileSize: {},
     };
   },
   mixins: [tableLoading],
+  computed: {},
   methods: {
     getProjectList() {
       this.projectList = this.$axios
@@ -156,27 +157,36 @@ export default {
     selectProject(project) {
       this.project = project;
     },
+    //tb_file 테이블 전부 받음
     getFile(USER_ID) {
       const fd = new FormData();
       fd.append("id", USER_ID);
-      console.log(USER_ID);
-      this.file = this.$axios
+      this.$axios
         .post("/admin/api/file.php", fd)
         .then((response) => {
           this.file = response.data;
+          console.log(this.file);
         })
         .catch((e) => {
           console.log(e);
         });
+      return this.file;
     },
-    getFileSize(dir) {
-      const fd = this.formData(dir);
-      console.log(dir);
+    getFileSize(file) {
+      // console.log(file);
+      const fd = this.formData(file);
       this.$axios.post("/admin/api/file.php", fd).then((response) => {
         this.fileSize = response.data;
+        // console.log(this.fileSize);
       });
       return this.fileSize;
     },
+    test() {
+      console.log("test");
+    },
+    // fileList(i) {
+    //   return this.file.filter((file) => file.FILE_DIR == i);
+    // },
     formData(id) {
       let fd = new FormData();
       for (let i in id) {
@@ -184,9 +194,13 @@ export default {
       }
       return fd;
     },
+    fileList(i) {
+      let arr = new Array();
+      arr.push(i);
+      return arr;
+    },
   },
   mounted() {
-    console.log("mounted");
     this.getProjectList();
   },
 };
