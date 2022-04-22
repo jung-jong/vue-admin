@@ -10,20 +10,8 @@ if (isset($_POST['id'])) {
   $data = array();
   while($row = mysqli_fetch_assoc($result)){
     $data[] = $row;
-
-
-
   }
-
 }
-
-/*
-  $file_dir = $data['FILE_DIR']}";
-    $file_name = "{$_POST['FILE_NAME']}";
-    $file_url = "../user_data/{$file_dir}/{$file_name}";
-    $file_size = filesize($file_url)/1024;
-    $file_size = floor($file_size);
-*/
 
 $idx=0;
 foreach($data as $row)
@@ -33,8 +21,8 @@ foreach($data as $row)
     $file_dir = $data[$idx]["FILE_DIR"];
     $file_name = $data[$idx]["FILE_NAME"];
     $file_url = "../user_data/{$file_dir}/{$file_name}";
-    $file_size = filesize($file_url)/1024;
-    $file_size = floor($file_size);
+    $file_size = filesize($file_url);
+    $file_size = format_size($file_size);
 
     $data[$idx]["FILE_SIZE"] = $file_size;
 
@@ -42,6 +30,14 @@ foreach($data as $row)
     
 }
 
+function format_size($size) {
+  $sizes = array(" Bytes", " KB", " MB", " GB", " TB", " PB", " EB", " ZB", " YB");
+  if ($size == 0) {
+       return('n/a');
+  } else {
+       return (round($size/pow(1024, ($i = floor(log($size, 1024)))), 2) . $sizes[$i]);
+  }
+}
 
 
 // if (isset($_POST["FILE_DIR"])) {

@@ -26,21 +26,21 @@
               </thead>
               <tbody class="text-center">
                 <tr
-                  v-for="(projectList, i) in projectList"
-                  :key="projectList.SEQ_ID"
+                  v-for="(storageList, i) in storageList"
+                  :key="storageList.SEQ_ID"
                 >
                   <td>{{ i + 1 }}</td>
-                  <td>{{ projectList.USER_ID }}</td>
+                  <td>{{ storageList.FILE_DIR }}</td>
                   <td>/ 100MB</td>
-                  <td></td>
+                  <td>{{ storageList }}</td>
                   <td>
                     <a
                       href=""
                       data-bs-toggle="modal"
                       data-bs-target="#storage"
                       @click="
-                        selectProject(projectList);
-                        getFile(projectList.USER_ID);
+                        selectStorage(storageList);
+                        getFile(storageList.FILE_DIR);
                       "
                     >
                       <img
@@ -63,7 +63,7 @@
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title" id="exampleModalLabel">
-                스토리지 상세 내역 - {{ project.USER_ID }}
+                스토리지 상세 내역 - {{ currentStorage.FILE_DIR }}
               </h5>
               <button
                 type="button"
@@ -90,7 +90,7 @@
                       <td>{{ i + 1 }}</td>
                       <td class="text-start">{{ file.FILE_NAME }}</td>
                       <td>{{ file.FILE_EXTENSION }}</td>
-                      <td class="text-end">{{ file.FILE_SIZE }}KB</td>
+                      <td class="text-end">{{ file.FILE_SIZE }}</td>
                       <td>
                         <a href="">
                           <img
@@ -134,8 +134,8 @@ export default {
     return {
       main: "작업모니터링",
       sub: "스토리지 현황",
-      projectList: [],
-      project: {},
+      storageList: [],
+      currentStorage: {},
       file: [],
       fileSize: {},
     };
@@ -143,19 +143,20 @@ export default {
   mixins: [tableLoading],
   computed: {},
   methods: {
-    getProjectList() {
-      this.projectList = this.$axios
-        .get("/admin/api/project.php")
+    getStorageList() {
+      this.storageList = this.$axios
+        .get("/admin/api/storage.php")
         .then((response) => {
-          this.projectList = response.data;
+          this.storageList = response.data;
+          console.log(this.storageList);
           this.endloading();
         })
         .catch((e) => {
           console.log(e);
         });
     },
-    selectProject(project) {
-      this.project = project;
+    selectStorage(storage) {
+      this.currentStorage = storage;
     },
     //tb_file 테이블 전부 받음
     getFile(USER_ID) {
@@ -165,27 +166,18 @@ export default {
         .post("/admin/api/file.php", fd)
         .then((response) => {
           this.file = response.data;
-          console.log(this.file);
         })
         .catch((e) => {
           console.log(e);
         });
       return this.file;
     },
-    getFileSize(file) {
-      // console.log(file);
-      const fd = this.formData(file);
-      this.$axios.post("/admin/api/file.php", fd).then((response) => {
-        this.fileSize = response.data;
-        // console.log(this.fileSize);
-      });
-      return this.fileSize;
-    },
-    test() {
-      console.log("test");
-    },
-    // fileList(i) {
-    //   return this.file.filter((file) => file.FILE_DIR == i);
+    // getFileSize(file) {
+    //   const fd = this.formData(file);
+    //   this.$axios.post("/admin/api/file.php", fd).then((response) => {
+    //     this.fileSize = response.data;
+    //   });
+    //   return this.fileSize;
     // },
     formData(id) {
       let fd = new FormData();
@@ -194,14 +186,9 @@ export default {
       }
       return fd;
     },
-    fileList(i) {
-      let arr = new Array();
-      arr.push(i);
-      return arr;
-    },
   },
   mounted() {
-    this.getProjectList();
+    this.getStorageList();
   },
 };
 </script>
