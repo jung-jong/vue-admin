@@ -30,9 +30,11 @@
                   :key="storageList.SEQ_ID"
                 >
                   <td>{{ i + 1 }}</td>
-                  <td>{{ storageList.FILE_DIR }}</td>
-                  <td>/ 100MB</td>
-                  <td>{{ storageList }}</td>
+                  <td>{{ storageList.ID }}</td>
+                  <td>
+                    <b>{{ storageList.USE_STORAGE }}MB</b> / 100MB
+                  </td>
+                  <td>{{ storageList.FILE_SIZE }}</td>
                   <td>
                     <a
                       href=""
@@ -40,7 +42,7 @@
                       data-bs-target="#storage"
                       @click="
                         selectStorage(storageList);
-                        getFile(storageList.FILE_DIR);
+                        getFile(storageList.ID);
                       "
                     >
                       <img
@@ -148,7 +150,6 @@ export default {
         .get("/admin/api/storage.php")
         .then((response) => {
           this.storageList = response.data;
-          console.log(this.storageList);
           this.endloading();
         })
         .catch((e) => {
@@ -156,6 +157,7 @@ export default {
         });
     },
     selectStorage(storage) {
+      this.loading();
       this.currentStorage = storage;
     },
     //tb_file 테이블 전부 받음
@@ -166,6 +168,7 @@ export default {
         .post("/admin/api/file.php", fd)
         .then((response) => {
           this.file = response.data;
+          this.endloading();
         })
         .catch((e) => {
           console.log(e);
@@ -179,6 +182,11 @@ export default {
     //   });
     //   return this.fileSize;
     // },
+    fileIdx(i) {
+      const arr = i;
+      console.log(arr);
+      return arr;
+    },
     formData(id) {
       let fd = new FormData();
       for (let i in id) {
