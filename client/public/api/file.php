@@ -31,28 +31,13 @@ foreach($data as $row)
 }
 
 function format_size($size) {
-  $sizes = array(" Bytes", " KB", " MB", " GB", " TB", " PB", " EB", " ZB", " YB");
+  $sizes = array("Bytes", "KB", "MB", "GB");
   if ($size == 0) {
        return('n/a');
   } else {
        return (round($size/pow(1024, ($i = floor(log($size, 1024)))), 2) . $sizes[$i]);
   }
 }
-
-
-// if (isset($_POST["FILE_DIR"])) {
-//   $file_dir = "{$_POST['FILE_DIR']}";
-//   $file_name = "{$_POST['FILE_NAME']}";
-//   // $file_url = "http://nemolabs.iptime.org:1080/admin/upload/{$file_dir}/{$file_name}";
-//   $file_url = "../user_data/{$file_dir}/{$file_name}";
-//   $file_size = filesize($file_url)/1024;
-//   $data = floor($file_size);
-
-//   // $data = array();
-//   // while($row = array($file_size)){
-//   //   $data[] = $row;
-//   // }
-// };
 
 mysqli_close($conn);
 echo json_encode($data);

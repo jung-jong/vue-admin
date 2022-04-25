@@ -1,74 +1,58 @@
 <?php
+include("connect.php");
+
 //tb_file 테이블
-$files = array();
+// $sql = "SELECT FILE_DIR FROM tb_file";
+
+// $result = mysqli_query($conn, $sql);
+
+// $data = array();
+// while($row = mysqli_fetch_assoc($result)){
+//   $data[] = $row;
+// }
+
+//디렉토리 목록
+$id = array();
 $i=0;
 if ($handle = opendir('../user_data')) {
   while (false !== ($dir = readdir($handle))) {
     if ($dir != "." && $dir != "..") {
-      $file_dir[$i] = $dir;
-      $files[$i]["FILE_DIR"]= $dir;
+      $folder[$i] = $dir;
+      $id[$i]["ID"]= $dir;
       $i++;
     }
   }
   closedir($handle);
 }
+
+// echo json_encode($id);
+//디렉토리 사용량
 $idx=0;
-//파일 디렉토리
-foreach ($files as $value) {
-
-  $file_dir = $files[$idx]["FILE_DIR"];
-  if($handle = opendir("../user_data/{$file_dir}")){
-    while (false !== ($dir = readdir($handle))) {
-      if ($dir != "." && $dir != "..") {
-        $file[$idx] = $dir;
-      }
-    }
+foreach ($id as $key => $value) {
+  $file_dir = $id[$idx]["ID"];
+  foreach (glob("../user_data/{$file_dir}/*") as $filename) {
+    // echo $idx."\n";
+    // echo $filename."\n";
+    $file_size = filesize($filename)/1024/1024;
+    $use = round($file_size, 3);
+    echo $use."\n";
+    $id[$idx]["USE_STORAGE"] += $use;
+    $id[$idx]["FILE_NUMS"] += 1;
+    
   }
-  echo json_encode($handle);
-  closedir($handle);
-
   $idx++;
 }
-//하위 디렉토리 파일 수
-$num = array_count_values($count);
-//값만 반환
-$num_value = array_values($num);
-
-// $storage = array_merge($files, $num_value);
+echo json_encode($id);
 
 
-  // 디렉토리에 있는 파일과 디렉토리의 갯수 구하기
 
-// foreach ($file_dir as $value) {
-//   $result=opendir("../user_data/{$value}"); //opendir함수를 이용해서 bbs디렉토리의 핸들을 얻어옴
-  
-//   // readdir함수를 이용해서 bbs디렉토리에 있는 디렉토리와 파일들의 이름을 배열로 읽어들임
-//   while($file=readdir($result)) {
-      
-//     if($file=="."||$file=="..") {continue;} // file명이 ".", ".." 이면 무시함
-//     $fileInfo = pathinfo($file);
-//     $fileExt = $fileInfo['extension']; // 파일의 확장자를 구함
-  
-//     if (empty($fileExt)){
-//       $dir_count++; // 파일에 확장자가 없으면 디렉토리로 판단하여 dir_count를 증가시킴
-//     } else {
-//       $file_count++;// 파일에 확장자가 있으면 file_count를 증가시킴
-//     }
-//   }
-// }
-// echo"파일의 갯수는:".$file_count;
+// $storage = array_merge($data, $id);
+
+// $count = array_count_values($data);
 
 
-// $i=0;
-// foreach ($files as $value) {
-//   # code...
-//   $files[]["COUNT"] = $count;
-//   $i++;
-// }
+// echo json_encode($id);
 
-
-// $num = print_r(array_count_values($count));
-// echo json_encode(array_count_values($count));
-// echo json_encode($value);
+mysqli_close($conn);
 
 ?>
