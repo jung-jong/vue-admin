@@ -31,7 +31,7 @@ foreach($data as $row)
 }
 
 function format_size($size) {
-  $sizes = array("Bytes", "KB", "MB", "GB");
+  $sizes = array("Byte", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB");
   if ($size == 0) {
        return('n/a');
   } else {

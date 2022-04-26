@@ -1,5 +1,4 @@
 <?php
-include("connect.php");
 
 //tb_file 테이블
 // $sql = "SELECT FILE_DIR FROM tb_file";
@@ -19,40 +18,28 @@ if ($handle = opendir('../user_data')) {
     if ($dir != "." && $dir != "..") {
       $folder[$i] = $dir;
       $id[$i]["ID"]= $dir;
+      $id[$i]["USE_STORAGE"] = 0;
+      $id[$i]["FILE_NUMS"] = 0;
       $i++;
     }
   }
   closedir($handle);
 }
-
-// echo json_encode($id);
-//디렉토리 사용량
+// 디렉토리 사용량
 $idx=0;
 foreach ($id as $key => $value) {
   $file_dir = $id[$idx]["ID"];
   foreach (glob("../user_data/{$file_dir}/*") as $filename) {
     // echo $idx."\n";
     // echo $filename."\n";
-    $file_size = filesize($filename)/1024/1024;
-    $use = round($file_size, 3);
-    echo $use."\n";
-    $id[$idx]["USE_STORAGE"] += $use;
+    $file_size = filesize($filename);
+    // echo $use."\n";
+    $id[$idx]["USE_STORAGE"] += $file_size;
     $id[$idx]["FILE_NUMS"] += 1;
-    
   }
   $idx++;
 }
+
 echo json_encode($id);
-
-
-
-// $storage = array_merge($data, $id);
-
-// $count = array_count_values($data);
-
-
-// echo json_encode($id);
-
-mysqli_close($conn);
 
 ?>

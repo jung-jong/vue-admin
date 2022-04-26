@@ -1,4 +1,4 @@
-const tableLoading = {
+const loading = {
   data() {
     return {
       tableLoading: true,
@@ -14,4 +14,4 @@ const tableLoading = {
   },
 };
 
-export default tableLoading;
+export default loading;

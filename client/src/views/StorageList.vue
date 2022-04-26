@@ -9,11 +9,7 @@
             {{ sub }}
           </div>
           <div class="card-body">
-            <div v-if="tableLoading" class="d-flex justify-content-center">
-              <div class="spinner-border" role="status">
-                <span class="visually-hidden">Loading...</span>
-              </div>
-            </div>
+            <table-loading v-if="tableLoading" />
             <table id="example" class="table table-striped" style="width: 100%">
               <thead>
                 <tr class="text-center">
@@ -32,9 +28,11 @@
                   <td>{{ i + 1 }}</td>
                   <td>{{ storageList.ID }}</td>
                   <td>
-                    <b>{{ storageList.USE_STORAGE }}MB</b> / 100MB
+                    <b>{{ sizeFormat(storageList.USE_STORAGE) }}</b> / 100MB ({{
+                      useSize(storageList.USE_STORAGE)
+                    }}%)
                   </td>
-                  <td>{{ storageList.FILE_SIZE }}</td>
+                  <td>{{ storageList.FILE_NUMS }}</td>
                   <td>
                     <a
                       href=""
@@ -65,7 +63,7 @@
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title" id="exampleModalLabel">
-                스토리지 상세 내역 - {{ currentStorage.FILE_DIR }}
+                스토리지 상세 내역 - {{ currentStorage.ID }}
               </h5>
               <button
                 type="button"
@@ -75,6 +73,7 @@
               ></button>
             </div>
             <div class="modal-body">
+              <table-loading v-if="tableLoading" />
               <div class="table_wrap">
                 <table class="table table-bordered table-striped">
                   <thead class="text-center">
@@ -94,7 +93,7 @@
                       <td>{{ file.FILE_EXTENSION }}</td>
                       <td class="text-end">{{ file.FILE_SIZE }}</td>
                       <td>
-                        <a href="">
+                        <a href="" @click.prevent="fileDownload(file.SEQ_ID)">
                           <img
                             width="25"
                             height="25"
@@ -127,11 +126,12 @@
 
 <script>
 import PageName from "../components/PageName.vue";
-import tableLoading from "@/mixins.js";
+import TableLoading from "../components/TableLoading.vue";
+import loading from "@/mixins.js";
 
 export default {
   name: "StorageList",
-  components: { PageName },
+  components: { PageName, TableLoading },
   data() {
     return {
       main: "작업모니터링",
@@ -140,9 +140,10 @@ export default {
       currentStorage: {},
       file: [],
       fileSize: {},
+      download: "",
     };
   },
-  mixins: [tableLoading],
+  mixins: [loading],
   computed: {},
   methods: {
     getStorageList() {
@@ -157,11 +158,11 @@ export default {
         });
     },
     selectStorage(storage) {
-      this.loading();
       this.currentStorage = storage;
     },
     //tb_file 테이블 전부 받음
     getFile(USER_ID) {
+      this.loading();
       const fd = new FormData();
       fd.append("id", USER_ID);
       this.$axios
@@ -175,17 +176,33 @@ export default {
         });
       return this.file;
     },
-    // getFileSize(file) {
-    //   const fd = this.formData(file);
-    //   this.$axios.post("/admin/api/file.php", fd).then((response) => {
-    //     this.fileSize = response.data;
-    //   });
-    //   return this.fileSize;
-    // },
-    fileIdx(i) {
-      const arr = i;
-      console.log(arr);
-      return arr;
+    async fileDownload(id) {
+      const fd = new FormData();
+      fd.append("SEQ_ID", id);
+      const response = await this.$axios.post("/admin/api/download.php", fd, {
+        responseType: "blob",
+      });
+      console.log(response);
+      const name = response.headers["content-disposition"]
+        .split("filename=")[1]
+        .replace(/"/g, "");
+      console.log(name);
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", name);
+      document.body.appendChild(link);
+      link.click();
+    },
+    sizeFormat(x) {
+      var s = ["Byte", "KB", "MB", "GB", "TB", "PB"];
+      var e = Math.floor(Math.log(x) / Math.log(1024));
+      return (x / Math.pow(1024, e)).toFixed(0) + s[e];
+    },
+    useSize(e) {
+      let size = e / 1024 / 1024;
+      size = size.toFixed(3);
+      return Math.ceil(size);
     },
     formData(id) {
       let fd = new FormData();

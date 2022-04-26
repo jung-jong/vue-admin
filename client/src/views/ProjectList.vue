@@ -9,11 +9,6 @@
             {{ sub }}
           </div>
           <div class="card-body">
-            <div v-if="tableLoading" class="d-flex justify-content-center">
-              <div class="spinner-border" role="status">
-                <span class="visually-hidden">Loading...</span>
-              </div>
-            </div>
             <table id="example" class="table table-striped" style="width: 100%">
               <thead>
                 <tr class="text-center">
@@ -72,6 +67,7 @@
                 </tr>
               </tbody>
             </table>
+            <table-loading v-if="tableLoading" />
           </div>
         </div>
       </div>
@@ -118,12 +114,14 @@
 
 <script>
 import PageName from "@/components/PageName.vue";
-import tableLoading from "@/mixins.js";
+import loading from "@/mixins.js";
+import TableLoading from "../components/TableLoading.vue";
 
 export default {
   name: "ProjectList",
   components: {
     PageName,
+    TableLoading,
   },
   data() {
     return {
@@ -133,7 +131,7 @@ export default {
       sub: "프로젝트 현황",
     };
   },
-  mixins: [tableLoading],
+  mixins: [loading],
   methods: {
     getProjectList() {
       this.projectList = this.$axios
