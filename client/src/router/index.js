@@ -2,6 +2,7 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import ProjectList from "@/views/ProjectList";
 import StorageList from "@/views/StorageList";
+import TableView from "@/views/TableView";
 
 Vue.use(VueRouter);
 
@@ -10,12 +11,10 @@ const routes = [
   {
     path: "/storage",
     component: StorageList,
-    routes: [
-      {
-        path: "/storage/",
-        component: StorageList,
-      },
-    ],
+  },
+  {
+    path: "/table",
+    component: TableView,
   },
 ];
 

@@ -103,7 +103,7 @@
                         </a>
                       </td>
                       <td>
-                        <a href="">
+                        <a href="" @click.prevent="fileDelete(file.SEQ_ID)">
                           <img
                             width="25"
                             height="25"
@@ -140,7 +140,6 @@ export default {
       currentStorage: {},
       file: [],
       fileSize: {},
-      download: "",
     };
   },
   mixins: [loading],
@@ -176,23 +175,55 @@ export default {
         });
       return this.file;
     },
-    async fileDownload(id) {
+    fileDownload(id) {
       const fd = new FormData();
       fd.append("SEQ_ID", id);
-      const response = await this.$axios.post("/admin/api/download.php", fd, {
-        responseType: "blob",
+      var down_url = "";
+      this.$axios.post("/admin/api/download.php", fd).then(function (response) {
+        down_url = "http://localhost/admin/" + response.data;
+
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+          if (this.readyState == 4 && this.status == 200) {
+            var a = document.createElement("a");
+            var url = URL.createObjectURL(this.response);
+            a.href = url;
+            a.download = down_url.substring(
+              down_url.lastIndexOf("/") + 1,
+              down_url.lastIndexOf("/") + 30,
+            );
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+          }
+        };
+        xhr.open("POST", down_url);
+        xhr.responseType = "blob"; // !!필수!!
+        xhr.send();
       });
-      console.log(response);
-      const name = response.headers["content-disposition"]
-        .split("filename=")[1]
-        .replace(/"/g, "");
-      console.log(name);
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", name);
-      document.body.appendChild(link);
-      link.click();
+
+      // const response = this.$axios.post("/admin/api/download.php", fd, {
+      //   responseType: "blob",
+      // });
+      // const name = response.headers["content-disposition"]
+      //   .split("filename=")[1]
+      //   .replace(/"/g, "");
+      // const url = window.URL.createObjectURL(new Blob([response.data]));
+      // const link = document.createElement("a");
+      // link.href = url;
+      // link.setAttribute("download", name);
+      // document.body.appendChild(link);
+      // link.click();
+      // link.remove();
+      // window.URL.revokeObjectURL(url);
+    },
+    fileDelete(id) {
+      const fd = new FormData();
+      fd.append("SEQ_ID", id);
+      this.$axios.post("/admin/api/file_delete.php", fd).then((response) => {
+        alert("삭제 성공");
+        return response;
+      });
     },
     sizeFormat(x) {
       var s = ["Byte", "KB", "MB", "GB", "TB", "PB"];
