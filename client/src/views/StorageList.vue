@@ -207,6 +207,7 @@ export default {
       fd.append("SEQ_ID", id);
       var down_url = "";
       this.$axios.post("/admin/api/download.php", fd).then(function (response) {
+        // down_url = "http://nemolabs.iptime.org:1080/admin/" + response.data;
         down_url = "http://localhost/admin/" + response.data;
 
         var xhr = new XMLHttpRequest();

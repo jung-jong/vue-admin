@@ -6,6 +6,7 @@ import mixin from "@/mixins";
 import axios from "axios";
 
 //url:포트번호
+// axios.defaults.baseURL = "http://nemolabs.iptime.org:1080";
 axios.defaults.baseURL = "http://localhost:3000";
 axios.defaults.headers.post["Content-Type"] = "application/json;charset=utf-8";
 axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";

@@ -1,15 +1,5 @@
 <?php
 
-//tb_file 테이블
-// $sql = "SELECT FILE_DIR FROM tb_file";
-
-// $result = mysqli_query($conn, $sql);
-
-// $data = array();
-// while($row = mysqli_fetch_assoc($result)){
-//   $data[] = $row;
-// }
-
 //디렉토리 목록
 $id = array();
 $i=0;

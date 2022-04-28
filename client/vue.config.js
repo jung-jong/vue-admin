@@ -8,7 +8,7 @@ module.exports = defineConfig({
 //:서버포트
 const target = "http://localhost";
 module.exports = {
-  outputDir: path.resolve(__dirname, "../dist"),
+  // outputDir: path.resolve(__dirname, "../dist"),
   devServer: {
     port: 3000,
     proxy: {
