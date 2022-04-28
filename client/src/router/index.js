@@ -6,11 +6,15 @@ import StorageList from "@/views/StorageList";
 Vue.use(VueRouter);
 
 const routes = [
-  { path: "/", component: ProjectList },
+  {
+    path: "/",
+    component: ProjectList,
+  },
   {
     path: "/storage",
     component: StorageList,
   },
+  { path: "*", redirect: "/" },
 ];
 
 const router = new VueRouter({

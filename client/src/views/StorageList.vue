@@ -10,7 +10,11 @@
           </div>
           <div class="card-body">
             <table-loading v-if="tableLoading" />
-            <table id="example" class="table table-striped" style="width: 100%">
+            <table
+              id="example"
+              class="table table-striped table-bordered table-hover"
+              style="width: 100%"
+            >
               <thead>
                 <tr class="text-center">
                   <th>No</th>
@@ -165,7 +169,7 @@ export default {
             },
           },
         });
-      }, 500);
+      }, 100);
     },
     getStorageList() {
       this.storageList = this.$axios
@@ -173,6 +177,7 @@ export default {
         .then((response) => {
           this.storageList = response.data;
           this.endloading();
+          this.table();
         })
         .catch((e) => {
           console.log(e);
@@ -267,7 +272,6 @@ export default {
   },
   mounted() {
     this.getStorageList();
-    this.table();
   },
 };
 </script>

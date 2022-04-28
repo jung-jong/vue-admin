@@ -9,7 +9,11 @@
             {{ sub }}
           </div>
           <div class="card-body">
-            <table id="example" class="table table-striped" style="width: 100%">
+            <table
+              id="example"
+              class="table table-striped table-bordered table-hover"
+              style="width: 100%"
+            >
               <thead>
                 <tr class="text-center">
                   <th>No</th>
@@ -133,12 +137,35 @@ export default {
   },
   mixins: [loading],
   methods: {
+    table() {
+      setTimeout(() => {
+        // eslint-disable-next-line no-undef
+        let table = new DataTable("#example", {
+          language: {
+            emptyTable: "데이터가 없음.",
+            lengthMenu: "페이지당 _MENU_ 개씩 보기",
+            info: "현재 _START_ - _END_ / _TOTAL_건",
+            infoEmpty: "데이터 없음",
+            infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
+            search: "검색",
+            zeroRecords: "일치하는 데이터가 없음.",
+            loadingRecords: "로딩중...",
+            processing: "잠시만 기다려 주세요...",
+            paginate: {
+              next: "다음",
+              previous: "이전",
+            },
+          },
+        });
+      }, 100);
+    },
     getProjectList() {
       this.projectList = this.$axios
         .get("/admin/api/project.php")
         .then((response) => {
           this.projectList = response.data;
           this.endloading();
+          this.table();
         })
         .catch((e) => {
           console.log(e);
