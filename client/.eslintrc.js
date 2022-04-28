@@ -26,5 +26,7 @@ module.exports = {
         bracketSpacing: true,
       },
     ],
+    "no-unused-vars": 0,
+    "no-undef": 1,
   },
 };
