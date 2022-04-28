@@ -32,7 +32,6 @@
                 <router-link to="/storage" class="nav-link">
                   스토리지 현황
                 </router-link>
-                <router-link to="/table" class="nav-link"> 테이블 </router-link>
               </nav>
             </div>
             <a
