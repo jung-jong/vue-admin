@@ -5,13 +5,13 @@ const table = {
     };
   },
   methods: {
-    loading() {
+    $loading() {
       this.tableLoading = true;
     },
-    endloading() {
+    $endloading() {
       this.tableLoading = false;
     },
-    table() {
+    $table() {
       setTimeout(() => {
         // eslint-disable-next-line no-undef
         let table = new DataTable("#example", {

@@ -154,8 +154,8 @@ export default {
         .get("/admin/api/storage.php")
         .then((response) => {
           this.storageList = response.data;
-          this.endloading();
-          this.table();
+          this.$endloading();
+          this.$table();
         })
         .catch((e) => {
           console.log(e);
@@ -166,14 +166,14 @@ export default {
     },
     //tb_file 테이블 전부 받음
     getFile(USER_ID) {
-      this.loading();
+      this.$loading();
       const fd = new FormData();
       fd.append("id", USER_ID);
       this.$axios
         .post("/admin/api/file.php", fd)
         .then((response) => {
           this.file = response.data;
-          this.endloading();
+          this.$endloading();
         })
         .catch((e) => {
           console.log(e);

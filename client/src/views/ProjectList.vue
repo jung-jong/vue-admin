@@ -142,15 +142,15 @@ export default {
         .get("/admin/api/project.php")
         .then((response) => {
           this.projectList = response.data;
-          this.endloading();
-          this.table();
+          this.$endloading();
+          this.$table();
         })
         .catch((e) => {
           console.log(e);
         });
     },
     deleteProject() {
-      this.loading();
+      this.$loading();
       const fd = this.formData(this.currentProject);
       this.$axios
         .post("/admin/api/delete.php", fd)
