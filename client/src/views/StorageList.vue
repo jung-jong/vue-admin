@@ -146,7 +146,7 @@ export default {
       fileSize: {},
     };
   },
-  mixins: [table],
+  // mixins: [table],
   computed: {},
   methods: {
     getStorageList() {
@@ -155,7 +155,7 @@ export default {
         .then((response) => {
           this.storageList = response.data;
           this.$endloading();
-          this.$table();
+          // this.$table();
         })
         .catch((e) => {
           console.log(e);

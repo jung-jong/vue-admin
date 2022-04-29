@@ -29,7 +29,7 @@
                   <th>삭제</th>
                 </tr>
               </thead>
-              <tbody class="text-center">
+              <!-- <tbody class="text-center">
                 <tr
                   v-for="(projectList, i) in projectList"
                   :key="projectList.SEQ_ID"
@@ -69,15 +69,16 @@
                     </a>
                   </td>
                 </tr>
-              </tbody>
+              </tbody> -->
             </table>
+
             <table-loading v-if="tableLoading" />
           </div>
         </div>
       </div>
 
       <!-- Modal -->
-      <div class="modal fade" id="exampleModal" tabindex="-1">
+      <!-- <div class="modal fade" id="exampleModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header">
@@ -111,7 +112,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> -->
     </main>
   </div>
 </template>
@@ -129,7 +130,7 @@ export default {
   },
   data() {
     return {
-      projectList: [],
+      // projectList: [],
       currentProject: {},
       main: "작업모니터링",
       sub: "프로젝트 현황",
@@ -137,18 +138,18 @@ export default {
   },
   mixins: [table],
   methods: {
-    getProjectList() {
-      this.projectList = this.$axios
-        .get("/admin/api/project.php")
-        .then((response) => {
-          this.projectList = response.data;
-          this.$endloading();
-          this.$table();
-        })
-        .catch((e) => {
-          console.log(e);
-        });
-    },
+    // getProjectList() {
+    //   this.projectList = this.$axios
+    //     .get("/admin/api/project.php")
+    //     .then((response) => {
+    //       this.projectList = response.data;
+    //       this.$endloading();
+    //       this.$table();
+    //     })
+    //     .catch((e) => {
+    //       console.log(e);
+    //     });
+    // },
     deleteProject() {
       this.$loading();
       const fd = this.formData(this.currentProject);
@@ -184,7 +185,8 @@ export default {
     },
   },
   mounted() {
-    this.getProjectList();
+    // this.getProjectList();
+    this.$table();
   },
 };
 </script>
