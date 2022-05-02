@@ -14,6 +14,7 @@ const table = {
       this.tableLoading = false;
     },
     $table() {
+      this.$endloading();
       // eslint-disable-next-line no-undef
       let table = new DataTable("#example", {
         processing: true,
@@ -23,9 +24,12 @@ const table = {
         //   { data: "SEQ_ID" },
         //   { data: "USER_ID" },
         //   { data: "TITLE" },
+        //   { data: "SCALE_CD" },
         //   { data: "WIDTH" },
         //   { data: "HEIGHT" },
         //   { data: "SHARE_URL" },
+        //   { data: "A_DATE" },
+        //   { data: "U_DATE" },
         // ],
         // {
         //   dataSrc: function (response) {

@@ -146,7 +146,7 @@ export default {
       fileSize: {},
     };
   },
-  // mixins: [table],
+  mixins: [table],
   computed: {},
   methods: {
     getStorageList() {
