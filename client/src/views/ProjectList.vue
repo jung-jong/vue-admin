@@ -165,6 +165,10 @@ export default {
           { data: "editor" },
           { data: "delete" },
         ],
+        columnDefs: [
+          { targets: 2, className: "dt-body-left" },
+          { targets: 6, className: "dt-body-left" },
+        ],
         language: {
           emptyTable: "데이터가 없음.",
           lengthMenu: "페이지당 _MENU_ 개씩 보기",
@@ -185,7 +189,14 @@ export default {
         var json = table.ajax.json();
         this.projectList = json.data;
         console.log(this.projectList);
+        for (let i = 0; i < this.projectList.length; i++) {
+          const projectList = this.projectList[i];
+          // console.log(projectList);
+        }
       });
+      console.log();
+      table.columns();
+      console.log();
     },
     // getProjectList() {
     //   this.projectList = this.$axios
@@ -237,7 +248,6 @@ export default {
     // this.getProjectList();
     this.table();
   },
-  updated() {},
 };
 </script>
 
