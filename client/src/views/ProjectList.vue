@@ -83,6 +83,7 @@
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title"><b>프로젝트 삭제</b></h5>
+              <div id="no" class="d-none"></div>
               <button
                 type="button"
                 class="btn-close"
@@ -200,12 +201,13 @@ export default {
         //   return this.currentProject;
         // }
       });
-      let currentProject;
       table.on("click", "td", function () {
         let data = table.row(this).data();
-        currentProject = this.currentProject = data;
         const title = document.querySelector("#title");
-        title.innerText = `"${currentProject.TITLE}" 프로젝트를 삭제 하시겠습니까?`;
+        title.innerText = `"${data.TITLE}" 프로젝트를 삭제 하시겠습니까?`;
+        const no = document.querySelector("#no");
+        no.innerText = data.SEQ_ID;
+        // console.log(data);
       });
     },
     // getProjectList() {
@@ -220,9 +222,9 @@ export default {
     //       console.log(e);
     //     });
     // },
-    deleteProject(data) {
-      const target = document.querySelector("#title");
-      console.log(target);
+    deleteProject() {
+      const no = document.querySelector("#no");
+      console.log(no.innerText);
       // this.$loading();
       // const fd = this.formData(this.currentProject);
       // this.$axios
@@ -254,8 +256,6 @@ export default {
     },
     selectProject(data) {
       this.currentProject = data;
-      const title = document.querySelector(".title");
-      console.log(title);
     },
     // deleteImg() {
     //   const delete_img = document.createElement("img");
@@ -267,6 +267,9 @@ export default {
   mounted() {
     // this.getProjectList();
     this.table();
+  },
+  updated() {
+    this.deleteProject();
   },
 };
 </script>
