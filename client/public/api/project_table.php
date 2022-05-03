@@ -35,7 +35,7 @@ while ($row = $query->fetch_assoc()) {
       "U_DATE"=>$row["U_DATE"],
       "MEMO"=>"<img class='project_img' src='http://localhost/admin/api/img/editor.png'>",
       "editor"=>"<img class='project_img' src='http://localhost/admin/api/img/editor.png'>",
-      "delete"=>"<a href='' data-bs-toggle='modal' data-bs-target='#exampleModal'>
+      "delete"=>"<a id='delete' href='' data-bs-toggle='modal' data-bs-target='#exampleModal'>
       <img class='project_img' src='http://localhost/admin/api/img/delete.png'></a>"
     ];
 }

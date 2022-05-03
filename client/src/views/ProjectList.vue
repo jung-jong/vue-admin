@@ -11,7 +11,7 @@
           <div class="card-body">
             <table-loading v-if="tableLoading" />
             <table
-              id="example"
+              id="table"
               class="table table-striped table-bordered table-hover"
               style="width: 100%"
             >
@@ -82,7 +82,7 @@
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title">프로젝트 삭제</h5>
+              <h5 class="modal-title"><b>프로젝트 삭제</b></h5>
               <button
                 type="button"
                 class="btn-close"
@@ -90,24 +90,28 @@
                 aria-label="Close"
               ></button>
             </div>
-            <div class="modal-body">
-              {{ currentProject.TITLE }} 삭제하시겠습니까?
+            <div class="modal-body text-center">
+              <h3 id="title"></h3>
+              <br />
+              <p class="text-danger">
+                <strong>영구히 삭제되며 복원 불가능 합니다!!!</strong>
+              </p>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer justify-content-center">
               <button
                 @click="deleteProject()"
                 type="button"
-                class="btn btn-danger"
+                class="btn btn-danger btn-lg me-3"
                 data-bs-dismiss="modal"
               >
                 삭제
               </button>
               <button
                 type="button"
-                class="btn btn-secondary"
+                class="btn btn-secondary btn-lg ms-3"
                 data-bs-dismiss="modal"
               >
-                닫기
+                취소
               </button>
             </div>
           </div>
@@ -141,10 +145,10 @@ export default {
     table() {
       this.$endloading();
       // eslint-disable-next-line no-undef
-      let table = new DataTable("#example", {
+      let table = new DataTable("#table", {
         processing: true,
         serverSide: true,
-        ajax: this.baseURL + "/admin/api/table2.php",
+        ajax: this.baseURL + "/admin/api/project_table.php",
         // dataSrc: function (response) {
         //   let data = response.data;
         //   this.projectList = data;
@@ -188,15 +192,21 @@ export default {
       table.on("xhr", function () {
         var json = table.ajax.json();
         this.projectList = json.data;
-        console.log(this.projectList);
-        for (let i = 0; i < this.projectList.length; i++) {
-          const projectList = this.projectList[i];
-          // console.log(projectList);
-        }
+        // console.log(this.projectList);
+        // for (let i = 0; i < this.projectList.length; i++) {
+        //   const projectList = json.data[i].TITLE;
+        //   this.currentProject = projectList;
+        //   console.log(this.currentProject);
+        //   return this.currentProject;
+        // }
       });
-      console.log();
-      table.columns();
-      console.log();
+      let currentProject;
+      table.on("click", "td", function () {
+        let data = table.row(this).data();
+        currentProject = this.currentProject = data;
+        const title = document.querySelector("#title");
+        title.innerText = `"${currentProject.TITLE}" 프로젝트를 삭제 하시겠습니까?`;
+      });
     },
     // getProjectList() {
     //   this.projectList = this.$axios
@@ -210,18 +220,20 @@ export default {
     //       console.log(e);
     //     });
     // },
-    deleteProject() {
-      this.$loading();
-      const fd = this.formData(this.currentProject);
-      this.$axios
-        .post("/admin/api/delete.php", fd)
-        .then(() => {
-          this.currentProject = {};
-          this.getProjectList();
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+    deleteProject(data) {
+      const target = document.querySelector("#title");
+      console.log(target);
+      // this.$loading();
+      // const fd = this.formData(this.currentProject);
+      // this.$axios
+      //   .post("/admin/api/delete.php", fd)
+      //   .then(() => {
+      //     this.currentProject = {};
+      //     this.getProjectList();
+      //   })
+      //   .catch((error) => {
+      //     console.log(error);
+      //   });
     },
     sacleFormat(value) {
       if (value == 0) return "px";
@@ -240,9 +252,17 @@ export default {
       }
       return fd;
     },
-    selectProject(project) {
-      this.currentProject = project;
+    selectProject(data) {
+      this.currentProject = data;
+      const title = document.querySelector(".title");
+      console.log(title);
     },
+    // deleteImg() {
+    //   const delete_img = document.createElement("img");
+    //   delete_img.src = "http://localhost/admin/api/img/delete.png";
+    //   const src = document.getElementById("#delete");
+    //   src.appendChild(delete_img);
+    // },
   },
   mounted() {
     // this.getProjectList();
@@ -258,5 +278,8 @@ td {
 .project_img {
   width: 30px;
   height: 30px;
+}
+.modal-dialog {
+  max-width: 1000px !important;
 }
 </style>
