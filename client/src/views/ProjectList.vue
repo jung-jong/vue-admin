@@ -149,6 +149,8 @@ export default {
       let table = new DataTable("#table", {
         processing: true,
         serverSide: true,
+        ordering: false,
+        serach: false,
         ajax: this.baseURL + "/admin/api/project_table.php",
         // dataSrc: function (response) {
         //   let data = response.data;
@@ -160,12 +162,32 @@ export default {
           { data: "SEQ_ID" },
           { data: "USER_ID" },
           { data: "TITLE" },
-          { data: "SCALE_CD" },
+          {
+            data: "SCALE_CD",
+            render: function (value) {
+              if (value == 0) return "px";
+              if (value == 1) return "mm";
+              if (value == 2) return "cm";
+              if (value == 3) return "in";
+            },
+          },
           { data: "WIDTH" },
           { data: "HEIGHT" },
           { data: "SHARE_URL" },
-          { data: "A_DATE" },
-          { data: "U_DATE" },
+          {
+            data: "A_DATE",
+            render: function (e) {
+              let str = e.slice(0, 10);
+              return str;
+            },
+          },
+          {
+            data: "U_DATE",
+            render: function (e) {
+              let str = e.slice(0, 10);
+              return str;
+            },
+          },
           { data: "MEMO" },
           { data: "editor" },
           { data: "delete" },
@@ -191,8 +213,7 @@ export default {
         },
       });
       table.on("xhr", function () {
-        var json = table.ajax.json();
-        this.projectList = json.data;
+        let json = table.ajax.json();
         // console.log(this.projectList);
         // for (let i = 0; i < this.projectList.length; i++) {
         //   const projectList = json.data[i].TITLE;
@@ -207,8 +228,46 @@ export default {
         title.innerText = `"${data.TITLE}" 프로젝트를 삭제 하시겠습니까?`;
         const no = document.querySelector("#no");
         no.innerText = data.SEQ_ID;
-        // console.log(data);
+        console.log(data);
+        // fetch("http://localhost/admin/api/delete.php", {
+        //   method: "post",
+        //   body: data,
+        // })
+        //   .then((response) => response.json())
+        //   .then((data) => console.log(data));
       });
+
+      const serach = document.querySelector("#table_filter input");
+      serach.addEventListener("keyup", function () {
+        let colIndex = document.querySelector("#select").selectedIndex;
+        if (colIndex === 2) {
+          table.columns([4, 5]).search(this.value).draw();
+        } else {
+          table
+            .column(colIndex + 1)
+            .search(this.value)
+            .draw();
+        }
+      });
+
+      createSelectBox();
+
+      function createSelectBox() {
+        const filter = document.querySelector("#table_filter");
+        const select = document.createElement("select");
+        let value = ["USER_ID", "TITLE", "WIDTH"];
+        let text = ["ID", "제목", "가로 / 세로"];
+        filter.prepend(select);
+        select.id = "select";
+        select.className = "form-select";
+
+        for (let i = 0; i < 3; i++) {
+          const option = document.createElement("option");
+          option.value = value[i];
+          option.text = text[i];
+          select.appendChild(option);
+        }
+      }
     },
     // getProjectList() {
     //   this.projectList = this.$axios
@@ -223,8 +282,11 @@ export default {
     //     });
     // },
     deleteProject() {
+      const delete_img = document.querySelector("delete_img");
       const no = document.querySelector("#no");
-      console.log(no.innerText);
+      // delete_img.addEventListener("click", function () {
+      //   console.log(no.innerHTML);
+      // });
       // this.$loading();
       // const fd = this.formData(this.currentProject);
       // this.$axios
@@ -268,9 +330,6 @@ export default {
     // this.getProjectList();
     this.table();
   },
-  updated() {
-    this.deleteProject();
-  },
 };
 </script>
 
@@ -284,5 +343,10 @@ td {
 }
 .modal-dialog {
   max-width: 1000px !important;
+}
+.form-select {
+  width: auto !important;
+  display: inline-block !important;
+  margin-right: 10px;
 }
 </style>
