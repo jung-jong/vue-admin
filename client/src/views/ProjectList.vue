@@ -4,12 +4,12 @@
       <div class="container-fluid px-4">
         <page-name :mainMenu="main" :subMenu="sub" />
         <div class="card mb-4">
+          <table-loading v-if="tableLoading" />
           <div class="card-header">
             <i class="fas fa-table me-1"></i>
             {{ sub }}
           </div>
           <div class="card-body">
-            <table-loading v-if="tableLoading" />
             <div class="mb-3 d-flex justify-content-end align-items-center">
               <span>검색</span>
               <label for="search" class="d-flex">
@@ -94,7 +94,8 @@
                 </tr>
               </tbody>
             </table>
-            <div @click="getCurrentPage(currentPage)">
+
+            <div @click="getCurrentPage(currentPage), $loading()">
               <v-pagination
                 v-model="currentPage"
                 :page-count="totalPages"
@@ -102,31 +103,6 @@
                 :labels="paginationAnchorTexts"
               ></v-pagination>
             </div>
-            <!-- <nav aria-label="Page navigation example">
-              <ul class="pagination justify-content-end">
-                <li class="page-item disabled">
-                  <a class="page-link">이전</a>
-                </li>
-                <li class="page-item" :class="{ active: isActive }">
-                  <a class="page-link" href="#">1</a>
-                </li>
-                <li class="page-item">
-                  <a class="page-link" href="#">2</a>
-                </li>
-                <li class="page-item">
-                  <a class="page-link" href="#">3</a>
-                </li>
-                <li class="page-item">
-                  <a class="page-link" href="#">4</a>
-                </li>
-                <li class="page-item">
-                  <a class="page-link" href="#">5</a>
-                </li>
-                <li class="page-item">
-                  <a class="page-link" href="#">다음</a>
-                </li>
-              </ul>
-            </nav> -->
           </div>
         </div>
       </div>
@@ -155,7 +131,7 @@
             </div>
             <div class="modal-footer justify-content-center">
               <button
-                @click="deleteProject(currentProject)"
+                @click="deleteProject(currentProject), $loading()"
                 type="button"
                 class="btn btn-danger btn-lg me-3"
                 data-bs-dismiss="modal"
@@ -365,21 +341,16 @@ export default {
       console.log(this.start);
     },
     deleteProject() {
-      const delete_img = document.querySelector(".delete_img");
-      const no = document.querySelector("#no");
-      console.log(no.innerHTML);
-      // delete_img.addEventListener("click", function () {});
-      // this.$loading();
-      // const fd = this.formData(this.currentProject);
-      // this.$axios
-      //   .post("/admin/api/delete.php", fd)
-      //   .then(() => {
-      //     this.currentProject = {};
-      //     this.getProjectList();
-      //   })
-      //   .catch((error) => {
-      //     console.log(error);
-      //   });
+      const fd = this.formData(this.currentProject);
+      this.$axios
+        .post("/admin/api/delete.php", fd)
+        .then(() => {
+          this.currentProject = {};
+          this.getProjectList();
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     },
     sacleFormat(value) {
       if (value == 0) return "px";
