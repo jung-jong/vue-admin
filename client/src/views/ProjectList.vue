@@ -94,7 +94,7 @@
                 </tr>
               </tbody>
             </table>
-            <div>
+            <div @click="getCurrentPage(currentPage)">
               <v-pagination
                 v-model="currentPage"
                 :page-count="totalPages"
@@ -195,7 +195,7 @@ export default {
       main: "작업모니터링",
       sub: "프로젝트 현황",
       currentPage: 1,
-      totalPages: 30,
+      totalPages: 1,
       bootstrapPaginationClasses: {
         ul: "pagination justify-content-end",
         li: "page-item",
@@ -204,12 +204,11 @@ export default {
         button: "page-link",
       },
       paginationAnchorTexts: {
-        first: "First",
+        first: "<<",
         prev: "Previous",
         next: "Next",
-        last: "Last",
+        last: ">>",
       },
-      isActive: true,
       projectList: [],
       currentProject: {},
       start: 0,
@@ -217,6 +216,7 @@ export default {
     };
   },
   mixins: [table],
+  computed: {},
   methods: {
     // table() {
     //   this.$endloading();
@@ -345,11 +345,24 @@ export default {
         .then((response) => {
           this.projectList = response.data;
           this.$endloading();
+          this.totalPage();
           // this.$table();
         })
         .catch((e) => {
           console.log(e);
         });
+    },
+    totalPage() {
+      this.$axios.get("/admin/api/total_page.php?total").then((response) => {
+        this.totalPages = response.data;
+      });
+    },
+    getCurrentPage() {
+      let i = this.currentPage;
+      i = 10 * i - 10;
+      this.start = i;
+      this.getProjectList();
+      console.log(this.start);
     },
     deleteProject() {
       const delete_img = document.querySelector(".delete_img");
