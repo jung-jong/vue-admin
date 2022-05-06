@@ -5,8 +5,8 @@ require("connect.php");
 $query = $conn->query("SELECT count(SEQ_ID) FROM tb_project");
 $totalRecords = $query->fetch_row()[0];
 
-$length = $_GET['length'];
 $start = $_GET['start'];
+$length = $_GET['length'];
  
 $sql = "SELECT SEQ_ID, USER_ID, TITLE, SCALE_CD, WIDTH, HEIGHT, SHARE_URL, 
 A_DATE, U_DATE FROM tb_project";
@@ -33,10 +33,10 @@ while ($row = $query->fetch_assoc()) {
       "SHARE_URL"=>$row["SHARE_URL"],
       "A_DATE"=>$row["A_DATE"],
       "U_DATE"=>$row["U_DATE"],
-      "MEMO"=>"<img class='project_img' src='http://localhost/admin/api/img/editor.png'>",
-      "editor"=>"<img class='project_img' src='http://localhost/admin/api/img/editor.png'>",
+      "MEMO"=>"<a href=''><img class='project_img' src='admin/api/img/memo.png'></a>",
+      "editor"=>"<img class='project_img' src='admin/api/img/editor.png'>",
       "delete"=>"<a href='' data-bs-toggle='modal' data-bs-target='#exampleModal'>
-      <img class='project_img delete_img' src='http://localhost/admin/api/img/delete.png'></a>"
+      <img class='project_img delete_img' src='admin/api/img/delete.png'></a>"
     ];
 }
 echo json_encode([

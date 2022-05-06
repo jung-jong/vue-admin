@@ -13,12 +13,18 @@
             <div class="mb-3 d-flex justify-content-end align-items-center">
               <span>검색</span>
               <label for="search" class="d-flex">
-                <select class="form-select">
+                <select v-model="selected" class="form-select">
                   <option value="1">ID</option>
                   <option value="2">제목</option>
                   <option value="3">가로 / 세로</option>
                 </select>
-                <input type="text" class="form-control" id="search" />
+                <input
+                  type="text"
+                  class="form-control"
+                  id="search"
+                  v-model="search"
+                  @keyup="searchProject(search)"
+                />
               </label>
             </div>
             <table
@@ -180,135 +186,22 @@ export default {
         button: "page-link",
       },
       paginationAnchorTexts: {
-        first: "<<",
+        first: "〈〈",
         prev: "Previous",
         next: "Next",
-        last: ">>",
+        last: "〉〉",
       },
       projectList: [],
       currentProject: {},
       start: 0,
       length: 10,
+      selected: "1",
+      search: "",
     };
   },
   mixins: [table],
   computed: {},
   methods: {
-    // table() {
-    //   this.$endloading();
-    //   // eslint-disable-next-line no-undef
-    //   let table = new DataTable("#table", {
-    //     processing: true,
-    //     serverSide: true,
-    //     ordering: false,
-    //     serach: false,
-    //     ajax: this.baseURL + "/admin/api/project_table.php",
-    //     // dataSrc: function (response) {
-    //     //   let data = response.data;
-    //     //   this.projectList = data;
-    //     //   console.log(this.projectList);
-    //     //   return data;
-    //     // },
-    //     columns: [
-    //       { data: "SEQ_ID" },
-    //       { data: "USER_ID" },
-    //       { data: "TITLE" },
-    //       {
-    //         data: "SCALE_CD",
-    //         render: function (value) {
-    //           if (value == 0) return "px";
-    //           if (value == 1) return "mm";
-    //           if (value == 2) return "cm";
-    //           if (value == 3) return "in";
-    //         },
-    //       },
-    //       { data: "WIDTH" },
-    //       { data: "HEIGHT" },
-    //       { data: "SHARE_URL" },
-    //       {
-    //         data: "A_DATE",
-    //         render: function (e) {
-    //           let str = e.slice(0, 10);
-    //           return str;
-    //         },
-    //       },
-    //       {
-    //         data: "U_DATE",
-    //         render: function (e) {
-    //           let str = e.slice(0, 10);
-    //           return str;
-    //         },
-    //       },
-    //       { data: "MEMO" },
-    //       { data: "editor" },
-    //       { data: "delete" },
-    //     ],
-    //     columnDefs: [
-    //       { targets: 2, className: "dt-body-left" },
-    //       { targets: 6, className: "dt-body-left" },
-    //     ],
-    //     language: {
-    //       emptyTable: "데이터가 없음.",
-    //       lengthMenu: "페이지당 _MENU_ 개씩 보기",
-    //       info: "현재 _START_ - _END_ / _TOTAL_건",
-    //       infoEmpty: "데이터 없음",
-    //       infoFiltered: "( _MAX_건의 데이터에서 필터링됨 )",
-    //       search: "검색",
-    //       zeroRecords: "일치하는 데이터가 없음.",
-    //       loadingRecords: "로딩중...",
-    //       processing: "잠시만 기다려 주세요...",
-    //       paginate: {
-    //         next: "다음",
-    //         previous: "이전",
-    //       },
-    //     },
-    //   });
-    //   table.on("xhr", function () {
-    //     let json = table.ajax.json();
-    //   });
-    //   table.on("click", "td", function () {
-    //     let data = table.row(this).data();
-    //     const title = document.querySelector("#title");
-    //     title.innerText = `"${data.TITLE}" 프로젝트를 삭제 하시겠습니까?`;
-    //     const no = document.querySelector("#no");
-    //     no.innerText = data.SEQ_ID;
-    //     console.log(data);
-    //   });
-
-    //   const serach = document.querySelector("#table_filter input");
-    //   serach.addEventListener("keyup", function () {
-    //     let colIndex = document.querySelector("#select").selectedIndex;
-    //     if (colIndex === 2) {
-    //       table.columns([4, 5]).search(this.value).draw();
-    //     } else {
-    //       table
-    //         .column(colIndex + 1)
-    //         .search(this.value)
-    //         .draw();
-    //     }
-    //   });
-
-    //   createSelectBox();
-
-    //   function createSelectBox() {
-    //     const filter = document.querySelector("#table_filter");
-    //     const select = document.createElement("select");
-    //     let value = ["USER_ID", "TITLE", "WIDTH"];
-    //     let text = ["ID", "제목", "가로 / 세로"];
-    //     filter.prepend(select);
-    //     select.id = "select";
-    //     select.className = "form-select";
-
-    //     for (let i = 0; i < 3; i++) {
-    //       const option = document.createElement("option");
-    //       option.value = value[i];
-    //       option.text = text[i];
-    //       select.appendChild(option);
-    //     }
-    //   }
-    //   this.deleteProject();
-    // },
-
     getProjectList() {
       this.$axios
         .get("/admin/api/project.php", {
@@ -329,7 +222,7 @@ export default {
         });
     },
     totalPage() {
-      this.$axios.get("/admin/api/total_page.php?total").then((response) => {
+      this.$axios.get("/admin/api/total_page.php").then((response) => {
         this.totalPages = response.data;
       });
     },
@@ -339,6 +232,19 @@ export default {
       this.start = i;
       this.getProjectList();
       console.log(this.start);
+    },
+    searchProject(search) {
+      console.log(search);
+      if (this.selected == "1") {
+        this.$axios
+          .get("/admin/api/project.php", {
+            params: {
+              selected: "USER_ID",
+              search: this.search,
+            },
+          })
+          .then((response) => {});
+      }
     },
     deleteProject() {
       const fd = this.formData(this.currentProject);
@@ -372,16 +278,9 @@ export default {
     selectProject(data) {
       this.currentProject = data;
     },
-    // deleteImg() {
-    //   const delete_img = document.createElement("img");
-    //   delete_img.src = "http://localhost/admin/api/img/delete.png";
-    //   const src = document.getElementById("#delete");
-    //   src.appendChild(delete_img);
-    // },
   },
   mounted() {
     this.getProjectList();
-    // this.table();
   },
 };
 </script>
