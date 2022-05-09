@@ -101,7 +101,7 @@
               </tbody>
             </table>
 
-            <div @click="getCurrentPage(currentPage), $loading()">
+            <div @click="getCurrentPage(currentPage)">
               <v-pagination
                 v-model="currentPage"
                 :page-count="totalPages"
@@ -174,8 +174,8 @@ export default {
   },
   data() {
     return {
-      main: "작업모니터링",
-      sub: "프로젝트 현황",
+      main: "작업모니터링 >",
+      sub: " 프로젝트 현황",
       currentPage: 1,
       totalPages: 1,
       bootstrapPaginationClasses: {
@@ -227,23 +227,144 @@ export default {
       });
     },
     getCurrentPage() {
+      this.$loading();
       let i = this.currentPage;
       i = 10 * i - 10;
       this.start = i;
-      this.getProjectList();
-      console.log(this.start);
+      if (this.search == "") {
+        this.getProjectList();
+      } else {
+        if (this.selected == "1") {
+          this.$loading();
+          this.$axios
+            .get("/admin/api/project.php", {
+              params: {
+                start: this.start,
+                length: this.length,
+                id: "USER_ID",
+                search: this.search,
+              },
+            })
+            .then((response) => {
+              this.projectList = response.data;
+              this.$endloading();
+            });
+        } else if (this.selected == "2") {
+          this.$loading();
+          this.$axios
+            .get("/admin/api/project.php", {
+              params: {
+                start: this.start,
+                length: this.length,
+                title: "TITLE",
+                search: this.search,
+              },
+            })
+            .then((response) => {
+              this.projectList = response.data;
+              this.$endloading();
+            });
+        } else if (this.selected == "3") {
+          this.$loading();
+          this.$axios
+            .get("/admin/api/project.php", {
+              params: {
+                start: this.start,
+                length: this.length,
+                width: "WIDTH/HEIGHT",
+                search: this.search,
+              },
+            })
+            .then((response) => {
+              this.projectList = response.data;
+              this.$endloading();
+            });
+        }
+      }
     },
     searchProject(search) {
-      console.log(search);
-      if (this.selected == "1") {
-        this.$axios
-          .get("/admin/api/project.php", {
-            params: {
-              selected: "USER_ID",
-              search: this.search,
-            },
-          })
-          .then((response) => {});
+      if (window.event.code === "Enter" && search !== "") {
+        if (this.selected == "1") {
+          this.$loading();
+          this.$axios
+            .get("/admin/api/project.php", {
+              params: {
+                start: this.start,
+                length: this.length,
+                id: "USER_ID",
+                search: search,
+              },
+            })
+            .then((response) => {
+              this.projectList = response.data;
+              this.$endloading();
+            });
+          this.$axios
+            .get("/admin/api/total_page.php", {
+              params: {
+                id: "USER_ID",
+                search: search,
+              },
+            })
+            .then((response) => {
+              this.totalPages = response.data;
+              this.$endloading();
+            });
+        } else if (this.selected == "2") {
+          this.$loading();
+          this.$axios
+            .get("/admin/api/project.php", {
+              params: {
+                start: this.start,
+                length: this.length,
+                title: "TITLE",
+                search: search,
+              },
+            })
+            .then((response) => {
+              this.projectList = response.data;
+              this.$endloading();
+            });
+          this.$axios
+            .get("/admin/api/total_page.php", {
+              params: {
+                title: "TITLE",
+                search: search,
+              },
+            })
+            .then((response) => {
+              this.totalPages = response.data;
+              this.$endloading();
+            });
+        } else if (this.selected == "3") {
+          this.$loading();
+          this.$axios
+            .get("/admin/api/project.php", {
+              params: {
+                start: this.start,
+                length: this.length,
+                width: "WIDTH/HEIGHT",
+                search: search,
+              },
+            })
+            .then((response) => {
+              this.projectList = response.data;
+              this.$endloading();
+            });
+          this.$axios
+            .get("/admin/api/total_page.php", {
+              params: {
+                width: "WIDTH/HEIGHT",
+                search: search,
+              },
+            })
+            .then((response) => {
+              this.totalPages = response.data;
+              this.$endloading();
+            });
+        }
+      } else if (window.event.code === "Enter" && search == "") {
+        this.getProjectList();
       }
     },
     deleteProject() {
@@ -288,10 +409,6 @@ export default {
 <style>
 td {
   text-align: center;
-}
-.project_img {
-  width: 30px;
-  height: 30px;
 }
 .modal-dialog {
   max-width: 1000px !important;
