@@ -3,6 +3,23 @@ include("connect.php");
 
 $sql = "SELECT * FROM TB_PROJECT";
 
+if (isset($_GET['search']) && !empty($_GET['search'])
+    && isset($_GET['id'])) {
+  $search = $_GET['search'];
+  $sql .= " WHERE USER_ID LIKE '%$search%'";
+
+} else if(isset($_GET['search']) && !empty($_GET['search'])
+&& isset($_GET['title'])){
+  $search = $_GET['search'];
+  $sql .= " WHERE TITLE LIKE '%$search%'";
+  
+} else if(isset($_GET['search']) && !empty($_GET['search'])
+&& isset($_GET['width'])){
+  $search = $_GET['search'];
+  $sql .= " WHERE WIDTH LIKE '%$search%' OR HEIGHT LIKE '%$search%'";
+  
+}
+
 if (isset($_GET['start'])) {
   $start = $_GET['start'];
   $length = $_GET['length'];
@@ -10,27 +27,9 @@ if (isset($_GET['start'])) {
 }
 
 //전체조회
-if(!isset($_GET['id'])){
-  $result = mysqli_query($conn, $sql);
-  $data = array();
-  while($row = mysqli_fetch_assoc($result)){
-    $data[] = $row;
-  }
-}
-
-if (isset($_GET['search']) && !empty($_GET['search'])
-    && isset($_GET['selected'])) {
-  $search = $_GET['search'];
-  $USER_ID = $_GET['selected'];
-  $sql .= " WHERE $USER_ID LIKE '%$search%' OR TITLE LIKE '%$search%' OR SCALE_CD LIKE '%$search%' OR 
-  WIDTH LIKE '%$search%' OR HEIGHT LIKE '%$search%'";
-}
-
-//?ID=조회
-if(isset($_GET['id'])){
-  $sql ="SELECT * FROM `TB_PROJECT` WHERE `SEQ_ID`={$_GET['id']}";
-  $result = mysqli_query($conn, $sql);
-  $row = mysqli_fetch_assoc($result);
+$result = mysqli_query($conn, $sql);
+$data = array();
+while($row = mysqli_fetch_assoc($result)){
   $data[] = $row;
 }
 

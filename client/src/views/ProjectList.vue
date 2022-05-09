@@ -101,6 +101,14 @@
               </tbody>
             </table>
 
+            <button
+              type="button"
+              class="btn btn-success position-absolute"
+              @click="excelDownload()"
+            >
+              Excel 저장
+            </button>
+
             <div @click="getCurrentPage(currentPage)">
               <v-pagination
                 v-model="currentPage"
@@ -164,6 +172,7 @@ import PageName from "@/components/PageName.vue";
 import table from "@/mixins.js";
 import TableLoading from "../components/TableLoading.vue";
 import vPagination from "vue-plain-pagination";
+import xlsx from "xlsx";
 
 export default {
   name: "ProjectList",
@@ -378,6 +387,12 @@ export default {
         .catch((error) => {
           console.log(error);
         });
+    },
+    excelDownload() {
+      const workBook = xlsx.utils.book_new();
+      const workSheet = xlsx.utils.json_to_sheet(this.projectList);
+      xlsx.utils.book_append_sheet(workBook, workSheet, "example");
+      xlsx.writeFile(workBook, "example.xlsx");
     },
     sacleFormat(value) {
       if (value == 0) return "px";
