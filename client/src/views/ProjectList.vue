@@ -63,7 +63,12 @@
                   <td>{{ dateFormat(projectList.A_DATE) }}</td>
                   <td>{{ dateFormat(projectList.U_DATE) }}</td>
                   <td>
-                    <a href="">
+                    <a
+                      href=""
+                      data-bs-toggle="modal"
+                      data-bs-target="#memoModal"
+                      @click="selectProject(projectList)"
+                    >
                       <img
                         width="30"
                         height="30"
@@ -86,7 +91,7 @@
                     <a
                       href=""
                       data-bs-toggle="modal"
-                      data-bs-target="#exampleModal"
+                      data-bs-target="#deleteModal"
                       @click="selectProject(projectList)"
                     >
                       <img
@@ -121,8 +126,49 @@
         </div>
       </div>
 
-      <!-- Modal -->
-      <div class="modal fade" id="exampleModal" tabindex="-1">
+      <!-- 메모모달 -->
+      <div class="modal fade" id="memoModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title"><b>프로젝트 메모</b></h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <div class="card">
+                <div class="card-body">
+                  {{ currentProject.MEMO }}
+                </div>
+              </div>
+              <br />
+            </div>
+            <div class="modal-footer justify-content-center">
+              <button
+                type="button"
+                class="btn btn-primary btn-lg me-3"
+                data-bs-dismiss="modal"
+              >
+                확인
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary btn-lg ms-3"
+                data-bs-dismiss="modal"
+              >
+                취소
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 삭제모달 -->
+      <div class="modal fade" id="deleteModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header">
@@ -270,8 +316,8 @@ export default {
     excelDownload() {
       const workBook = XLSX.utils.book_new();
       const workSheet = XLSX.utils.json_to_sheet(this.projectList);
-      XLSX.utils.book_append_sheet(workBook, workSheet, "example");
-      XLSX.writeFile(workBook, "example.xlsx");
+      XLSX.utils.book_append_sheet(workBook, workSheet, "project");
+      XLSX.writeFile(workBook, "project.xlsx");
     },
     sacleFormat(value) {
       if (value == 0) return "px";
