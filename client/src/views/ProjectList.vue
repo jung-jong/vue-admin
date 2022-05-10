@@ -172,7 +172,7 @@ import PageName from "@/components/PageName.vue";
 import table from "@/mixins.js";
 import TableLoading from "../components/TableLoading.vue";
 import vPagination from "vue-plain-pagination";
-import xlsx from "xlsx";
+import * as XLSX from "xlsx";
 
 export default {
   name: "ProjectList",
@@ -268,10 +268,10 @@ export default {
         });
     },
     excelDownload() {
-      const workBook = xlsx.utils.book_new();
-      const workSheet = xlsx.utils.json_to_sheet(this.projectList);
-      xlsx.utils.book_append_sheet(workBook, workSheet, "example");
-      xlsx.writeFile(workBook, "example.xlsx");
+      const workBook = XLSX.utils.book_new();
+      const workSheet = XLSX.utils.json_to_sheet(this.projectList);
+      XLSX.utils.book_append_sheet(workBook, workSheet, "example");
+      XLSX.writeFile(workBook, "example.xlsx");
     },
     sacleFormat(value) {
       if (value == 0) return "px";
