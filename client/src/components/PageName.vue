@@ -1,9 +1,9 @@
 <template>
   <div>
-    <h1 class="mt-4">{{ mainMenu }}</h1>
-    <ol class="breadcrumb mb-4">
-      <li class="breadcrumb-item active">{{ subMenu }}</li>
-    </ol>
+    <h3 class="m-3">
+      <b>{{ mainMenu }}</b>
+    </h3>
+    <h3 class="m-3 ms-0">{{ subMenu }}</h3>
   </div>
 </template>
 
@@ -13,4 +13,11 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped></style>
+<style scoped>
+h1,
+h2,
+h3 {
+  display: inline-block;
+  vertical-align: middle;
+}
+</style>

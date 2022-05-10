@@ -1,7 +1,7 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import ProjectList from "@/views/ProjectList";
-import StorageList from "@/views/StorageList";
+import memberList from "@/views/memberList";
 
 Vue.use(VueRouter);
 
@@ -11,8 +11,8 @@ const routes = [
     component: ProjectList,
   },
   {
-    path: "/storage",
-    component: StorageList,
+    path: "/member",
+    component: memberList,
   },
   { path: "*", redirect: "/" },
 ];
