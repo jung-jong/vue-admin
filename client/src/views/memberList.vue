@@ -3,86 +3,95 @@
     <main>
       <div class="container-fluid px-4">
         <page-name :mainMenu="main" :subMenu="sub" />
-        <div class="card mb-4">
-          <table-loading v-if="tableLoading" />
-          <div class="card-header">
-            <i class="fas fa-table me-1"></i>
-            {{ sub }}
-          </div>
-          <div class="card-body">
-            <div class="mb-3 d-flex justify-content-end align-items-center">
-              <span>검색</span>
-              <label for="search" class="d-flex">
-                <select v-model="selected" class="form-select">
-                  <option value="1">ID</option>
-                </select>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="search"
-                  v-model="search"
-                  @keyup="searchUser(search)"
-                />
-              </label>
-            </div>
-            <table
-              id="example"
-              class="table table-striped table-bordered table-hover"
-              style="width: 100%"
-            >
-              <thead>
-                <tr class="text-center">
-                  <th>No</th>
-                  <th>ID</th>
-                  <th>라이센스</th>
-                  <th>상태</th>
-                  <th>최종 작업 내용</th>
-                  <th>스토리지 사용률</th>
-                  <th>탐색기</th>
-                </tr>
-              </thead>
-              <tbody class="text-center">
-                <tr v-for="memberList in memberList" :key="memberList.SEQ_ID">
-                  <td>{{ memberList.SEQ_ID }}</td>
-                  <td>{{ memberList.USER_ID }}</td>
-                  <td>{{ memberList.LICENSE_TYPE }}</td>
-                  <td>{{ memberList.USER_STATUS }}</td>
-                  <td>
-                    {{ $dateFormat(memberList.LAST_WORK_DATE) }}
-                    {{ memberList.LAST_WORK_TYPE }}
-                  </td>
-                  <td>
-                    <b>{{ memberList.STORAGE_USE }}MB</b> /
-                    {{ memberList.STORAGE_QUOTA }}MB ({{
-                      sizeFormat(
-                        memberList.STORAGE_QUOTA / memberList.STORAGE_USE
-                      )
-                    }}%)
-                  </td>
-                  <td>
-                    <a
-                      href=""
-                      data-bs-toggle="modal"
-                      data-bs-target="#storage"
-                      @click="
-                        selectStorage(memberList);
-                        getFile(memberList.ID);
-                      "
-                    >
-                      <img
-                        width="30"
-                        height="30"
-                        src="@/assets/memo.png"
-                        alt="editor"
-                      />
-                    </a>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+        <table-loading v-if="tableLoading" />
+
+        <div class="mb-3 d-flex justify-content-end align-items-center">
+          <span>검색</span>
+          <label for="search" class="d-flex">
+            <select v-model="selected" class="form-select">
+              <option value="1">ID</option>
+            </select>
+            <input
+              type="text"
+              class="form-control"
+              id="search"
+              v-model="search"
+              @keyup="searchUser(search)"
+            />
+          </label>
+        </div>
+        <table
+          id="example"
+          class="table table-striped table-bordered table-hover"
+          style="width: 100%"
+        >
+          <thead>
+            <tr class="text-center">
+              <th>No</th>
+              <th>ID</th>
+              <th>라이센스</th>
+              <th>상태</th>
+              <th>최종 작업 내용</th>
+              <th>스토리지 사용률</th>
+              <th>탐색기</th>
+            </tr>
+          </thead>
+          <tbody class="text-center">
+            <tr v-for="memberList in memberList" :key="memberList.SEQ_ID">
+              <td>{{ memberList.SEQ_ID }}</td>
+              <td>{{ memberList.USER_ID }}</td>
+              <td>{{ memberList.LICENSE_TYPE }}</td>
+              <td>{{ memberList.USER_STATUS }}</td>
+              <td>
+                {{ $dateFormat(memberList.LAST_WORK_DATE) }}
+                {{ memberList.LAST_WORK_TYPE }}
+              </td>
+              <td>
+                <b>{{ memberList.STORAGE_USE }}MB</b> /
+                {{ memberList.STORAGE_QUOTA }}MB ({{
+                  sizeFormat(memberList.STORAGE_QUOTA / memberList.STORAGE_USE)
+                }}%)
+              </td>
+              <td>
+                <a
+                  href=""
+                  data-bs-toggle="modal"
+                  data-bs-target="#storage"
+                  @click="
+                    selectStorage(memberList);
+                    getFile(memberList.ID);
+                  "
+                >
+                  <img
+                    width="30"
+                    height="30"
+                    src="@/assets/memo.png"
+                    alt="editor"
+                  />
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <button
+          type="button"
+          class="btn btn-success position-absolute"
+          @click="excelDownload()"
+        >
+          Excel 저장
+        </button>
+
+        <div @click="getCurrentPage(currentPage)">
+          <v-pagination
+            v-model="currentPage"
+            :page-count="totalPages"
+            :classes="bootstrapPaginationClasses"
+            :labels="paginationAnchorTexts"
+          ></v-pagination>
         </div>
       </div>
+
       <!-- 모달 스토리지 상세 내역 -->
       <div class="modal fade" id="storage" tabindex="-1">
         <div class="modal-dialog modal-xl modal-dialog-centered">
@@ -154,14 +163,31 @@
 import PageName from "../components/PageName.vue";
 import TableLoading from "../components/TableLoading.vue";
 import table from "@/mixins.js";
+import vPagination from "vue-plain-pagination";
+import * as XLSX from "xlsx";
 
 export default {
   name: "memberList",
-  components: { PageName, TableLoading },
+  components: { PageName, TableLoading, vPagination },
   data() {
     return {
       main: "작업모니터링 >",
       sub: "회원 현황",
+      currentPage: 1,
+      totalPages: 1,
+      bootstrapPaginationClasses: {
+        ul: "pagination justify-content-end",
+        li: "page-item",
+        liActive: "active",
+        liDisable: "disabled",
+        button: "page-link",
+      },
+      paginationAnchorTexts: {
+        first: "〈〈",
+        prev: "Previous",
+        next: "Next",
+        last: "〉〉",
+      },
       memberList: [],
       currentStorage: {},
       file: [],
@@ -176,14 +202,51 @@ export default {
   methods: {
     getMemberList() {
       this.$axios
-        .get("/admin/api/member_list.php")
+        .get("/admin/api/member_list.php", {
+          params: {
+            start: this.start,
+            length: this.length,
+          },
+        })
         .then((response) => {
           this.memberList = response.data;
           this.$endloading();
+          this.totalPage();
         })
         .catch((e) => {
           console.log(e);
         });
+    },
+    totalPage() {
+      this.$axios.get("/admin/api/member_page.php").then((response) => {
+        this.totalPages = response.data;
+      });
+    },
+    getCurrentPage() {
+      this.$loading();
+      let i = this.currentPage;
+      i = 10 * i - 10;
+      this.start = i;
+      if (this.search == "") {
+        this.getMemberList();
+      } else {
+        if (this.selected == "1") {
+          this.$loading();
+          this.$axios
+            .get("/admin/api/project.php", {
+              params: {
+                start: this.start,
+                length: this.length,
+                id: "USER_ID",
+                search: this.search,
+              },
+            })
+            .then((response) => {
+              this.memberList = response.data;
+              this.$endloading();
+            });
+        }
+      }
     },
     searchUser(search) {
       if (window.event.code === "Enter" && search !== "") {
@@ -198,7 +261,7 @@ export default {
             },
           })
           .then((response) => {
-            this.projectList = response.data;
+            this.memberList = response.data;
             this.$endloading();
           });
         this.$axios

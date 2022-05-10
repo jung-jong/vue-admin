@@ -82,7 +82,7 @@
                       <img
                         width="30"
                         height="30"
-                        src="@/assets/editor.png"
+                        src="@/assets/editor.svg"
                         alt="editor"
                       />
                     </a>
@@ -265,12 +265,10 @@ export default {
             length: this.length,
           },
         })
-        // .get("/admin/api/project.php")
         .then((response) => {
           this.projectList = response.data;
           this.$endloading();
           this.totalPage();
-          // this.$table();
         })
         .catch((e) => {
           console.log(e);
