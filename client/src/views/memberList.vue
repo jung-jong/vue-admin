@@ -4,12 +4,27 @@
       <div class="container-fluid px-4">
         <page-name :mainMenu="main" :subMenu="sub" />
         <div class="card mb-4">
+          <table-loading v-if="tableLoading" />
           <div class="card-header">
             <i class="fas fa-table me-1"></i>
             {{ sub }}
           </div>
           <div class="card-body">
-            <table-loading v-if="tableLoading" />
+            <div class="mb-3 d-flex justify-content-end align-items-center">
+              <span>검색</span>
+              <label for="search" class="d-flex">
+                <select v-model="selected" class="form-select">
+                  <option value="1">ID</option>
+                </select>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="search"
+                  v-model="search"
+                  @keyup="searchUser(search)"
+                />
+              </label>
+            </div>
             <table
               id="example"
               class="table table-striped table-bordered table-hover"
@@ -19,38 +34,45 @@
                 <tr class="text-center">
                   <th>No</th>
                   <th>ID</th>
+                  <th>라이센스</th>
+                  <th>상태</th>
+                  <th>최종 작업 내용</th>
                   <th>스토리지 사용률</th>
-                  <th>파일 개수</th>
-                  <th>상세 내역</th>
+                  <th>탐색기</th>
                 </tr>
               </thead>
               <tbody class="text-center">
-                <tr
-                  v-for="(storageList, i) in storageList"
-                  :key="storageList.SEQ_ID"
-                >
-                  <td>{{ i + 1 }}</td>
-                  <td>{{ storageList.ID }}</td>
+                <tr v-for="memberList in memberList" :key="memberList.SEQ_ID">
+                  <td>{{ memberList.SEQ_ID }}</td>
+                  <td>{{ memberList.USER_ID }}</td>
+                  <td>{{ memberList.LICENSE_TYPE }}</td>
+                  <td>{{ memberList.USER_STATUS }}</td>
                   <td>
-                    <b>{{ sizeFormat(storageList.USE_STORAGE) }}</b> / 100MB ({{
-                      useSize(storageList.USE_STORAGE)
+                    {{ $dateFormat(memberList.LAST_WORK_DATE) }}
+                    {{ memberList.LAST_WORK_TYPE }}
+                  </td>
+                  <td>
+                    <b>{{ memberList.STORAGE_USE }}MB</b> /
+                    {{ memberList.STORAGE_QUOTA }}MB ({{
+                      sizeFormat(
+                        memberList.STORAGE_QUOTA / memberList.STORAGE_USE
+                      )
                     }}%)
                   </td>
-                  <td>{{ storageList.FILE_NUMS }}</td>
                   <td>
                     <a
                       href=""
                       data-bs-toggle="modal"
                       data-bs-target="#storage"
                       @click="
-                        selectStorage(storageList);
-                        getFile(storageList.ID);
+                        selectStorage(memberList);
+                        getFile(memberList.ID);
                       "
                     >
                       <img
                         width="30"
                         height="30"
-                        src="@/assets/editor.png"
+                        src="@/assets/memo.png"
                         alt="editor"
                       />
                     </a>
@@ -134,37 +156,69 @@ import TableLoading from "../components/TableLoading.vue";
 import table from "@/mixins.js";
 
 export default {
-  name: "StorageList",
+  name: "memberList",
   components: { PageName, TableLoading },
   data() {
     return {
-      main: "작업모니터링",
-      sub: "스토리지 현황",
-      storageList: [],
+      main: "작업모니터링 >",
+      sub: "회원 현황",
+      memberList: [],
       currentStorage: {},
       file: [],
       fileSize: {},
+      start: 0,
+      length: 10,
+      selected: "1",
+      search: "",
     };
   },
   mixins: [table],
-  computed: {},
   methods: {
-    getStorageList() {
-      this.storageList = this.$axios
-        .get("/admin/api/storage.php")
+    getMemberList() {
+      this.$axios
+        .get("/admin/api/member_list.php")
         .then((response) => {
-          this.storageList = response.data;
+          this.memberList = response.data;
           this.$endloading();
-          // this.$table();
         })
         .catch((e) => {
           console.log(e);
         });
     },
+    searchUser(search) {
+      if (window.event.code === "Enter" && search !== "") {
+        this.$loading();
+        this.$axios
+          .get("/admin/api/project.php", {
+            params: {
+              start: this.start,
+              length: this.length,
+              id: "USER_ID",
+              search: search,
+            },
+          })
+          .then((response) => {
+            this.projectList = response.data;
+            this.$endloading();
+          });
+        this.$axios
+          .get("/admin/api/total_page.php", {
+            params: {
+              id: "USER_ID",
+              search: search,
+            },
+          })
+          .then((response) => {
+            this.totalPages = response.data;
+            this.$endloading();
+          });
+      } else if (window.event.code === "Enter" && search == "") {
+        this.getMemberList();
+      }
+    },
     selectStorage(storage) {
       this.currentStorage = storage;
     },
-    //tb_file 테이블 전부 받음
     getFile(USER_ID) {
       this.$loading();
       const fd = new FormData();
@@ -196,7 +250,7 @@ export default {
             a.href = url;
             a.download = down_url.substring(
               down_url.lastIndexOf("/") + 1,
-              down_url.lastIndexOf("/") + 30,
+              down_url.lastIndexOf("/") + 30
             );
             document.body.appendChild(a);
             a.click();
@@ -231,10 +285,8 @@ export default {
         return response;
       });
     },
-    sizeFormat(x) {
-      var s = ["Byte", "KB", "MB", "GB", "TB", "PB"];
-      var e = Math.floor(Math.log(x) / Math.log(1024));
-      return (x / Math.pow(1024, e)).toFixed(0) + s[e];
+    sizeFormat(e) {
+      return Math.floor(e);
     },
     useSize(e) {
       let size = e / 1024 / 1024;
@@ -250,7 +302,7 @@ export default {
     },
   },
   mounted() {
-    this.getStorageList();
+    this.getMemberList();
   },
 };
 </script>

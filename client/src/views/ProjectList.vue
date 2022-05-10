@@ -60,8 +60,8 @@
                   <td>{{ projectList.WIDTH }}</td>
                   <td>{{ projectList.HEIGHT }}</td>
                   <td class="text-start">{{ projectList.SHARE_URL }}</td>
-                  <td>{{ dateFormat(projectList.A_DATE) }}</td>
-                  <td>{{ dateFormat(projectList.U_DATE) }}</td>
+                  <td>{{ $dateFormat(projectList.A_DATE) }}</td>
+                  <td>{{ $dateFormat(projectList.U_DATE) }}</td>
                   <td>
                     <a
                       href=""
@@ -445,10 +445,6 @@ export default {
       if (value == 1) return "mm";
       if (value == 2) return "cm";
       if (value == 3) return "in";
-    },
-    dateFormat(e) {
-      let str = e.slice(0, 10);
-      return str;
     },
     formData(id) {
       let fd = new FormData();
