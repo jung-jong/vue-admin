@@ -295,7 +295,6 @@ export default {
         .catch((e) => {
           console.log(e);
         });
-      return this.file;
     },
     fileDownload(id) {
       const fd = new FormData();
@@ -343,10 +342,16 @@ export default {
     fileDelete(id) {
       const fd = new FormData();
       fd.append("SEQ_ID", id);
-      this.$axios.post("/admin/api/file_delete.php", fd).then((response) => {
+      this.$axios.post("/admin/api/file_delete.php", fd).then(() => {
+        this.getFile(this.currentStorage.USER_ID);
         alert("삭제 성공");
-        return response;
       });
+    },
+    excelDownload() {
+      const workBook = XLSX.utils.book_new();
+      const workSheet = XLSX.utils.json_to_sheet(this.memberList);
+      XLSX.utils.book_append_sheet(workBook, workSheet, "user");
+      XLSX.writeFile(workBook, "user.xlsx");
     },
     sizeFormat(e) {
       return Math.floor(e);

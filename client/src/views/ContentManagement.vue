@@ -8,9 +8,9 @@
           <span>검색</span>
           <label for="search" class="d-flex">
             <select v-model="selected" class="form-select">
-              <option value="1">ID</option>
-              <option value="2">제목</option>
-              <option value="3">가로 / 세로</option>
+              <option value="1">콘텐츠 이름</option>
+              <option value="2">타입</option>
+              <option value="3">태그</option>
             </select>
             <input
               type="text"
@@ -29,16 +29,14 @@
           <thead>
             <tr class="text-center">
               <th>No</th>
-              <th>ID</th>
-              <th>제목</th>
-              <th>단위</th>
-              <th>가로</th>
-              <th>세로</th>
-              <th>공유URL</th>
+              <th>Thumb</th>
+              <th>콘텐츠 이름</th>
+              <th>타입</th>
+              <th>태그</th>
+              <th>공개</th>
               <th>생성일</th>
               <th>수정일</th>
-              <th>메모</th>
-              <th>편집</th>
+              <th>수정</th>
               <th>삭제</th>
             </tr>
           </thead>
@@ -64,16 +62,6 @@
                     width="30"
                     height="30"
                     src="@/assets/memo.png"
-                    alt="editor"
-                  />
-                </a>
-              </td>
-              <td>
-                <a href="">
-                  <img
-                    width="30"
-                    height="30"
-                    src="@/assets/editor.svg"
                     alt="editor"
                   />
                 </a>
@@ -210,7 +198,7 @@ import vPagination from "vue-plain-pagination";
 import * as XLSX from "xlsx";
 
 export default {
-  name: "ProjectList",
+  name: "ContentManagement",
   components: {
     PageName,
     TableLoading,
@@ -218,8 +206,7 @@ export default {
   },
   data() {
     return {
-      main: "작업모니터링 >",
-      sub: " 프로젝트 현황",
+      main: "콘텐츠 관리",
       currentPage: 1,
       totalPages: 1,
       bootstrapPaginationClasses: {
@@ -449,16 +436,4 @@ export default {
 };
 </script>
 
-<style>
-td {
-  text-align: center;
-}
-.modal-dialog {
-  max-width: 1000px !important;
-}
-.form-select {
-  width: auto !important;
-  display: inline-block !important;
-  margin: 0 1rem;
-}
-</style>
+<style scoped></style>
