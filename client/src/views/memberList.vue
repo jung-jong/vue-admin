@@ -59,7 +59,7 @@
                   data-bs-target="#storage"
                   @click="
                     selectStorage(memberList);
-                    getFile(memberList.ID);
+                    getFile(memberList.USER_ID);
                   "
                 >
                   <img
@@ -98,7 +98,7 @@
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title" id="exampleModalLabel">
-                스토리지 상세 내역 - {{ currentStorage.ID }}
+                스토리지 상세 내역 - {{ currentStorage.USER_ID }}
               </h5>
               <button
                 type="button"
@@ -233,7 +233,7 @@ export default {
         if (this.selected == "1") {
           this.$loading();
           this.$axios
-            .get("/admin/api/project.php", {
+            .get("/admin/api/member_list.php", {
               params: {
                 start: this.start,
                 length: this.length,
@@ -252,7 +252,7 @@ export default {
       if (window.event.code === "Enter" && search !== "") {
         this.$loading();
         this.$axios
-          .get("/admin/api/project.php", {
+          .get("/admin/api/member_list.php", {
             params: {
               start: this.start,
               length: this.length,

@@ -3,126 +3,115 @@
     <main>
       <div class="container-fluid px-4">
         <page-name :mainMenu="main" :subMenu="sub" />
-        <div class="card mb-4">
-          <table-loading v-if="tableLoading" />
-          <div class="card-header">
-            <i class="fas fa-table me-1"></i>
-            {{ sub }}
-          </div>
-          <div class="card-body">
-            <div class="mb-3 d-flex justify-content-end align-items-center">
-              <span>검색</span>
-              <label for="search" class="d-flex">
-                <select v-model="selected" class="form-select">
-                  <option value="1">ID</option>
-                  <option value="2">제목</option>
-                  <option value="3">가로 / 세로</option>
-                </select>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="search"
-                  v-model="search"
-                  @keyup="searchProject(search)"
-                />
-              </label>
-            </div>
-            <table
-              id="table"
-              class="table table-striped table-bordered table-hover"
-              style="width: 100%"
-            >
-              <thead>
-                <tr class="text-center">
-                  <th>No</th>
-                  <th>ID</th>
-                  <th>제목</th>
-                  <th>단위</th>
-                  <th>가로</th>
-                  <th>세로</th>
-                  <th>공유URL</th>
-                  <th>생성일</th>
-                  <th>수정일</th>
-                  <th>메모</th>
-                  <th>편집</th>
-                  <th>삭제</th>
-                </tr>
-              </thead>
-              <tbody class="text-center">
-                <tr
-                  v-for="projectList in projectList"
-                  :key="projectList.SEQ_ID"
+        <table-loading v-if="tableLoading" />
+        <div class="mb-3 d-flex justify-content-end align-items-center">
+          <span>검색</span>
+          <label for="search" class="d-flex">
+            <select v-model="selected" class="form-select">
+              <option value="1">ID</option>
+              <option value="2">제목</option>
+              <option value="3">가로 / 세로</option>
+            </select>
+            <input
+              type="text"
+              class="form-control"
+              id="search"
+              v-model="search"
+              @keyup="searchProject(search)"
+            />
+          </label>
+        </div>
+        <table
+          id="table"
+          class="table table-striped table-bordered table-hover"
+          style="width: 100%"
+        >
+          <thead>
+            <tr class="text-center">
+              <th>No</th>
+              <th>ID</th>
+              <th>제목</th>
+              <th>단위</th>
+              <th>가로</th>
+              <th>세로</th>
+              <th>공유URL</th>
+              <th>생성일</th>
+              <th>수정일</th>
+              <th>메모</th>
+              <th>편집</th>
+              <th>삭제</th>
+            </tr>
+          </thead>
+          <tbody class="text-center">
+            <tr v-for="projectList in projectList" :key="projectList.SEQ_ID">
+              <td>{{ projectList.SEQ_ID }}</td>
+              <td>{{ projectList.USER_ID }}</td>
+              <td class="text-start">{{ projectList.TITLE }}</td>
+              <td>{{ sacleFormat(projectList.SCALE_CD) }}</td>
+              <td>{{ projectList.WIDTH }}</td>
+              <td>{{ projectList.HEIGHT }}</td>
+              <td class="text-start">{{ projectList.SHARE_URL }}</td>
+              <td>{{ $dateFormat(projectList.A_DATE) }}</td>
+              <td>{{ $dateFormat(projectList.U_DATE) }}</td>
+              <td>
+                <a
+                  href=""
+                  data-bs-toggle="modal"
+                  data-bs-target="#memoModal"
+                  @click="selectProject(projectList)"
                 >
-                  <td>{{ projectList.SEQ_ID }}</td>
-                  <td>{{ projectList.USER_ID }}</td>
-                  <td class="text-start">{{ projectList.TITLE }}</td>
-                  <td>{{ sacleFormat(projectList.SCALE_CD) }}</td>
-                  <td>{{ projectList.WIDTH }}</td>
-                  <td>{{ projectList.HEIGHT }}</td>
-                  <td class="text-start">{{ projectList.SHARE_URL }}</td>
-                  <td>{{ $dateFormat(projectList.A_DATE) }}</td>
-                  <td>{{ $dateFormat(projectList.U_DATE) }}</td>
-                  <td>
-                    <a
-                      href=""
-                      data-bs-toggle="modal"
-                      data-bs-target="#memoModal"
-                      @click="selectProject(projectList)"
-                    >
-                      <img
-                        width="30"
-                        height="30"
-                        src="@/assets/memo.png"
-                        alt="editor"
-                      />
-                    </a>
-                  </td>
-                  <td>
-                    <a href="">
-                      <img
-                        width="30"
-                        height="30"
-                        src="@/assets/editor.svg"
-                        alt="editor"
-                      />
-                    </a>
-                  </td>
-                  <td>
-                    <a
-                      href=""
-                      data-bs-toggle="modal"
-                      data-bs-target="#deleteModal"
-                      @click="selectProject(projectList)"
-                    >
-                      <img
-                        width="30"
-                        height="30"
-                        src="@/assets/delete.png"
-                        alt="delete"
-                      />
-                    </a>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                  <img
+                    width="30"
+                    height="30"
+                    src="@/assets/memo.png"
+                    alt="editor"
+                  />
+                </a>
+              </td>
+              <td>
+                <a href="">
+                  <img
+                    width="30"
+                    height="30"
+                    src="@/assets/editor.svg"
+                    alt="editor"
+                  />
+                </a>
+              </td>
+              <td>
+                <a
+                  href=""
+                  data-bs-toggle="modal"
+                  data-bs-target="#deleteModal"
+                  @click="selectProject(projectList)"
+                >
+                  <img
+                    width="30"
+                    height="30"
+                    src="@/assets/delete.png"
+                    alt="delete"
+                  />
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
-            <button
-              type="button"
-              class="btn btn-success position-absolute"
-              @click="excelDownload()"
-            >
-              Excel 저장
-            </button>
+        <button
+          type="button"
+          class="btn btn-success position-absolute"
+          @click="excelDownload()"
+        >
+          Excel 저장
+        </button>
 
-            <div @click="getCurrentPage(currentPage)">
-              <v-pagination
-                v-model="currentPage"
-                :page-count="totalPages"
-                :classes="bootstrapPaginationClasses"
-                :labels="paginationAnchorTexts"
-              ></v-pagination>
-            </div>
-          </div>
+        <div @click="getCurrentPage(currentPage)">
+          <v-pagination
+            v-model="currentPage"
+            :page-count="totalPages"
+            :classes="bootstrapPaginationClasses"
+            :labels="paginationAnchorTexts"
+          ></v-pagination>
         </div>
       </div>
 
