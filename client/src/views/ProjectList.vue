@@ -450,9 +450,6 @@ export default {
 </script>
 
 <style>
-td {
-  text-align: center;
-}
 .modal-dialog {
   max-width: 1000px !important;
 }

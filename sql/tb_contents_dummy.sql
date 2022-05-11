@@ -14,26 +14,25 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
--- 테이블 admin.tb_file 구조 내보내기
-CREATE TABLE IF NOT EXISTS `tb_file` (
-  `SEQ_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '고유ID',
-  `FILE_NAME` varchar(255) NOT NULL COMMENT '파일이름(확장자 포함)',
-  `FILE_DIR` text NOT NULL COMMENT '저장된 디렉토리 경로',
-  `FILE_EXTENSION` varchar(255) NOT NULL COMMENT '파일 확장자(.제외)',
-  `FILE_TYPE` int(11) NOT NULL COMMENT '파일 타입(이미지, 동영상, 음악)',
-  `STORAGE_FILE_NAME` varchar(255) NOT NULL DEFAULT '0' COMMENT '최종 저장된 파일명',
-  `NAME` varchar(255) NOT NULL COMMENT '표시되는 이름',
-  `DEL` int(11) NOT NULL DEFAULT 0,
-  `A_ID` bigint(20) unsigned NOT NULL,
-  `U_ID` bigint(20) unsigned NOT NULL,
-  `D_ID` bigint(20) unsigned DEFAULT NULL,
-  `A_DATE` datetime NOT NULL DEFAULT current_timestamp(),
-  `U_DATE` datetime NOT NULL DEFAULT current_timestamp(),
-  `D_DATE` datetime DEFAULT NULL,
-  PRIMARY KEY (`SEQ_ID`),
-  KEY `INDEX_FILE` (`FILE_TYPE`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb3;
+-- 프로시저 admin.tb_contents_dummy 구조 내보내기
+DELIMITER //
+CREATE PROCEDURE `tb_contents_dummy`()
+BEGIN
 
+DECLARE i INT DEFAULT 1;
+	DELETE FROM tb_contents;
+
+	WHILE (i <= 1000) DO 
+	
+		INSERT INTO tb_contents (`THUMB_IMG_PATH`, `NAME`, `TYPE`, `TAGS`,  `A_ID`, `U_ID`)
+		VALUES (CONCAT('url',i), CONCAT('콘텐츠',i), '폰트', CONCAT('태크',i), '0', '0');
+		
+		SET i = i + 1;
+	
+	END WHILE;
+
+END//
+DELIMITER ;
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

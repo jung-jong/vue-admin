@@ -2,7 +2,7 @@
   <div id="layoutSidenav_content">
     <main>
       <div class="container-fluid px-4">
-        <page-name :mainMenu="main" :subMenu="sub" />
+        <page-name :mainMenu="main" />
         <table-loading v-if="tableLoading" />
         <div class="mb-3 d-flex justify-content-end align-items-center">
           <span>검색</span>
@@ -31,7 +31,44 @@
               <th>No</th>
               <th>Thumb</th>
               <th>콘텐츠 이름</th>
-              <th>타입</th>
+              <th id="type">
+                <button
+                  id="dropdownMenuClickableInside"
+                  class="btn dropdown-toggle fw-bold"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                  data-bs-auto-close="outside"
+                >
+                  타입
+                </button>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a class="dropdown-item" href="#" @click.prevent="">폰트</a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="#">텍스트</a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="#">아이콘</a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="#">도형</a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="#">차트</a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="#">표</a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="#">스타일</a>
+                  </li>
+                  <li><hr class="dropdown-divider" /></li>
+                  <button type="button" class="btn btn-primary mx-3">
+                    적용
+                  </button>
+                </ul>
+              </th>
               <th>태그</th>
               <th>공개</th>
               <th>생성일</th>
@@ -41,22 +78,23 @@
             </tr>
           </thead>
           <tbody class="text-center">
-            <tr v-for="projectList in projectList" :key="projectList.SEQ_ID">
-              <td>{{ projectList.SEQ_ID }}</td>
-              <td>{{ projectList.USER_ID }}</td>
-              <td class="text-start">{{ projectList.TITLE }}</td>
-              <td>{{ sacleFormat(projectList.SCALE_CD) }}</td>
-              <td>{{ projectList.WIDTH }}</td>
-              <td>{{ projectList.HEIGHT }}</td>
-              <td class="text-start">{{ projectList.SHARE_URL }}</td>
-              <td>{{ $dateFormat(projectList.A_DATE) }}</td>
-              <td>{{ $dateFormat(projectList.U_DATE) }}</td>
+            <tr v-for="content in content" :key="content.SEQ_ID">
+              <td>{{ content.SEQ_ID }}</td>
+              <td>{{ content.THUMB_IMG_PATH }}</td>
+              <td class="text-start">{{ content.NAME }}</td>
+              <td>{{ content.TYPE }}</td>
+              <td>{{ content.TAGS }}</td>
+              <td>
+                {{ publicFlag(content.PUBLIC_FLAG) }}
+              </td>
+              <td>{{ $dateFormat(content.A_DATE) }}</td>
+              <td>{{ $dateFormat(content.U_DATE) }}</td>
               <td>
                 <a
                   href=""
                   data-bs-toggle="modal"
                   data-bs-target="#memoModal"
-                  @click="selectProject(projectList)"
+                  @click="selectProject(content)"
                 >
                   <img
                     width="30"
@@ -71,7 +109,7 @@
                   href=""
                   data-bs-toggle="modal"
                   data-bs-target="#deleteModal"
-                  @click="selectProject(projectList)"
+                  @click="selectProject(content)"
                 >
                   <img
                     width="30"
@@ -102,48 +140,6 @@
           ></v-pagination>
         </div>
       </div>
-
-      <!-- 메모모달 -->
-      <div class="modal fade" id="memoModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title"><b>프로젝트 메모</b></h5>
-              <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
-            </div>
-            <div class="modal-body">
-              <div class="card">
-                <div class="card-body">
-                  {{ currentProject.MEMO }}
-                </div>
-              </div>
-              <br />
-            </div>
-            <div class="modal-footer justify-content-center">
-              <button
-                type="button"
-                class="btn btn-primary btn-lg me-3"
-                data-bs-dismiss="modal"
-              >
-                확인
-              </button>
-              <button
-                type="button"
-                class="btn btn-secondary btn-lg ms-3"
-                data-bs-dismiss="modal"
-              >
-                취소
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- 삭제모달 -->
       <div class="modal fade" id="deleteModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
@@ -159,7 +155,7 @@
             </div>
             <div class="modal-body text-center">
               <h3 id="title">
-                "{{ currentProject.TITLE }}" 프로젝트를 삭제 하시겠습니까?
+                "{{ currentContent.NAME }}" 콘텐츠를 삭제 하시겠습니까?
               </h3>
               <br />
               <p class="text-danger">
@@ -168,7 +164,7 @@
             </div>
             <div class="modal-footer justify-content-center">
               <button
-                @click="deleteProject(currentProject), $loading()"
+                @click="deleteProject(currentContent), $loading()"
                 type="button"
                 class="btn btn-danger btn-lg me-3"
                 data-bs-dismiss="modal"
@@ -222,8 +218,8 @@ export default {
         next: "Next",
         last: "〉〉",
       },
-      projectList: [],
-      currentProject: {},
+      content: [],
+      currentContent: {},
       start: 0,
       length: 10,
       selected: "1",
@@ -234,20 +230,24 @@ export default {
   methods: {
     getProjectList() {
       this.$axios
-        .get("/admin/api/project.php", {
+        .get("/admin/api/content.php", {
           params: {
             start: this.start,
             length: this.length,
           },
         })
         .then((response) => {
-          this.projectList = response.data;
+          this.content = response.data;
           this.$endloading();
           this.totalPage();
         })
         .catch((e) => {
           console.log(e);
         });
+    },
+    publicFlag(e) {
+      if (e == 0) return "N";
+      if (e == 1) return "Y";
     },
     totalPage() {
       this.$axios.get("/admin/api/total_page.php").then((response) => {
@@ -269,12 +269,12 @@ export default {
               params: {
                 start: this.start,
                 length: this.length,
-                id: "USER_ID",
+                name: "NAME",
                 search: this.search,
               },
             })
             .then((response) => {
-              this.projectList = response.data;
+              this.content = response.data;
               this.$endloading();
             });
         } else if (this.selected == "2") {
@@ -284,12 +284,12 @@ export default {
               params: {
                 start: this.start,
                 length: this.length,
-                title: "TITLE",
+                type: "TYPE",
                 search: this.search,
               },
             })
             .then((response) => {
-              this.projectList = response.data;
+              this.content = response.data;
               this.$endloading();
             });
         } else if (this.selected == "3") {
@@ -299,12 +299,12 @@ export default {
               params: {
                 start: this.start,
                 length: this.length,
-                width: "WIDTH/HEIGHT",
+                tag: "TAGS",
                 search: this.search,
               },
             })
             .then((response) => {
-              this.projectList = response.data;
+              this.content = response.data;
               this.$endloading();
             });
         }
@@ -324,7 +324,7 @@ export default {
               },
             })
             .then((response) => {
-              this.projectList = response.data;
+              this.content = response.data;
               this.$endloading();
             });
           this.$axios
@@ -350,7 +350,7 @@ export default {
               },
             })
             .then((response) => {
-              this.projectList = response.data;
+              this.content = response.data;
               this.$endloading();
             });
           this.$axios
@@ -376,7 +376,7 @@ export default {
               },
             })
             .then((response) => {
-              this.projectList = response.data;
+              this.content = response.data;
               this.$endloading();
             });
           this.$axios
@@ -396,11 +396,11 @@ export default {
       }
     },
     deleteProject() {
-      const fd = this.formData(this.currentProject);
+      const fd = this.formData(this.currentContent);
       this.$axios
         .post("/admin/api/delete.php", fd)
         .then(() => {
-          this.currentProject = {};
+          this.currentContent = {};
           this.getProjectList();
         })
         .catch((error) => {
@@ -409,7 +409,7 @@ export default {
     },
     excelDownload() {
       const workBook = XLSX.utils.book_new();
-      const workSheet = XLSX.utils.json_to_sheet(this.projectList);
+      const workSheet = XLSX.utils.json_to_sheet(this.content);
       XLSX.utils.book_append_sheet(workBook, workSheet, "project");
       XLSX.writeFile(workBook, "project.xlsx");
     },
@@ -427,7 +427,7 @@ export default {
       return fd;
     },
     selectProject(data) {
-      this.currentProject = data;
+      this.currentContent = data;
     },
   },
   mounted() {
@@ -436,4 +436,21 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+#type {
+  padding: 0;
+  margin: 0;
+}
+.dropdown-menu {
+  min-width: auto !important;
+}
+.dropdown-item:focus {
+  color: #fff;
+  text-decoration: none;
+  background-color: #0d6efd;
+}
+.not:checked {
+  background-color: #fff;
+  border-color: #fff;
+}
+</style>

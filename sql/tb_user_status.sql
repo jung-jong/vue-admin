@@ -14,7 +14,7 @@
 
 -- 테이블 test.tb_user_status 구조 내보내기
 CREATE TABLE IF NOT EXISTS `tb_user_status` (
-  `SEQ_ID` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '고유ID',
+  `SEQ_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '고유ID',
   `USER_ID` varchar(64) NOT NULL COMMENT '사용자 ID',
   `USER_LEVEL` int(11) NOT NULL COMMENT '1:마스터, 2:작업자',
   `LICENSE_TYPE` varchar(32) NOT NULL COMMENT '"유료", "무료"',
@@ -24,9 +24,9 @@ CREATE TABLE IF NOT EXISTS `tb_user_status` (
   `LAST_WORK_TYPE` varchar(32) DEFAULT NULL COMMENT 'JPG, PNG, PPT, PDF',
   `LAST_WORK_DATE` datetime DEFAULT NULL,
   `DEL` int(11) NOT NULL DEFAULT 0 COMMENT '0 : false, 1 : true',
-  `A_ID` bigint(20) NOT NULL,
-  `U_ID` bigint(20) NOT NULL,
-  `D_ID` bigint(20) DEFAULT NULL,
+  `A_ID` bigint(20) unsigned NOT NULL,
+  `U_ID` bigint(20) unsigned NOT NULL,
+  `D_ID` bigint(20) unsigned DEFAULT NULL,
   `A_DATE` datetime NOT NULL DEFAULT current_timestamp(),
   `U_DATE` datetime NOT NULL DEFAULT current_timestamp(),
   `D_DATE` datetime DEFAULT NULL,
