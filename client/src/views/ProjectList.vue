@@ -47,7 +47,7 @@
               <td>{{ projectList.SEQ_ID }}</td>
               <td>{{ projectList.USER_ID }}</td>
               <td class="text-start">{{ projectList.TITLE }}</td>
-              <td>{{ sacleFormat(projectList.SCALE_CD) }}</td>
+              <td>{{ scaleFormat(projectList.SCALE_CD) }}</td>
               <td>{{ projectList.WIDTH }}</td>
               <td>{{ projectList.HEIGHT }}</td>
               <td class="text-start">{{ projectList.SHARE_URL }}</td>
@@ -426,7 +426,7 @@ export default {
       XLSX.utils.book_append_sheet(workBook, workSheet, "project");
       XLSX.writeFile(workBook, "project.xlsx");
     },
-    sacleFormat(value) {
+    scaleFormat(value) {
       if (value == 0) return "px";
       if (value == 1) return "mm";
       if (value == 2) return "cm";
@@ -452,6 +452,7 @@ export default {
 <style>
 .modal-dialog {
   max-width: 1000px !important;
+  width: auto !important;
 }
 .form-select {
   width: auto !important;

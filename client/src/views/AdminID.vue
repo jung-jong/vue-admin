@@ -4,8 +4,15 @@
       <div class="container-fluid px-4">
         <page-name :mainMenu="main" :subMenu="sub" />
         <table-loading v-if="tableLoading" />
-
-        <div class="mb-3 d-flex justify-content-end align-items-center">
+        <button
+          type="button"
+          class="btn btn-primary btn-lg position-absolute"
+          data-bs-toggle="modal"
+          data-bs-target="#addID"
+        >
+          + 관리자 ID 추가
+        </button>
+        <div class="my-3 d-flex justify-content-end align-items-center">
           <span>검색</span>
           <label for="search" class="d-flex">
             <select v-model="selected" class="form-select">
@@ -38,14 +45,8 @@
             <tr v-for="admin in admin" :key="admin.SEQ_ID">
               <td>{{ admin.SEQ_ID }}</td>
               <td>{{ admin.USER_ID }}</td>
-              <td>{{ admin.USER_LEVEL }}</td>
               <td>
-                {{ $dateFormat(admin.LAST_WORK_DATE) }}
-                {{ admin.LAST_WORK_TYPE }}
-              </td>
-              <td>
-                <b>{{ admin.STORAGE_USE }}MB</b> / {{ admin.STORAGE_QUOTA }}MB
-                ({{ sizeFormat(admin.STORAGE_QUOTA / admin.STORAGE_USE) }}%)
+                {{ admin.USER_LEVEL }} ({{ userLevel(admin.USER_LEVEL) }})
               </td>
               <td>
                 <a
@@ -65,9 +66,122 @@
                   />
                 </a>
               </td>
+              <td>
+                <a
+                  href=""
+                  data-bs-toggle="modal"
+                  data-bs-target="#deleteModal"
+                  @click="selectUser(admin)"
+                >
+                  <img
+                    width="30"
+                    height="30"
+                    src="@/assets/delete.png"
+                    alt="delete"
+                  />
+                </a>
+              </td>
             </tr>
           </tbody>
         </table>
+
+        <!-- 관리자 ID 추가 -->
+        <div class="modal fade" id="addID" tabindex="-1">
+          <div class="modal-dialog modal-dialog-centered" id="addSize">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title"><b>관리자ID 추가</b></h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body text-center">
+                <form>
+                  <div class="row mb-3">
+                    <label
+                      for="inputID"
+                      class="col-sm-2 col-form-label text-start fw-bold"
+                    >
+                      ID
+                    </label>
+                    <div class="col-sm-10">
+                      <input type="text" class="form-control" id="inputID" />
+                    </div>
+                  </div>
+                  <div class="row mb-3">
+                    <label
+                      for="inputState"
+                      class="col-sm-2 col-form-label text-start fw-bold"
+                    >
+                      LEVEL
+                    </label>
+                    <div class="col-sm-10">
+                      <select id="inputState" class="form-select w-100 m-0">
+                        <option>1</option>
+                        <option>2</option>
+                      </select>
+                    </div>
+                  </div>
+                </form>
+              </div>
+              <div class="modal-footer justify-content-center">
+                <button
+                  type="button"
+                  class="btn btn-primary btn-lg"
+                  data-bs-dismiss="modal"
+                >
+                  추가
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 삭제모달 -->
+        <div class="modal fade" id="deleteModal" tabindex="-1">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title"><b>프로젝트 삭제</b></h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body text-center">
+                <h3 id="title">
+                  "{{ currentUser.USER_ID }}" 프로젝트를 삭제 하시겠습니까?
+                </h3>
+                <br />
+                <p class="text-danger">
+                  <strong>영구히 삭제되며 복원 불가능 합니다!!!</strong>
+                </p>
+              </div>
+              <div class="modal-footer justify-content-center">
+                <button
+                  @click="deleteProject(currentUser), $loading()"
+                  type="button"
+                  class="btn btn-danger btn-lg me-3"
+                  data-bs-dismiss="modal"
+                >
+                  삭제
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-secondary btn-lg ms-3"
+                  data-bs-dismiss="modal"
+                >
+                  취소
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <button
           type="button"
@@ -120,7 +234,7 @@ export default {
         last: "〉〉",
       },
       admin: [],
-      currentStorage: {},
+      currentUser: {},
       file: [],
       fileSize: {},
       start: 0,
@@ -131,7 +245,7 @@ export default {
   },
   mixins: [table],
   methods: {
-    getMemberList() {
+    getAdminID() {
       this.$axios
         .get("/admin/api/user.php", {
           params: {
@@ -149,7 +263,7 @@ export default {
         });
     },
     totalPage() {
-      this.$axios.get("/admin/api/member_page.php").then((response) => {
+      this.$axios.get("/admin/api/user_page.php").then((response) => {
         this.totalPages = response.data;
       });
     },
@@ -159,7 +273,7 @@ export default {
       i = 10 * i - 10;
       this.start = i;
       if (this.search == "") {
-        this.getMemberList();
+        this.getAdminID();
       } else {
         if (this.selected == "1") {
           this.$loading();
@@ -196,7 +310,7 @@ export default {
             this.$endloading();
           });
         this.$axios
-          .get("/admin/api/total_page.php", {
+          .get("/admin/api/user_page.php", {
             params: {
               id: "USER_ID",
               search: search,
@@ -207,60 +321,23 @@ export default {
             this.$endloading();
           });
       } else if (window.event.code === "Enter" && search == "") {
-        this.getMemberList();
+        this.getAdminID();
       }
     },
-    selectStorage(storage) {
-      this.currentStorage = storage;
+    selectUser(admin) {
+      this.currentUser = admin;
     },
-    getFile(USER_ID) {
-      this.$loading();
-      const fd = new FormData();
-      fd.append("id", USER_ID);
+    deleteProject() {
+      const fd = this.formData(this.currentUser);
       this.$axios
-        .post("/admin/api/file.php", fd)
-        .then((response) => {
-          this.file = response.data;
-          this.$endloading();
+        .post("/admin/api/delete.php", fd)
+        .then(() => {
+          this.currentUser = {};
+          this.getProjectList();
         })
-        .catch((e) => {
-          console.log(e);
+        .catch((error) => {
+          console.log(error);
         });
-    },
-    fileDownload(id) {
-      const fd = new FormData();
-      fd.append("SEQ_ID", id);
-      var down_url = "";
-      this.$axios.post("/admin/api/download.php", fd).then(function (response) {
-        down_url = "http://localhost/admin/" + response.data;
-
-        var xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function () {
-          if (this.readyState == 4 && this.status == 200) {
-            var a = document.createElement("a");
-            var url = URL.createObjectURL(this.response);
-            a.href = url;
-            a.download = down_url.substring(
-              down_url.lastIndexOf("/") + 1,
-              down_url.lastIndexOf("/") + 30
-            );
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-          }
-        };
-        xhr.open("POST", down_url);
-        xhr.responseType = "blob"; // !!필수!!
-        xhr.send();
-      });
-    },
-    fileDelete(id) {
-      const fd = new FormData();
-      fd.append("SEQ_ID", id);
-      this.$axios.post("/admin/api/file_delete.php", fd).then(() => {
-        this.getFile(this.currentStorage.USER_ID);
-        alert("삭제 성공");
-      });
     },
     excelDownload() {
       const workBook = XLSX.utils.book_new();
@@ -268,13 +345,9 @@ export default {
       XLSX.utils.book_append_sheet(workBook, workSheet, "user");
       XLSX.writeFile(workBook, "user.xlsx");
     },
-    sizeFormat(e) {
-      return Math.floor(e);
-    },
-    useSize(e) {
-      let size = e / 1024 / 1024;
-      size = size.toFixed(3);
-      return Math.ceil(size);
+    userLevel(value) {
+      if (value == 1) return "마스터";
+      if (value == 2) return "작업자";
     },
     formData(id) {
       let fd = new FormData();
@@ -285,9 +358,13 @@ export default {
     },
   },
   mounted() {
-    this.getMemberList();
+    this.getAdminID();
   },
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+#addSize {
+  max-width: 500px !important;
+}
+</style>
