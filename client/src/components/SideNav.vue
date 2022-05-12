@@ -29,7 +29,7 @@
                 <router-link to="/" class="nav-link">
                   프로젝트 현황
                 </router-link>
-                <router-link to="/member" class="nav-link">
+                <router-link to="/user" class="nav-link">
                   회원 현황
                 </router-link>
               </nav>
@@ -58,9 +58,10 @@
               data-bs-parent="#sidenavAccordion"
             >
               <nav class="sb-sidenav-menu-nested nav">
-                <a class="nav-link" href="">카테고리 관리</a>
-                <a class="nav-link" href="">작업크기 관리</a>
-                <a class="nav-link" href="">관리자 ID 설정</a>
+                <router-link class="nav-link" to="/">작업크기 관리</router-link>
+                <router-link class="nav-link" to="/admin-id"
+                  >관리자 ID 설정</router-link
+                >
               </nav>
             </div>
             <!-- <div class="sb-sidenav-menu-heading">Addons</div> -->

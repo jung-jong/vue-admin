@@ -10,6 +10,11 @@
           <label for="search" class="d-flex">
             <select v-model="selected" class="form-select">
               <option value="1">ID</option>
+              <option value="2">라이선스</option>
+              <option value="3">상태</option>
+              <option value="4">최종 수정</option>
+              <option value="5">최종 다운로드</option>
+              <option value="6">스토리지 사용률</option>
             </select>
             <input
               type="text"
@@ -29,27 +34,29 @@
             <tr class="text-center">
               <th>No</th>
               <th>ID</th>
-              <th>라이센스</th>
+              <th>라이선스</th>
               <th>상태</th>
-              <th>최종 작업 내용</th>
+              <th>최종 수정</th>
+              <th>최종 다운로드</th>
               <th>스토리지 사용률</th>
               <th>탐색기</th>
             </tr>
           </thead>
           <tbody class="text-center">
-            <tr v-for="memberList in memberList" :key="memberList.SEQ_ID">
-              <td>{{ memberList.SEQ_ID }}</td>
-              <td>{{ memberList.USER_ID }}</td>
-              <td>{{ memberList.LICENSE_TYPE }}</td>
-              <td>{{ memberList.USER_STATUS }}</td>
+            <tr v-for="userList in userList" :key="userList.SEQ_ID">
+              <td>{{ userList.SEQ_ID }}</td>
+              <td>{{ userList.USER_ID }}</td>
+              <td>{{ userList.LICENSE_TYPE }}</td>
+              <td>{{ userList.USER_STATUS }}</td>
+              <td>{{ $dateFormat(userList.LAST_WORK_DATE) }}</td>
               <td>
-                {{ $dateFormat(memberList.LAST_WORK_DATE) }}
-                {{ memberList.LAST_WORK_TYPE }}
+                {{ $dateFormat(userList.LAST_EDIT_DATE) }}
+                ({{ userList.LAST_WORK_TYPE }})
               </td>
               <td>
-                <b>{{ memberList.STORAGE_USE }}MB</b> /
-                {{ memberList.STORAGE_QUOTA }}MB ({{
-                  sizeFormat(memberList.STORAGE_QUOTA / memberList.STORAGE_USE)
+                <b>{{ userList.STORAGE_USE }}MB</b> /
+                {{ userList.STORAGE_QUOTA }}MB ({{
+                  sizeFormat(userList.STORAGE_QUOTA / userList.STORAGE_USE)
                 }}%)
               </td>
               <td>
@@ -58,8 +65,8 @@
                   data-bs-toggle="modal"
                   data-bs-target="#storage"
                   @click="
-                    selectStorage(memberList);
-                    getFile(memberList.USER_ID);
+                    selectStorage(userList);
+                    getFile(userList.USER_ID);
                   "
                 >
                   <img
@@ -167,7 +174,7 @@ import vPagination from "vue-plain-pagination";
 import * as XLSX from "xlsx";
 
 export default {
-  name: "memberList",
+  name: "UserList",
   components: { PageName, TableLoading, vPagination },
   data() {
     return {
@@ -188,7 +195,7 @@ export default {
         next: "Next",
         last: "〉〉",
       },
-      memberList: [],
+      userList: [],
       currentStorage: {},
       file: [],
       fileSize: {},
@@ -202,14 +209,14 @@ export default {
   methods: {
     getMemberList() {
       this.$axios
-        .get("/admin/api/member_list.php", {
+        .get("/admin/api/user.php", {
           params: {
             start: this.start,
             length: this.length,
           },
         })
         .then((response) => {
-          this.memberList = response.data;
+          this.userList = response.data;
           this.$endloading();
           this.totalPage();
         })
@@ -218,7 +225,7 @@ export default {
         });
     },
     totalPage() {
-      this.$axios.get("/admin/api/member_page.php").then((response) => {
+      this.$axios.get("/admin/api/user_page.php").then((response) => {
         this.totalPages = response.data;
       });
     },
@@ -233,7 +240,7 @@ export default {
         if (this.selected == "1") {
           this.$loading();
           this.$axios
-            .get("/admin/api/member_list.php", {
+            .get("/admin/api/user.php", {
               params: {
                 start: this.start,
                 length: this.length,
@@ -242,7 +249,82 @@ export default {
               },
             })
             .then((response) => {
-              this.memberList = response.data;
+              this.userList = response.data;
+              this.$endloading();
+            });
+        } else if (this.selected == "2") {
+          this.$loading();
+          this.$axios
+            .get("/admin/api/user.php", {
+              params: {
+                start: this.start,
+                length: this.length,
+                lisense: "LICENSE_TYPE",
+                search: this.search,
+              },
+            })
+            .then((response) => {
+              this.userList = response.data;
+              this.$endloading();
+            });
+        } else if (this.selected == "3") {
+          this.$loading();
+          this.$axios
+            .get("/admin/api/user.php", {
+              params: {
+                start: this.start,
+                length: this.length,
+                status: "USER_STATUS",
+                search: this.search,
+              },
+            })
+            .then((response) => {
+              this.userList = response.data;
+              this.$endloading();
+            });
+        } else if (this.selected == "4") {
+          this.$loading();
+          this.$axios
+            .get("/admin/api/user.php", {
+              params: {
+                start: this.start,
+                length: this.length,
+                lastWork: "LAST_WORK_DATE",
+                search: this.search,
+              },
+            })
+            .then((response) => {
+              this.userList = response.data;
+              this.$endloading();
+            });
+        } else if (this.selected == "5") {
+          this.$loading();
+          this.$axios
+            .get("/admin/api/user.php", {
+              params: {
+                start: this.start,
+                length: this.length,
+                lastDown: "LAST_EDIT_DATE",
+                search: this.search,
+              },
+            })
+            .then((response) => {
+              this.userList = response.data;
+              this.$endloading();
+            });
+        } else if (this.selected == "6") {
+          this.$loading();
+          this.$axios
+            .get("/admin/api/user.php", {
+              params: {
+                start: this.start,
+                length: this.length,
+                storage: "STORAGE_USE",
+                search: this.search,
+              },
+            })
+            .then((response) => {
+              this.userList = response.data;
               this.$endloading();
             });
         }
@@ -250,31 +332,163 @@ export default {
     },
     searchUser(search) {
       if (window.event.code === "Enter" && search !== "") {
-        this.$loading();
-        this.$axios
-          .get("/admin/api/member_list.php", {
-            params: {
-              start: this.start,
-              length: this.length,
-              id: "USER_ID",
-              search: search,
-            },
-          })
-          .then((response) => {
-            this.memberList = response.data;
-            this.$endloading();
-          });
-        this.$axios
-          .get("/admin/api/total_page.php", {
-            params: {
-              id: "USER_ID",
-              search: search,
-            },
-          })
-          .then((response) => {
-            this.totalPages = response.data;
-            this.$endloading();
-          });
+        if (this.selected == "1") {
+          this.$loading();
+          this.$axios
+            .get("/admin/api/user.php", {
+              params: {
+                start: this.start,
+                length: this.length,
+                id: "USER_ID",
+                search: search,
+              },
+            })
+            .then((response) => {
+              this.userList = response.data;
+              this.$endloading();
+            });
+          this.$axios
+            .get("/admin/api/user_page.php", {
+              params: {
+                id: "USER_ID",
+                search: search,
+              },
+            })
+            .then((response) => {
+              this.totalPages = response.data;
+              this.$endloading();
+            });
+        } else if (this.selected == "2") {
+          this.$loading();
+          this.$axios
+            .get("/admin/api/user.php", {
+              params: {
+                start: this.start,
+                length: this.length,
+                lisense: "LICENSE_TYPE",
+                search: search,
+              },
+            })
+            .then((response) => {
+              this.userList = response.data;
+              this.$endloading();
+            });
+          this.$axios
+            .get("/admin/api/user_page.php", {
+              params: {
+                lisense: "LICENSE_TYPE",
+                search: search,
+              },
+            })
+            .then((response) => {
+              this.totalPages = response.data;
+              this.$endloading();
+            });
+        } else if (this.selected == "3") {
+          this.$loading();
+          this.$axios
+            .get("/admin/api/user.php", {
+              params: {
+                start: this.start,
+                length: this.length,
+                status: "USER_STATUS",
+                search: search,
+              },
+            })
+            .then((response) => {
+              this.userList = response.data;
+              this.$endloading();
+            });
+          this.$axios
+            .get("/admin/api/user_page.php", {
+              params: {
+                status: "USER_STATUS",
+                search: search,
+              },
+            })
+            .then((response) => {
+              this.totalPages = response.data;
+              this.$endloading();
+            });
+        } else if (this.selected == "4") {
+          this.$loading();
+          this.$axios
+            .get("/admin/api/user.php", {
+              params: {
+                start: this.start,
+                length: this.length,
+                lastWork: "LAST_WORK_DATE",
+                search: search,
+              },
+            })
+            .then((response) => {
+              this.userList = response.data;
+              this.$endloading();
+            });
+          this.$axios
+            .get("/admin/api/user_page.php", {
+              params: {
+                lastWork: "LAST_WORK_DATE",
+                search: search,
+              },
+            })
+            .then((response) => {
+              this.totalPages = response.data;
+              this.$endloading();
+            });
+        } else if (this.selected == "5") {
+          this.$loading();
+          this.$axios
+            .get("/admin/api/user.php", {
+              params: {
+                start: this.start,
+                length: this.length,
+                lastDown: "LAST_EDIT_DATE",
+                search: search,
+              },
+            })
+            .then((response) => {
+              this.userList = response.data;
+              this.$endloading();
+            });
+          this.$axios
+            .get("/admin/api/user_page.php", {
+              params: {
+                lastDown: "LAST_EDIT_DATE",
+                search: search,
+              },
+            })
+            .then((response) => {
+              this.totalPages = response.data;
+              this.$endloading();
+            });
+        } else if (this.selected == "6") {
+          this.$loading();
+          this.$axios
+            .get("/admin/api/user.php", {
+              params: {
+                start: this.start,
+                length: this.length,
+                storage: "STORAGE_USE",
+                search: search,
+              },
+            })
+            .then((response) => {
+              this.userList = response.data;
+              this.$endloading();
+            });
+          this.$axios
+            .get("/admin/api/user_page.php", {
+              params: {
+                storage: "STORAGE_USE",
+                search: search,
+              },
+            })
+            .then((response) => {
+              this.totalPages = response.data;
+              this.$endloading();
+            });
+        }
       } else if (window.event.code === "Enter" && search == "") {
         this.getMemberList();
       }
@@ -349,7 +563,7 @@ export default {
     },
     excelDownload() {
       const workBook = XLSX.utils.book_new();
-      const workSheet = XLSX.utils.json_to_sheet(this.memberList);
+      const workSheet = XLSX.utils.json_to_sheet(this.userList);
       XLSX.utils.book_append_sheet(workBook, workSheet, "user");
       XLSX.writeFile(workBook, "user.xlsx");
     },
