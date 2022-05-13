@@ -180,21 +180,6 @@ export default {
     return {
       main: "작업모니터링 >",
       sub: "회원 현황",
-      currentPage: 1,
-      totalPages: 1,
-      bootstrapPaginationClasses: {
-        ul: "pagination justify-content-end",
-        li: "page-item",
-        liActive: "active",
-        liDisable: "disabled",
-        button: "page-link",
-      },
-      paginationAnchorTexts: {
-        first: "〈〈",
-        prev: "Previous",
-        next: "Next",
-        last: "〉〉",
-      },
       userList: [],
       currentStorage: {},
       file: [],

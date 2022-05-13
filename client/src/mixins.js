@@ -2,8 +2,21 @@ const table = {
   data() {
     return {
       tableLoading: true,
-      baseURL: "http://localhost:3000",
-      projectList: [],
+      currentPage: 1,
+      totalPages: 1,
+      bootstrapPaginationClasses: {
+        ul: "pagination justify-content-end",
+        li: "page-item",
+        liActive: "active",
+        liDisable: "disabled",
+        button: "page-link",
+      },
+      paginationAnchorTexts: {
+        first: "〈〈",
+        prev: "Previous",
+        next: "Next",
+        last: "〉〉",
+      },
     };
   },
   methods: {

@@ -218,21 +218,6 @@ export default {
     return {
       main: "시스템 설정 >",
       sub: "관리자 ID 설정",
-      currentPage: 1,
-      totalPages: 1,
-      bootstrapPaginationClasses: {
-        ul: "pagination justify-content-end",
-        li: "page-item",
-        liActive: "active",
-        liDisable: "disabled",
-        button: "page-link",
-      },
-      paginationAnchorTexts: {
-        first: "〈〈",
-        prev: "Previous",
-        next: "Next",
-        last: "〉〉",
-      },
       admin: [],
       currentUser: {},
       file: [],
@@ -247,7 +232,7 @@ export default {
   methods: {
     getAdminID() {
       this.$axios
-        .get("/admin/api/user.php", {
+        .get("/admin/api/adminID.php", {
           params: {
             start: this.start,
             length: this.length,
@@ -263,7 +248,7 @@ export default {
         });
     },
     totalPage() {
-      this.$axios.get("/admin/api/user_page.php").then((response) => {
+      this.$axios.get("/admin/api/adminID_page.php").then((response) => {
         this.totalPages = response.data;
       });
     },
@@ -278,7 +263,7 @@ export default {
         if (this.selected == "1") {
           this.$loading();
           this.$axios
-            .get("/admin/api/user.php", {
+            .get("/admin/api/adminID.php", {
               params: {
                 start: this.start,
                 length: this.length,
@@ -297,7 +282,7 @@ export default {
       if (window.event.code === "Enter" && search !== "") {
         this.$loading();
         this.$axios
-          .get("/admin/api/user.php", {
+          .get("/admin/api/adminID.php", {
             params: {
               start: this.start,
               length: this.length,
@@ -310,7 +295,7 @@ export default {
             this.$endloading();
           });
         this.$axios
-          .get("/admin/api/user_page.php", {
+          .get("/admin/api/adminID_page.php", {
             params: {
               id: "USER_ID",
               search: search,
@@ -342,12 +327,13 @@ export default {
     excelDownload() {
       const workBook = XLSX.utils.book_new();
       const workSheet = XLSX.utils.json_to_sheet(this.admin);
-      XLSX.utils.book_append_sheet(workBook, workSheet, "user");
-      XLSX.writeFile(workBook, "user.xlsx");
+      XLSX.utils.book_append_sheet(workBook, workSheet, "adminID");
+      XLSX.writeFile(workBook, "adminID.xlsx");
     },
     userLevel(value) {
       if (value == 1) return "마스터";
       if (value == 2) return "작업자";
+      if (value == 9) return "회원";
     },
     formData(id) {
       let fd = new FormData();
