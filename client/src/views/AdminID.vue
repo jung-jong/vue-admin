@@ -52,11 +52,8 @@
                 <a
                   href=""
                   data-bs-toggle="modal"
-                  data-bs-target="#storage"
-                  @click="
-                    selectStorage(admin);
-                    getFile(admin.USER_ID);
-                  "
+                  data-bs-target="#level"
+                  @click="selectAdminID(admin)"
                 >
                   <img
                     width="30"
@@ -71,7 +68,7 @@
                   href=""
                   data-bs-toggle="modal"
                   data-bs-target="#deleteModal"
-                  @click="selectUser(admin)"
+                  @click="selectAdminID(admin)"
                 >
                   <img
                     width="30"
@@ -87,7 +84,7 @@
 
         <!-- 관리자 ID 추가 -->
         <div class="modal fade" id="addID" tabindex="-1">
-          <div class="modal-dialog modal-dialog-centered" id="addSize">
+          <div class="modal-dialog modal-dialog-centered" id="addModal">
             <div class="modal-content">
               <div class="modal-header">
                 <h5 class="modal-title"><b>관리자ID 추가</b></h5>
@@ -108,7 +105,12 @@
                       ID
                     </label>
                     <div class="col-sm-10">
-                      <input type="text" class="form-control" id="inputID" />
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="inputID"
+                        v-model="id"
+                      />
                     </div>
                   </div>
                   <div class="row mb-3">
@@ -119,9 +121,13 @@
                       LEVEL
                     </label>
                     <div class="col-sm-10">
-                      <select id="inputState" class="form-select w-100 m-0">
-                        <option>1</option>
-                        <option>2</option>
+                      <select
+                        id="inputState"
+                        class="form-select w-100 m-0"
+                        v-model="selected"
+                      >
+                        <option value="1">1</option>
+                        <option value="2">2</option>
                       </select>
                     </div>
                   </div>
@@ -132,8 +138,75 @@
                   type="button"
                   class="btn btn-primary btn-lg"
                   data-bs-dismiss="modal"
+                  @click="addAdminID()"
                 >
                   추가
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- level 변경-->
+        <div class="modal fade" id="level" tabindex="-1">
+          <div class="modal-dialog modal-dialog-centered" id="addSize">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title"><b>관리자ID 수정</b></h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body text-center">
+                <form>
+                  <div class="row mb-3">
+                    <label
+                      for="adminID"
+                      class="col-sm-2 col-form-label text-start fw-bold"
+                    >
+                      ID
+                    </label>
+                    <div class="col-sm-10">
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="adminID"
+                        :value="currentUser.USER_ID"
+                        readonly
+                      />
+                    </div>
+                  </div>
+                  <div class="row mb-3">
+                    <label
+                      for="inputState"
+                      class="col-sm-2 col-form-label text-start fw-bold"
+                    >
+                      LEVEL
+                    </label>
+                    <div class="col-sm-10">
+                      <select
+                        id="inputState"
+                        class="form-select w-100 m-0"
+                        v-model="selected"
+                      >
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                      </select>
+                    </div>
+                  </div>
+                </form>
+              </div>
+              <div class="modal-footer justify-content-center">
+                <button
+                  type="button"
+                  class="btn btn-primary btn-lg"
+                  data-bs-dismiss="modal"
+                  @click="adminLevel(currentUser.USER_ID)"
+                >
+                  적용
                 </button>
               </div>
             </div>
@@ -145,7 +218,7 @@
           <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title"><b>프로젝트 삭제</b></h5>
+                <h5 class="modal-title"><b>관리자ID 삭제</b></h5>
                 <button
                   type="button"
                   class="btn-close"
@@ -155,16 +228,12 @@
               </div>
               <div class="modal-body text-center">
                 <h3 id="title">
-                  "{{ currentUser.USER_ID }}" 프로젝트를 삭제 하시겠습니까?
+                  "{{ currentUser.USER_ID }}" ID를 회원 Level로 변경 합니다.
                 </h3>
-                <br />
-                <p class="text-danger">
-                  <strong>영구히 삭제되며 복원 불가능 합니다!!!</strong>
-                </p>
               </div>
               <div class="modal-footer justify-content-center">
                 <button
-                  @click="deleteProject(currentUser), $loading()"
+                  @click="deleteAdminID(currentUser.USER_ID)"
                   type="button"
                   class="btn btn-danger btn-lg me-3"
                   data-bs-dismiss="modal"
@@ -226,6 +295,7 @@ export default {
       length: 10,
       selected: "1",
       search: "",
+      id: "",
     };
   },
   mixins: [table],
@@ -278,6 +348,29 @@ export default {
         }
       }
     },
+    addAdminID() {
+      this.$loading();
+      this.$axios
+        .get("/admin/api/admin_level.php", {
+          params: {
+            search: this.id,
+          },
+        })
+        .then((response) => {
+          if (response.data.length == 0) {
+            alert("존재하지 않는 ID 혹은 관리자 ID 입니다.");
+            this.$endloading();
+          } else {
+            const fd = new FormData();
+            fd.append("id", this.id);
+            fd.append("level", this.selected);
+            this.$axios.post("/admin/api/admin_level.php", fd).then(() => {
+              this.getAdminID();
+              this.$endloading();
+            });
+          }
+        });
+    },
     searchUser(search) {
       if (window.event.code === "Enter" && search !== "") {
         this.$loading();
@@ -309,20 +402,28 @@ export default {
         this.getAdminID();
       }
     },
-    selectUser(admin) {
+    selectAdminID(admin) {
       this.currentUser = admin;
     },
-    deleteProject() {
-      const fd = this.formData(this.currentUser);
-      this.$axios
-        .post("/admin/api/delete.php", fd)
-        .then(() => {
-          this.currentUser = {};
-          this.getProjectList();
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+    adminLevel(id) {
+      this.$loading();
+      const fd = new FormData();
+      fd.append("id", id);
+      fd.append("level", this.selected);
+      this.$axios.post("/admin/api/admin_level.php", fd).then(() => {
+        this.getAdminID();
+        this.$endloading();
+      });
+    },
+    deleteAdminID(id) {
+      this.$loading();
+      const fd = new FormData();
+      fd.append("id", id);
+      fd.append("level", 9);
+      this.$axios.post("/admin/api/admin_level.php", fd).then(() => {
+        this.getAdminID();
+        this.$endloading();
+      });
     },
     excelDownload() {
       const workBook = XLSX.utils.book_new();
@@ -349,8 +450,4 @@ export default {
 };
 </script>
 
-<style scoped>
-#addSize {
-  max-width: 500px !important;
-}
-</style>
+<style scoped></style>

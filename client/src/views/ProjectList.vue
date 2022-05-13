@@ -134,7 +134,6 @@
                   {{ currentProject.MEMO }}
                 </div>
               </div>
-              <br />
             </div>
             <div class="modal-footer justify-content-center">
               <button
@@ -436,8 +435,12 @@ export default {
 
 <style>
 .modal-dialog {
-  max-width: 1000px !important;
+  max-width: none !important;
+  justify-content: center;
+}
+.modal-content {
   width: auto !important;
+  min-width: 500px;
 }
 .form-select {
   width: auto !important;
