@@ -4,28 +4,30 @@
       <div class="container-fluid px-4">
         <page-name :mainMenu="main" :subMenu="sub" />
         <table-loading v-if="tableLoading" />
-        <button
-          type="button"
-          class="btn btn-primary btn-lg position-absolute"
-          data-bs-toggle="modal"
-          data-bs-target="#addID"
-        >
-          + 관리자 ID 추가
-        </button>
-        <div class="my-3 d-flex justify-content-end align-items-center">
-          <span>검색</span>
-          <label for="search" class="d-flex">
-            <select v-model="selected" class="form-select">
-              <option value="1">ID</option>
-            </select>
-            <input
-              type="text"
-              class="form-control"
-              id="search"
-              v-model="search"
-              @keyup="searchUser(search)"
-            />
-          </label>
+        <div class="my-3 d-flex align-items-center justify-content-between">
+          <button
+            type="button"
+            class="btn btn-primary btn"
+            data-bs-toggle="modal"
+            data-bs-target="#addID"
+          >
+            + 관리자 ID 추가
+          </button>
+          <div class="d-flex align-items-center">
+            <span>검색</span>
+            <label for="search" class="d-flex">
+              <select v-model="selected" class="form-select">
+                <option value="1">ID</option>
+              </select>
+              <input
+                type="text"
+                class="form-control"
+                id="search"
+                v-model="search"
+                @keyup="searchUser(search)"
+              />
+            </label>
+          </div>
         </div>
         <table
           id="example"

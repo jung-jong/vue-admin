@@ -4,26 +4,33 @@
       <div class="container-fluid px-4">
         <page-name :mainMenu="main" :subMenu="sub" />
         <table-loading v-if="tableLoading" />
-
-        <div class="mb-3 d-flex justify-content-end align-items-center">
-          <span>검색</span>
-          <label for="search" class="d-flex">
-            <select v-model="selected" class="form-select">
-              <option value="1">ID</option>
-              <option value="2">라이선스</option>
-              <option value="3">상태</option>
-              <option value="4">최종 수정</option>
-              <option value="5">최종 다운로드</option>
-              <option value="6">스토리지 사용률</option>
+        <div class="mb-3 d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center">
+            <select v-model="selected" class="form-select mx-0">
+              <option value="1">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
             </select>
-            <input
-              type="text"
-              class="form-control"
-              id="search"
-              v-model="search"
-              @keyup="searchUser(search)"
-            />
-          </label>
+            <span>검색</span>
+            <label for="search" class="d-flex">
+              <select v-model="selected" class="form-select">
+                <option value="1">ID</option>
+                <option value="2">라이선스</option>
+                <option value="3">상태</option>
+                <option value="4">최종 수정</option>
+                <option value="5">최종 다운로드</option>
+                <option value="6">스토리지 사용률</option>
+              </select>
+              <input
+                type="text"
+                class="form-control"
+                id="search"
+                v-model="search"
+                @keyup="searchUser(search)"
+              />
+            </label>
+          </div>
         </div>
         <table
           id="example"
