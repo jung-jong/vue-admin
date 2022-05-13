@@ -5,15 +5,25 @@
         <page-name :mainMenu="main" :subMenu="sub" />
         <table-loading v-if="tableLoading" />
         <div class="my-3 d-flex align-items-center justify-content-between">
+          <select
+            v-model="length"
+            @change="getAdminID(), $loading()"
+            class="form-select mx-0"
+          >
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
           <button
             type="button"
-            class="btn btn-primary btn"
+            class="btn btn-primary ms-3"
             data-bs-toggle="modal"
             data-bs-target="#addID"
           >
             + 관리자 ID 추가
           </button>
-          <div class="d-flex align-items-center">
+          <div class="d-flex align-items-center ms-auto">
             <span>검색</span>
             <label for="search" class="d-flex">
               <select v-model="selected" class="form-select">
@@ -29,60 +39,63 @@
             </label>
           </div>
         </div>
-        <table
-          id="example"
-          class="table table-striped table-bordered table-hover"
-          style="width: 100%"
-        >
-          <thead>
-            <tr class="text-center">
-              <th>No</th>
-              <th>ID</th>
-              <th>Level</th>
-              <th>수정</th>
-              <th>삭제</th>
-            </tr>
-          </thead>
-          <tbody class="text-center">
-            <tr v-for="admin in admin" :key="admin.SEQ_ID">
-              <td>{{ admin.SEQ_ID }}</td>
-              <td>{{ admin.USER_ID }}</td>
-              <td>
-                {{ admin.USER_LEVEL }} ({{ userLevel(admin.USER_LEVEL) }})
-              </td>
-              <td>
-                <a
-                  href=""
-                  data-bs-toggle="modal"
-                  data-bs-target="#level"
-                  @click="selectAdminID(admin)"
-                >
-                  <img
-                    width="30"
-                    height="30"
-                    src="@/assets/memo.png"
-                    alt="editor"
-                  />
-                </a>
-              </td>
-              <td>
-                <a
-                  href=""
-                  data-bs-toggle="modal"
-                  data-bs-target="#deleteModal"
-                  @click="selectAdminID(admin)"
-                >
-                  <img
-                    width="30"
-                    height="30"
-                    src="@/assets/delete.png"
-                    alt="delete"
-                  />
-                </a>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+
+        <div class="overflow-auto">
+          <table
+            id="example"
+            class="table table-striped table-bordered table-hover"
+            style="width: 100%"
+          >
+            <thead>
+              <tr class="text-center">
+                <th>No</th>
+                <th>ID</th>
+                <th>Level</th>
+                <th>수정</th>
+                <th>삭제</th>
+              </tr>
+            </thead>
+            <tbody class="text-center">
+              <tr v-for="admin in admin" :key="admin.SEQ_ID">
+                <td>{{ admin.SEQ_ID }}</td>
+                <td>{{ admin.USER_ID }}</td>
+                <td>
+                  {{ admin.USER_LEVEL }} ({{ userLevel(admin.USER_LEVEL) }})
+                </td>
+                <td>
+                  <a
+                    href=""
+                    data-bs-toggle="modal"
+                    data-bs-target="#level"
+                    @click="selectAdminID(admin)"
+                  >
+                    <img
+                      width="30"
+                      height="30"
+                      src="@/assets/memo.png"
+                      alt="editor"
+                    />
+                  </a>
+                </td>
+                <td>
+                  <a
+                    href=""
+                    data-bs-toggle="modal"
+                    data-bs-target="#deleteModal"
+                    @click="selectAdminID(admin)"
+                  >
+                    <img
+                      width="30"
+                      height="30"
+                      src="@/assets/delete.png"
+                      alt="delete"
+                    />
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
         <!-- 관리자 ID 추가 -->
         <div class="modal fade" id="addID" tabindex="-1">
@@ -322,6 +335,7 @@ export default {
     totalPage() {
       this.$axios.get("/admin/api/adminID_page.php").then((response) => {
         this.totalPages = response.data;
+        this.totalPages = Math.ceil(this.totalPages / this.length);
       });
     },
     getCurrentPage() {

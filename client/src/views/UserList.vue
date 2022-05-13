@@ -5,13 +5,17 @@
         <page-name :mainMenu="main" :subMenu="sub" />
         <table-loading v-if="tableLoading" />
         <div class="mb-3 d-flex justify-content-between align-items-center">
+          <select
+            v-model="length"
+            @change="getUserList(), $loading()"
+            class="form-select mx-0"
+          >
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
           <div class="d-flex align-items-center">
-            <select v-model="selected" class="form-select mx-0">
-              <option value="1">10</option>
-              <option value="25">25</option>
-              <option value="50">50</option>
-              <option value="100">100</option>
-            </select>
             <span>검색</span>
             <label for="search" class="d-flex">
               <select v-model="selected" class="form-select">
@@ -32,61 +36,64 @@
             </label>
           </div>
         </div>
-        <table
-          id="example"
-          class="table table-striped table-bordered table-hover"
-          style="width: 100%"
-        >
-          <thead>
-            <tr class="text-center">
-              <th>No</th>
-              <th>ID</th>
-              <th>라이선스</th>
-              <th>상태</th>
-              <th>최종 수정</th>
-              <th>최종 다운로드</th>
-              <th>스토리지 사용률</th>
-              <th>탐색기</th>
-            </tr>
-          </thead>
-          <tbody class="text-center">
-            <tr v-for="userList in userList" :key="userList.SEQ_ID">
-              <td>{{ userList.SEQ_ID }}</td>
-              <td>{{ userList.USER_ID }}</td>
-              <td>{{ userList.LICENSE_TYPE }}</td>
-              <td>{{ userList.USER_STATUS }}</td>
-              <td>{{ $dateFormat(userList.LAST_WORK_DATE) }}</td>
-              <td>
-                {{ $dateFormat(userList.LAST_EDIT_DATE) }}
-                ({{ userList.LAST_WORK_TYPE }})
-              </td>
-              <td>
-                <b>{{ userList.STORAGE_USE }}MB</b> /
-                {{ userList.STORAGE_QUOTA }}MB ({{
-                  sizeFormat(userList.STORAGE_QUOTA / userList.STORAGE_USE)
-                }}%)
-              </td>
-              <td>
-                <a
-                  href=""
-                  data-bs-toggle="modal"
-                  data-bs-target="#storage"
-                  @click="
-                    selectStorage(userList);
-                    getFile(userList.USER_ID);
-                  "
-                >
-                  <img
-                    width="30"
-                    height="30"
-                    src="@/assets/memo.png"
-                    alt="editor"
-                  />
-                </a>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+
+        <div class="overflow-auto">
+          <table
+            id="example"
+            class="table table-striped table-bordered table-hover"
+            style="width: 100%"
+          >
+            <thead>
+              <tr class="text-center">
+                <th>No</th>
+                <th>ID</th>
+                <th>라이선스</th>
+                <th>상태</th>
+                <th>최종 수정</th>
+                <th>최종 다운로드</th>
+                <th>스토리지 사용률</th>
+                <th>탐색기</th>
+              </tr>
+            </thead>
+            <tbody class="text-center">
+              <tr v-for="userList in userList" :key="userList.SEQ_ID">
+                <td>{{ userList.SEQ_ID }}</td>
+                <td>{{ userList.USER_ID }}</td>
+                <td>{{ userList.LICENSE_TYPE }}</td>
+                <td>{{ userList.USER_STATUS }}</td>
+                <td>{{ $dateFormat(userList.LAST_WORK_DATE) }}</td>
+                <td>
+                  {{ $dateFormat(userList.LAST_EDIT_DATE) }}
+                  ({{ userList.LAST_WORK_TYPE }})
+                </td>
+                <td>
+                  <b>{{ userList.STORAGE_USE }}MB</b> /
+                  {{ userList.STORAGE_QUOTA }}MB ({{
+                    sizeFormat(userList.STORAGE_QUOTA / userList.STORAGE_USE)
+                  }}%)
+                </td>
+                <td>
+                  <a
+                    href=""
+                    data-bs-toggle="modal"
+                    data-bs-target="#storage"
+                    @click="
+                      selectStorage(userList);
+                      getFile(userList.USER_ID);
+                    "
+                  >
+                    <img
+                      width="30"
+                      height="30"
+                      src="@/assets/memo.png"
+                      alt="editor"
+                    />
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
         <button
           type="button"
@@ -199,7 +206,7 @@ export default {
   },
   mixins: [table],
   methods: {
-    getMemberList() {
+    getUserList() {
       this.$axios
         .get("/admin/api/user.php", {
           params: {
@@ -219,6 +226,7 @@ export default {
     totalPage() {
       this.$axios.get("/admin/api/user_page.php").then((response) => {
         this.totalPages = response.data;
+        this.totalPages = Math.ceil(this.totalPages / this.length);
       });
     },
     getCurrentPage() {
@@ -227,7 +235,7 @@ export default {
       i = 10 * i - 10;
       this.start = i;
       if (this.search == "") {
-        this.getMemberList();
+        this.getUserList();
       } else {
         if (this.selected == "1") {
           this.$loading();
@@ -482,7 +490,7 @@ export default {
             });
         }
       } else if (window.event.code === "Enter" && search == "") {
-        this.getMemberList();
+        this.getUserList();
       }
     },
     selectStorage(storage) {
@@ -576,7 +584,7 @@ export default {
     },
   },
   mounted() {
-    this.getMemberList();
+    this.getUserList();
   },
 };
 </script>
