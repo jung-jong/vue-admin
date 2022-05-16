@@ -69,7 +69,9 @@
                 <td>
                   <b>{{ userList.STORAGE_USE }}MB</b> /
                   {{ userList.STORAGE_QUOTA }}MB ({{
-                    sizeFormat(userList.STORAGE_QUOTA / userList.STORAGE_USE)
+                    sizeFormat(
+                      (userList.STORAGE_QUOTA * userList.STORAGE_USE) / 100
+                    )
                   }}%)
                 </td>
                 <td>
@@ -524,8 +526,8 @@ export default {
       fd.append("SEQ_ID", id);
       var down_url = "";
       this.$axios.post("/admin/api/download.php", fd).then((response) => {
-        down_url = response.data;
-        // down_url = "http://localhost/admin/" + response.data;
+        // down_url = response.data; //배포
+        down_url = "http://localhost/admin/" + response.data;
 
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function () {

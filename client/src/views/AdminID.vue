@@ -27,7 +27,7 @@
             <span>검색</span>
             <label for="search" class="d-flex">
               <select v-model="selected" class="form-select">
-                <option value="1">ID</option>
+                <option value="1" selected>ID</option>
               </select>
               <input
                 type="text"
@@ -243,7 +243,7 @@
               </div>
               <div class="modal-body text-center">
                 <h3 id="title">
-                  "{{ currentUser.USER_ID }}" ID를 회원 Level로 변경 합니다.
+                  "{{ currentUser.USER_ID }}" ID를 사용자 Level로 변경 합니다.
                 </h3>
               </div>
               <div class="modal-footer justify-content-center">
@@ -450,7 +450,7 @@ export default {
     userLevel(value) {
       if (value == 1) return "마스터";
       if (value == 2) return "작업자";
-      if (value == 9) return "회원";
+      if (value == 9) return "사용자";
     },
     formData(id) {
       let fd = new FormData();

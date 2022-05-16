@@ -27,8 +27,10 @@ const table = {
       this.tableLoading = false;
     },
     $dateFormat(e) {
-      let str = e.slice(0, 10);
-      return str;
+      if (e !== null) {
+        let str = e.slice(0, 10);
+        return str;
+      }
     },
   },
 };

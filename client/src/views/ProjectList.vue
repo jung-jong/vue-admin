@@ -428,10 +428,10 @@ export default {
       XLSX.writeFile(workBook, "project.xlsx");
     },
     scaleFormat(value) {
-      if (value == 0) return "px";
-      if (value == 1) return "mm";
-      if (value == 2) return "cm";
-      if (value == 3) return "in";
+      if (value == 1) return "px";
+      if (value == 2) return "mm";
+      if (value == 3) return "cm";
+      if (value == 4) return "inch";
     },
     formData(id) {
       let fd = new FormData();
