@@ -2,8 +2,8 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import ProjectList from "@/views/ProjectList";
 import UserList from "@/views/UserList";
-import ContentManagement from "@/views/ContentManagement";
 import AdminID from "@/views/AdminID";
+import WorkingSize from "@/views/WorkingSize";
 
 Vue.use(VueRouter);
 
@@ -18,12 +18,12 @@ const routes = [
     component: UserList,
   },
   {
-    path: "/content",
-    component: ContentManagement,
-  },
-  {
     path: "/admin-id",
     component: AdminID,
+  },
+  {
+    path: "/woking-size",
+    component: WorkingSize,
   },
 ];
 

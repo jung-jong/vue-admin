@@ -56,7 +56,9 @@
               data-bs-parent="#sidenavAccordion"
             >
               <nav class="sb-sidenav-menu-nested nav">
-                <router-link class="nav-link" to="">작업크기 관리</router-link>
+                <router-link class="nav-link" to="/woking-size"
+                  >작업크기 관리</router-link
+                >
                 <router-link class="nav-link" to="/admin-id"
                   >관리자 ID 설정</router-link
                 >
