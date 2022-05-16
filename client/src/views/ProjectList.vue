@@ -62,8 +62,8 @@
                 <td>{{ projectList.USER_ID }}</td>
                 <td class="text-start">{{ projectList.TITLE }}</td>
                 <td>{{ scaleFormat(projectList.SCALE_CD) }}</td>
-                <td>{{ projectList.WIDTH }}</td>
-                <td>{{ projectList.HEIGHT }}</td>
+                <td>{{ projectList.PAGE_WIDTH }}</td>
+                <td>{{ projectList.PAGE_HEIGHT }}</td>
                 <td class="text-start">{{ projectList.SHARE_URL }}</td>
                 <td>{{ $dateFormat(projectList.A_DATE) }}</td>
                 <td>{{ $dateFormat(projectList.U_DATE) }}</td>

@@ -24,7 +24,7 @@ $filename = "{$data[0]["FILE_NAME"]}";
 
 // $file_dir = "../user_data/{$id}/{$filename}";
 
-$file_dir = "user_data/{$id}/{$filename}";
+$file_dir = "./user_data/{$id}/{$filename}";
 echo $file_dir;
 
 // header("Content-Type: application/octet-stream");

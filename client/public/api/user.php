@@ -2,7 +2,7 @@
 
 include("connect.php");
 
-$sql = "SELECT * FROM tb_user_status";
+$sql = "SELECT * FROM TB_USER_STATUS";
 
 if (isset($_GET['search']) && !empty($_GET['search'])
     && isset($_GET['id'])) {

@@ -34,9 +34,7 @@
                 </router-link>
               </nav>
             </div>
-            <router-link class="nav-link" to="/content"
-              >콘텐츠 관리</router-link
-            >
+            <router-link class="nav-link" to="">테마 관리</router-link>
             <a
               class="nav-link collapsed"
               href=""
@@ -58,7 +56,7 @@
               data-bs-parent="#sidenavAccordion"
             >
               <nav class="sb-sidenav-menu-nested nav">
-                <router-link class="nav-link" to="/">작업크기 관리</router-link>
+                <router-link class="nav-link" to="">작업크기 관리</router-link>
                 <router-link class="nav-link" to="/admin-id"
                   >관리자 ID 설정</router-link
                 >

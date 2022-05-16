@@ -10,6 +10,7 @@ const target = "http://localhost";
 module.exports = {
   // outputDir: path.resolve(__dirname, "../dist"),
   devServer: {
+    historyApiFallback: true,
     port: 3000,
     proxy: {
       "/api": {

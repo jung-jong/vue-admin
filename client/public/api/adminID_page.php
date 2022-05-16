@@ -3,12 +3,12 @@
 include("connect.php");
 
 if (!isset($_GET['id'])) {
-  $query = $conn->query("SELECT count(SEQ_ID) FROM tb_user_status WHERE USER_LEVEL = '1' OR USER_LEVEL = '2'");
+  $query = $conn->query("SELECT count(SEQ_ID) FROM TB_USER_STATUS WHERE USER_LEVEL = '1' OR USER_LEVEL = '2'");
 }
 
 if (isset($_GET['id'])) {
   $search = $_GET['search'];
-  $query = $conn->query("SELECT count(SEQ_ID) FROM tb_user_status WHERE USER_LEVEL = '1' OR USER_LEVEL = '2' AND USER_ID LIKE '%$search%'");
+  $query = $conn->query("SELECT count(SEQ_ID) FROM TB_USER_STATUS WHERE USER_LEVEL = '1' OR USER_LEVEL = '2' AND USER_ID LIKE '%$search%'");
 }
 
 $totalRecords = $query->fetch_row()[0];

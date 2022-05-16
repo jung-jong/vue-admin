@@ -115,7 +115,7 @@
 
       <!-- 모달 스토리지 상세 내역 -->
       <div class="modal fade" id="storage" tabindex="-1">
-        <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title" id="exampleModalLabel">
@@ -127,6 +127,13 @@
                 data-bs-dismiss="modal"
                 aria-label="Close"
               ></button>
+            </div>
+            <div class="progress" v-if="showProgress">
+              <div
+                class="progress-bar progress-bar-striped progress-bar-animated"
+                role="progressbar"
+                :style="{ width: progress + '%' }"
+              ></div>
             </div>
             <div class="modal-body">
               <table-loading v-if="tableLoading" />
@@ -202,6 +209,8 @@ export default {
       length: 10,
       selected: "1",
       search: "",
+      progress: 0,
+      showProgress: false,
     };
   },
   mixins: [table],
@@ -514,9 +523,9 @@ export default {
       const fd = new FormData();
       fd.append("SEQ_ID", id);
       var down_url = "";
-      this.$axios.post("/admin/api/download.php", fd).then(function (response) {
-        // down_url = "http://nemolabs.iptime.org:1080/admin/" + response.data;
-        down_url = "http://localhost/admin/" + response.data;
+      this.$axios.post("/admin/api/download.php", fd).then((response) => {
+        down_url = response.data;
+        // down_url = "http://localhost/admin/" + response.data;
 
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function () {
@@ -536,6 +545,18 @@ export default {
         xhr.open("POST", down_url);
         xhr.responseType = "blob"; // !!필수!!
         xhr.send();
+        xhr.onprogress = (e) => {
+          if (e.lengthComputable) {
+            // 다운로드 진행률 계산
+            var percentComplete = Math.floor((e.loaded / e.total) * 100);
+            this.progress = percentComplete;
+            if (this.progress == 100) {
+              this.showProgress = false;
+            } else if (this.progress == 0) {
+              this.showProgress = true;
+            }
+          }
+        };
       });
 
       // const response = this.$axios.post("/admin/api/download.php", fd, {
