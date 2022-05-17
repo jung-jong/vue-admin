@@ -73,10 +73,22 @@ export default {
     return {
       main: "시스템 설정 >",
       sub: "작업크기 관리",
+      sizeCategory: [],
     };
   },
   mixins: [table],
-  methods: {},
+  methods: {
+    getSizeCategory() {
+      this.$axios.get("/admin/api/size_category.php").then((response) => {
+        this.sizeCategory = response.data;
+        this.$endloading();
+        console.log(this.sizeCategory);
+      });
+    },
+  },
+  mounted() {
+    this.getSizeCategory();
+  },
 };
 </script>
 

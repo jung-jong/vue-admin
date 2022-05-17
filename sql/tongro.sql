@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `TB_FOLDER` (
   PRIMARY KEY (`SEQ_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='폴더관리';
 
--- 테이블 데이터 tongro.TB_FOLDER:~0 rows (대략적) 내보내기
+-- 테이블 데이터 tongro.TB_FOLDER:~4 rows (대략적) 내보내기
 /*!40000 ALTER TABLE `TB_FOLDER` DISABLE KEYS */;
 /*!40000 ALTER TABLE `TB_FOLDER` ENABLE KEYS */;
 
@@ -1081,11 +1081,15 @@ DECLARE i INT DEFAULT 1;
 END//
 DELIMITER ;
 
--- 테이블 tongro.TB_SIZE_CATEGORY 구조 내보내기
-CREATE TABLE IF NOT EXISTS `TB_SIZE_CATEGORY` (
+-- 테이블 tongro.TB_SIZE 구조 내보내기
+CREATE TABLE IF NOT EXISTS `TB_SIZE` (
   `SEQ_ID` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '고유ID',
-  `TEMPLATE_TYPE_NAME` varchar(32) CHARACTER SET utf8mb3 COLLATE utf8_general_ci NOT NULL COMMENT '템플릿, 사진, 일러스트, 3D, 아이콘, 논텍스트, 배경, 동영상, 모션그래픽, GIF, 사운드, 텍스트, 도형, 표, 차트, 스타일',
-  `ORDER` int NOT NULL DEFAULT '0' COMMENT '테마 리스트 방식 1: API기준, 2:자체설정',
+  `SIZE_CATEGORY_ID` bigint unsigned NOT NULL COMMENT '작업크기 카테고리 ID TB_SIZE_CATEGORY.SEQ_ID',
+  `SIZE_NAME` varchar(64) NOT NULL COMMENT '카데고리명',
+  `PAGE_WIDTH` int NOT NULL DEFAULT '0' COMMENT '작업크기 - 가로',
+  `PAGE_HEIGHT` int NOT NULL DEFAULT '0' COMMENT '작업크기 - 세로',
+  `SCALE_CD` int NOT NULL DEFAULT '1' COMMENT '작업크기 - 단위 코드 1:px, 2:mm, 3:cm, 4:inch',
+  `ORDER` int NOT NULL DEFAULT '0' COMMENT '정렬 순서',
   `DEL` int NOT NULL DEFAULT '0' COMMENT '삭제여부 0 : false, 1 : true',
   `A_ID` bigint unsigned NOT NULL COMMENT '생성자 ID',
   `U_ID` bigint unsigned NOT NULL COMMENT '수정자 ID',
@@ -1094,10 +1098,47 @@ CREATE TABLE IF NOT EXISTS `TB_SIZE_CATEGORY` (
   `U_DATE` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '수정일',
   `D_DATE` datetime DEFAULT NULL COMMENT '삭제일',
   PRIMARY KEY (`SEQ_ID`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='카테고리 관리 정보';
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3 COMMENT='카테고리 관리 정보';
 
--- 테이블 데이터 tongro.TB_SIZE_CATEGORY:~0 rows (대략적) 내보내기
+-- 테이블 데이터 tongro.TB_SIZE:~0 rows (대략적) 내보내기
+/*!40000 ALTER TABLE `TB_SIZE` DISABLE KEYS */;
+INSERT IGNORE INTO `TB_SIZE` (`SEQ_ID`, `SIZE_CATEGORY_ID`, `SIZE_NAME`, `PAGE_WIDTH`, `PAGE_HEIGHT`, `SCALE_CD`, `ORDER`, `DEL`, `A_ID`, `U_ID`, `D_ID`, `A_DATE`, `U_DATE`, `D_DATE`) VALUES
+	(1, 1, '가로형', 0, 0, 1, 0, 0, 0, 0, NULL, '2022-05-17 18:57:39', '2022-05-17 18:57:39', NULL),
+	(2, 1, '세로형', 0, 0, 1, 0, 0, 0, 0, NULL, '2022-05-17 18:57:39', '2022-05-17 18:57:39', NULL),
+	(3, 2, '가로형', 0, 0, 1, 0, 0, 0, 0, NULL, '2022-05-17 19:03:12', '2022-05-17 19:03:12', NULL),
+	(4, 2, '세로형', 0, 0, 1, 0, 0, 0, 0, NULL, '2022-05-17 19:03:25', '2022-05-17 19:03:25', NULL);
+/*!40000 ALTER TABLE `TB_SIZE` ENABLE KEYS */;
+
+-- 테이블 tongro.TB_SIZE_CATEGORY 구조 내보내기
+CREATE TABLE IF NOT EXISTS `TB_SIZE_CATEGORY` (
+  `SEQ_ID` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '고유ID',
+  `TEMPLATE_TYPE_NAME` varchar(32) CHARACTER SET utf8mb3 COLLATE utf8_general_ci NOT NULL COMMENT '템플릿 타입 이름',
+  `ORDER` int NOT NULL DEFAULT '0' COMMENT '카테고리 정렬 순서',
+  `DEL` int NOT NULL DEFAULT '0' COMMENT '삭제여부 0 : false, 1 : true',
+  `A_ID` bigint unsigned NOT NULL COMMENT '생성자 ID',
+  `U_ID` bigint unsigned NOT NULL COMMENT '수정자 ID',
+  `D_ID` bigint unsigned DEFAULT NULL COMMENT '삭제자 ID',
+  `A_DATE` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일',
+  `U_DATE` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '수정일',
+  `D_DATE` datetime DEFAULT NULL COMMENT '삭제일',
+  PRIMARY KEY (`SEQ_ID`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb3 COMMENT='카테고리 관리 정보';
+
+-- 테이블 데이터 tongro.TB_SIZE_CATEGORY:~12 rows (대략적) 내보내기
 /*!40000 ALTER TABLE `TB_SIZE_CATEGORY` DISABLE KEYS */;
+INSERT IGNORE INTO `TB_SIZE_CATEGORY` (`SEQ_ID`, `TEMPLATE_TYPE_NAME`, `ORDER`, `DEL`, `A_ID`, `U_ID`, `D_ID`, `A_DATE`, `U_DATE`, `D_DATE`) VALUES
+	(1, '프레젠테이션', 0, 0, 0, 0, NULL, '2022-05-17 18:34:08', '2022-05-17 18:34:08', NULL),
+	(2, '문서서식', 1, 0, 0, 0, NULL, '2022-05-17 18:41:38', '2022-05-17 18:41:38', NULL),
+	(3, '인포그래픽', 2, 0, 0, 0, NULL, '2022-05-17 18:41:50', '2022-05-17 18:41:50', NULL),
+	(4, '유튜브', 3, 0, 0, 0, NULL, '2022-05-17 18:42:00', '2022-05-17 18:42:00', NULL),
+	(5, '상세페이지', 4, 0, 0, 0, NULL, '2022-05-17 18:42:08', '2022-05-17 18:42:08', NULL),
+	(6, '소셜 미디어 정사각형', 5, 0, 0, 0, NULL, '2022-05-17 18:42:20', '2022-05-17 18:42:20', NULL),
+	(7, '인스타 그램', 6, 0, 0, 0, NULL, '2022-05-17 18:42:36', '2022-05-17 18:42:36', NULL),
+	(8, '카드 뉴스', 7, 0, 0, 0, NULL, '2022-05-17 18:42:45', '2022-05-17 18:42:45', NULL),
+	(9, '웹 포스터', 8, 0, 0, 0, NULL, '2022-05-17 18:42:57', '2022-05-17 18:42:57', NULL),
+	(10, '이벤트 팝업', 9, 0, 0, 0, NULL, '2022-05-17 18:43:27', '2022-05-17 18:43:27', NULL),
+	(11, '로고/프로필', 10, 0, 0, 0, NULL, '2022-05-17 18:43:37', '2022-05-17 18:43:37', NULL),
+	(12, '웹베너', 11, 0, 0, 0, NULL, '2022-05-17 18:43:46', '2022-05-17 18:43:46', NULL);
 /*!40000 ALTER TABLE `TB_SIZE_CATEGORY` ENABLE KEYS */;
 
 -- 테이블 tongro.TB_UPLOAD_FILE 구조 내보내기
@@ -1118,7 +1159,7 @@ CREATE TABLE IF NOT EXISTS `TB_UPLOAD_FILE` (
   PRIMARY KEY (`SEQ_ID`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3 COMMENT='파일관리';
 
--- 테이블 데이터 tongro.TB_UPLOAD_FILE:~4 rows (대략적) 내보내기
+-- 테이블 데이터 tongro.TB_UPLOAD_FILE:~0 rows (대략적) 내보내기
 /*!40000 ALTER TABLE `TB_UPLOAD_FILE` DISABLE KEYS */;
 INSERT IGNORE INTO `TB_UPLOAD_FILE` (`SEQ_ID`, `FILE_NAME`, `FILE_DIR`, `FILE_EXTENSION`, `FILE_TYPE`, `STORAGE_FILE_NAME`, `DEL`, `A_ID`, `U_ID`, `D_ID`, `A_DATE`, `U_DATE`, `D_DATE`) VALUES
 	(1, 'image.png', 'user1', 'png', 1, 'image', 0, 0, 0, NULL, '2022-05-17 16:41:15', '2022-05-17 16:41:15', NULL),
