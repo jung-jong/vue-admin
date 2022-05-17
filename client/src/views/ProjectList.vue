@@ -112,7 +112,7 @@
           </table>
         </div>
 
-        <div class="d-flex justify-content-between align-items-start">
+        <div class="d-flex justify-content-between align-items-start my-3">
           <button
             type="button"
             class="btn btn-success"

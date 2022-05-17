@@ -267,21 +267,23 @@
           </div>
         </div>
 
-        <button
-          type="button"
-          class="btn btn-success position-absolute"
-          @click="excelDownload()"
-        >
-          Excel 저장
-        </button>
+        <div class="d-flex justify-content-between align-items-start my-3">
+          <button
+            type="button"
+            class="btn btn-success"
+            @click="excelDownload()"
+          >
+            Excel 저장
+          </button>
 
-        <div @click="getCurrentPage(currentPage)">
-          <v-pagination
-            v-model="currentPage"
-            :page-count="totalPages"
-            :classes="bootstrapPaginationClasses"
-            :labels="paginationAnchorTexts"
-          ></v-pagination>
+          <div @click="getCurrentPage(currentPage)">
+            <v-pagination
+              v-model="currentPage"
+              :page-count="totalPages"
+              :classes="bootstrapPaginationClasses"
+              :labels="paginationAnchorTexts"
+            ></v-pagination>
+          </div>
         </div>
       </div>
     </main>

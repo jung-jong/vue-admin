@@ -1,9 +1,9 @@
 <template>
   <div>
-    <h3 class="m-3">
-      <b>{{ mainMenu }}</b>
+    <h3 class="m-3 ms-0 fw-bold">
+      {{ mainMenu }}
     </h3>
-    <h3 class="m-3 ms-0">{{ subMenu }}</h3>
+    <h3 class="my-3">{{ subMenu }}</h3>
   </div>
 </template>
 
