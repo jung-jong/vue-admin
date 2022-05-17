@@ -3,7 +3,7 @@ include("connect.php");
 header("Content-Type:text/html;charset=utf-8");
 
 if (isset($_POST['id'])) {
-  $sql = "SELECT * FROM TB_FILE WHERE FILE_DIR = '{$_POST['id']}'";
+  $sql = "SELECT * FROM TB_UPLOAD_FILE WHERE FILE_DIR = '{$_POST['id']}'";
   
   $result = mysqli_query($conn, $sql);
 
@@ -18,10 +18,10 @@ foreach($data as $row)
 {
     //print_r( $row );
     //echo $row;
-    $file_dir = $data[$idx]["FILE_DIR"];
+    $id = $data[$idx]["FILE_DIR"];
     $file_name = $data[$idx]["FILE_NAME"];
-    $file_url = "../user_data/{$file_dir}/{$file_name}";
-    $file_size = filesize($file_url);
+    $file_dir = "../user/{$id}/upload/{$file_name}";
+    $file_size = filesize($file_dir);
     $file_size = format_size($file_size);
 
     $data[$idx]["FILE_SIZE"] = $file_size;

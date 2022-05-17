@@ -2,7 +2,7 @@
 
 include("connect.php");
 
-$sql = "SELECT * FROM TB_FILE WHERE SEQ_ID = '{$_POST['SEQ_ID']}'";
+$sql = "SELECT * FROM TB_UPLOAD_FILE WHERE SEQ_ID = '{$_POST['SEQ_ID']}'";
 
 $result = mysqli_query($conn, $sql);
 
@@ -14,7 +14,7 @@ while($row = mysqli_fetch_assoc($result)){
 
 $id = "{$data[0]["FILE_DIR"]}";
 $filename = "{$data[0]["FILE_NAME"]}";
-$file_dir = "../user_data/{$id}/{$filename}";
+$file_dir = "../user/{$id}/upload/{$filename}";
 
 if (isset($filename)) {
   @unlink($file_dir);
@@ -24,7 +24,7 @@ if (isset($filename)) {
 
 // echo empty($filename);
 if (empty($filename)) {
-  $sql ="DELETE FROM TB_FILE WHERE SEQ_ID = {$_POST['SEQ_ID']}";
+  $sql ="DELETE FROM TB_UPLOAD_FILE WHERE SEQ_ID = {$_POST['SEQ_ID']}";
   $result = mysqli_query($conn, $sql);
   if ($result == false) {
     error_log(mysqli_error($conn));

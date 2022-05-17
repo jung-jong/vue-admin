@@ -3,7 +3,7 @@ include("connect.php");
 
 header('Content-Type: text/html; charset=utf-8');
 
-$sql = "SELECT * FROM TB_FILE WHERE SEQ_ID = '{$_POST['SEQ_ID']}'";
+$sql = "SELECT * FROM TB_UPLOAD_FILE WHERE SEQ_ID = '{$_POST['SEQ_ID']}'";
 
 $result = mysqli_query($conn, $sql);
 
@@ -24,7 +24,7 @@ $filename = "{$data[0]["FILE_NAME"]}";
 
 // $file_dir = "../user_data/{$id}/{$filename}";
 
-$file_dir = "./user_data/{$id}/{$filename}";
+$file_dir = "./user/{$id}/upload/{$filename}";
 echo $file_dir;
 
 // header("Content-Type: application/octet-stream");
