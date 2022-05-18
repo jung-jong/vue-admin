@@ -384,7 +384,6 @@ export default {
             fd.append("level", this.selected);
             this.$axios.post("/admin/api/admin_level.php", fd).then(() => {
               this.getAdminID();
-              this.$endloading();
             });
           }
         });
@@ -430,7 +429,6 @@ export default {
       fd.append("level", this.selected);
       this.$axios.post("/admin/api/admin_level.php", fd).then(() => {
         this.getAdminID();
-        this.$endloading();
       });
     },
     deleteAdminID(id) {
@@ -440,7 +438,6 @@ export default {
       fd.append("level", 9);
       this.$axios.post("/admin/api/admin_level.php", fd).then(() => {
         this.getAdminID();
-        this.$endloading();
       });
     },
     excelDownload() {

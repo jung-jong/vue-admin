@@ -23,12 +23,23 @@
                 @click="activeTemplate(i)"
                 class="list-group-item d-flex justify-content-between align-items-center"
               >
-                {{ sizeCategory.TEMPLATE_TYPE_NAME }}
+                {{ sizeCategory.TEMPLATE_TYPE_NAME }} {{ sizeCategory.ORDER }}
                 <div class="d-flex">
-                  <span role="button" class="material-symbols-rounded">
+                  <span
+                    role="button"
+                    class="material-symbols-rounded"
+                    @click="upCurrentTemplate(i), orderTemplate()"
+                  >
                     arrow_upward
                   </span>
-                  <span role="button" class="material-symbols-rounded">
+                  <span
+                    role="button"
+                    class="material-symbols-rounded"
+                    @click="
+                      downCurrentTemplate(i);
+                      orderTemplate();
+                    "
+                  >
                     arrow_downward
                   </span>
                 </div>
@@ -124,6 +135,7 @@ export default {
       activeCategory: false,
       activeSize: false,
       selected: 1,
+      indexTemplate: null,
     };
   },
   mixins: [table],
@@ -135,6 +147,28 @@ export default {
       });
     },
     addTemplate() {},
+    upCurrentTemplate(i) {
+      console.log(this.sizeCategory[i].SEQ_ID - 1);
+      i = i - 1;
+      if (i == -1) i = 0;
+      this.indexTemplate = i;
+    },
+    downCurrentTemplate(i) {
+      i = i + 1;
+      if (this.sizeCategory.length == i) {
+        i = i - 1;
+      }
+      this.indexTemplate = i;
+    },
+    orderTemplate() {
+      this.$loading();
+      const fd = new FormData();
+      fd.append("ORDER", this.indexTemplate);
+      // fd.append("SEQ_ID", this.indexTemplate);
+      this.$axios.post("/admin/api/order.php", fd).then(() => {
+        this.getSizeCategory();
+      });
+    },
     getSize() {
       this.$axios.get("/admin/api/size.php").then((response) => {
         this.size = response.data;
