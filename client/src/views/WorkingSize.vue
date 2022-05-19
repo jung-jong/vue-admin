@@ -7,14 +7,31 @@
         <div class="row gx-5">
           <div class="col">
             <div class="d-flex flex-wrap justify-content-between my-3">
-              <button class="btn btn-primary" type="button">
+              <button
+                class="btn btn-primary"
+                type="button"
+                @click="showAddTemplate = !showAddTemplate"
+              >
                 템플릿 타입 추가
               </button>
               <button class="btn btn-danger ms-auto me-2" type="button">
                 ❌ 삭제
               </button>
-              <button class="btn btn-secondary" type="button">저장</button>
+              <button
+                class="btn btn-secondary"
+                type="button"
+                @click="addTemplate()"
+              >
+                저장
+              </button>
             </div>
+            <input
+              class="form-control mb-3"
+              type="text"
+              placeholder="템플릿 타입 이름"
+              v-if="showAddTemplate"
+              v-model="templateName"
+            />
             <div class="card">
               <div class="card-body">
                 <ul class="list-group">
@@ -112,7 +129,7 @@
                   </div>
                   <div class="col">
                     <h5>단위</h5>
-                    <select v-model="selected" class="form-select">
+                    <select v-model="selected" class="form-select m-0">
                       <option value="1">px</option>
                       <option value="2">mm</option>
                       <option value="3">cm</option>
@@ -152,6 +169,8 @@ export default {
       indexTemplate: null,
       width: null,
       height: null,
+      showAddTemplate: false,
+      templateName: "",
     };
   },
   mixins: [table],
@@ -162,7 +181,15 @@ export default {
         this.$endloading();
       });
     },
-    addTemplate() {},
+    addTemplate() {
+      this.$loading();
+      const fd = new FormData();
+      fd.append("TEMPLATE_TYPE_NAME", this.templateName);
+      fd.append("ORDER", this.sizeCategory.length);
+      this.$axios.post("/admin/api/size_category_insert.php", fd).then(() => {
+        this.getSizeCategory();
+      });
+    },
     upCurrentTemplate(i) {
       this.currentSizeCategory = this.sizeCategory[i].SEQ_ID;
       this.prevSEQ_ID = this.sizeCategory[i - 1].SEQ_ID;
@@ -184,21 +211,23 @@ export default {
       const fd = new FormData();
       fd.append("ORDER", this.indexTemplate);
       fd.append("SEQ_ID", this.currentSizeCategory);
-      this.$axios.post("/admin/api/order.php", fd).then(() => {
+      this.$axios.post("/admin/api/size_category_order.php", fd).then(() => {
         this.getSizeCategory();
       });
     },
     orderNext() {
+      this.$loading();
       const fd = new FormData();
       fd.append("ORDER", this.indexTemplate - 1);
       fd.append("NEXT", this.nextSEQ_ID);
-      this.$axios.post("/admin/api/order_prev_next.php", fd).then(() => {});
+      this.$axios.post("/admin/api/size_category_order.php", fd).then(() => {});
     },
     orderPrev() {
+      this.$loading();
       const fd = new FormData();
       fd.append("ORDER", this.indexTemplate + 1);
       fd.append("PREV", this.prevSEQ_ID);
-      this.$axios.post("/admin/api/order_prev_next.php", fd).then(() => {});
+      this.$axios.post("/admin/api/size_category_order.php", fd).then(() => {});
     },
     getSize(i) {
       this.$loading();
