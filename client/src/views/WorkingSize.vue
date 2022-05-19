@@ -28,7 +28,7 @@
                   <span
                     role="button"
                     class="material-symbols-rounded"
-                    @click="upCurrentTemplate(i), orderTemplate()"
+                    @click="upCurrentTemplate(i), orderTemplate(), orderPrev()"
                   >
                     arrow_upward
                   </span>
@@ -37,7 +37,7 @@
                     class="material-symbols-rounded"
                     @click="
                       downCurrentTemplate(i);
-                      orderTemplate();
+                      orderTemplate(), orderNext();
                     "
                   >
                     arrow_downward
@@ -131,6 +131,9 @@ export default {
       main: "시스템 설정 >",
       sub: "작업크기 관리",
       sizeCategory: [],
+      currentSizeCategory: {},
+      prevSEQ_ID: null,
+      nextSEQ_ID: null,
       size: [],
       activeCategory: false,
       activeSize: false,
@@ -148,12 +151,15 @@ export default {
     },
     addTemplate() {},
     upCurrentTemplate(i) {
-      console.log(this.sizeCategory[i].SEQ_ID - 1);
+      this.currentSizeCategory = this.sizeCategory[i].SEQ_ID;
+      this.prevSEQ_ID = this.sizeCategory[i - 1].SEQ_ID;
       i = i - 1;
       if (i == -1) i = 0;
       this.indexTemplate = i;
     },
     downCurrentTemplate(i) {
+      this.currentSizeCategory = this.sizeCategory[i].SEQ_ID;
+      this.nextSEQ_ID = this.sizeCategory[i + 1].SEQ_ID;
       i = i + 1;
       if (this.sizeCategory.length == i) {
         i = i - 1;
@@ -164,10 +170,22 @@ export default {
       this.$loading();
       const fd = new FormData();
       fd.append("ORDER", this.indexTemplate);
-      // fd.append("SEQ_ID", this.indexTemplate);
+      fd.append("SEQ_ID", this.currentSizeCategory);
       this.$axios.post("/admin/api/order.php", fd).then(() => {
         this.getSizeCategory();
       });
+    },
+    orderNext() {
+      const fd = new FormData();
+      fd.append("ORDER", this.indexTemplate - 1);
+      fd.append("NEXT", this.nextSEQ_ID);
+      this.$axios.post("/admin/api/order_prev_next.php", fd).then(() => {});
+    },
+    orderPrev() {
+      const fd = new FormData();
+      fd.append("ORDER", this.indexTemplate + 1);
+      fd.append("PREV", this.prevSEQ_ID);
+      this.$axios.post("/admin/api/order_prev_next.php", fd).then(() => {});
     },
     getSize() {
       this.$axios.get("/admin/api/size.php").then((response) => {
