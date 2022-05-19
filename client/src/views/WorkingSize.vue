@@ -15,36 +15,43 @@
               </button>
               <button class="btn btn-secondary" type="button">저장</button>
             </div>
-            <ul class="list-group">
-              <li
-                v-for="(sizeCategory, i) in sizeCategory"
-                :key="i"
-                :class="{ active: i === activeCategory }"
-                @click="activeTemplate(i)"
-                class="list-group-item d-flex justify-content-between align-items-center"
-              >
-                {{ sizeCategory.TEMPLATE_TYPE_NAME }} {{ sizeCategory.ORDER }}
-                <div class="d-flex">
-                  <span
-                    role="button"
-                    class="material-symbols-rounded"
-                    @click="upCurrentTemplate(i), orderTemplate(), orderPrev()"
+            <div class="card">
+              <div class="card-body">
+                <ul class="list-group">
+                  <li
+                    v-for="(sizeCategory, i) in sizeCategory"
+                    :key="i"
+                    :class="{ active: i === activeCategory }"
+                    @click="activeTemplate(i)"
+                    class="list-group-item d-flex justify-content-between align-items-center"
                   >
-                    arrow_upward
-                  </span>
-                  <span
-                    role="button"
-                    class="material-symbols-rounded"
-                    @click="
-                      downCurrentTemplate(i);
-                      orderTemplate(), orderNext();
-                    "
-                  >
-                    arrow_downward
-                  </span>
-                </div>
-              </li>
-            </ul>
+                    {{ sizeCategory.TEMPLATE_TYPE_NAME }}
+                    {{ sizeCategory.ORDER }}
+                    <div class="d-flex">
+                      <span
+                        role="button"
+                        class="material-symbols-rounded"
+                        @click="
+                          upCurrentTemplate(i), orderTemplate(), orderPrev()
+                        "
+                      >
+                        arrow_upward
+                      </span>
+                      <span
+                        role="button"
+                        class="material-symbols-rounded"
+                        @click="
+                          downCurrentTemplate(i);
+                          orderTemplate(), orderNext();
+                        "
+                      >
+                        arrow_downward
+                      </span>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
           </div>
 
           <div class="col">
@@ -55,25 +62,29 @@
               </button>
               <button class="btn btn-secondary" type="button">저장</button>
             </div>
-            <ul class="list-group">
-              <li
-                v-for="(size, i) in size"
-                :key="i"
-                :class="{ active: i === activeSize }"
-                @click="activeSizeName(i)"
-                class="list-group-item d-flex justify-content-between align-items-center"
-              >
-                {{ size.SIZE_NAME }}
-                <div class="d-flex">
-                  <span role="button" class="material-symbols-rounded">
-                    arrow_upward
-                  </span>
-                  <span role="button" class="material-symbols-rounded">
-                    arrow_downward
-                  </span>
-                </div>
-              </li>
-            </ul>
+            <div class="card">
+              <div class="card-body">
+                <ul class="list-group">
+                  <li
+                    v-for="(size, i) in size"
+                    :key="i"
+                    :class="{ active: i === activeSize }"
+                    @click="activeSizeName(i)"
+                    class="list-group-item d-flex justify-content-between align-items-center"
+                  >
+                    {{ size.SIZE_NAME }}
+                    <div class="d-flex">
+                      <span role="button" class="material-symbols-rounded">
+                        arrow_upward
+                      </span>
+                      <span role="button" class="material-symbols-rounded">
+                        arrow_downward
+                      </span>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
           </div>
 
           <div class="col">
@@ -88,7 +99,7 @@
                 <div class="row">
                   <div class="col">
                     <h5>가로</h5>
-                    <input type="text" class="form-control" />
+                    <input type="text" class="form-control" :value="width" />
                   </div>
                   <div
                     class="col-1 d-flex align-items-end justify-content-center"
@@ -97,7 +108,7 @@
                   </div>
                   <div class="col">
                     <h5>세로</h5>
-                    <input type="text" class="form-control" />
+                    <input type="text" class="form-control" :value="height" />
                   </div>
                   <div class="col">
                     <h5>단위</h5>
@@ -139,6 +150,8 @@ export default {
       activeSize: false,
       selected: 1,
       indexTemplate: null,
+      width: null,
+      height: null,
     };
   },
   mixins: [table],
@@ -187,22 +200,42 @@ export default {
       fd.append("PREV", this.prevSEQ_ID);
       this.$axios.post("/admin/api/order_prev_next.php", fd).then(() => {});
     },
-    getSize() {
-      this.$axios.get("/admin/api/size.php").then((response) => {
-        this.size = response.data;
-        this.$endloading();
-      });
+    getSize(i) {
+      this.$loading();
+      this.$axios
+        .get("/admin/api/size.php", {
+          params: {
+            template: this.sizeCategory[i].SEQ_ID,
+          },
+        })
+        .then((response) => {
+          this.size = response.data;
+          this.$endloading();
+        });
     },
     activeTemplate(i) {
       this.activeCategory = i;
+      this.getSize(i);
     },
     activeSizeName(i) {
+      this.$loading();
       this.activeSize = i;
+      this.$axios
+        .get("/admin/api/size.php", {
+          params: {
+            size: this.size[i].SEQ_ID,
+          },
+        })
+        .then((response) => {
+          this.width = response.data[0].PAGE_WIDTH;
+          this.height = response.data[0].PAGE_HEIGHT;
+          this.selected = response.data[0].SCALE_CD;
+          this.$endloading();
+        });
     },
   },
   mounted() {
     this.getSizeCategory();
-    this.getSize();
   },
 };
 </script>
