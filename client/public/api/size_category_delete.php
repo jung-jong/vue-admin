@@ -2,8 +2,7 @@
 
 include("connect.php");
 
-$sql = "INSERT INTO TB_SIZE_CATEGORY (`TEMPLATE_TYPE_NAME`, `ORDER`, `A_ID`, `U_ID`)
- VALUES ('{$_POST['TEMPLATE_TYPE_NAME']}', {$_POST['ORDER']}, 0, 0)";
+$sql = "DELETE FROM `TB_SIZE_CATEGORY` WHERE `SEQ_ID` = {$_POST['SEQ_ID']}";
 
 $result = mysqli_query($conn, $sql);
 if ($result == false) {

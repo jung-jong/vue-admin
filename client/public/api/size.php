@@ -16,6 +16,13 @@ while($row = mysqli_fetch_assoc($result)){
   $data[] = $row;
 }
 
+$marks = array();
+foreach ($data as $key => $value) {
+  $marks[$key] = $value['ORDER'];
+}
+
+array_multisort($marks, SORT_ASC, $data);
+
 echo json_encode($data);
 
 mysqli_close($conn);

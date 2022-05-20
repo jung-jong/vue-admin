@@ -14,7 +14,11 @@
               >
                 템플릿 타입 추가
               </button>
-              <button class="btn btn-danger ms-auto me-2" type="button">
+              <button
+                class="btn btn-danger ms-auto me-2"
+                type="button"
+                @click="deleteTemplate()"
+              >
                 ❌ 삭제
               </button>
               <button
@@ -43,7 +47,6 @@
                     class="list-group-item d-flex justify-content-between align-items-center"
                   >
                     {{ sizeCategory.TEMPLATE_TYPE_NAME }}
-                    {{ sizeCategory.ORDER }}
                     <div class="d-flex">
                       <span
                         role="button"
@@ -89,12 +92,21 @@
                     @click="activeSizeName(i)"
                     class="list-group-item d-flex justify-content-between align-items-center"
                   >
+                    {{ size.ORDER }}
                     {{ size.SIZE_NAME }}
                     <div class="d-flex">
-                      <span role="button" class="material-symbols-rounded">
+                      <span
+                        role="button"
+                        class="material-symbols-rounded"
+                        @click="upCurrentSize()"
+                      >
                         arrow_upward
                       </span>
-                      <span role="button" class="material-symbols-rounded">
+                      <span
+                        role="button"
+                        class="material-symbols-rounded"
+                        @click="downCurrentSize()"
+                      >
                         arrow_downward
                       </span>
                     </div>
@@ -160,6 +172,7 @@ export default {
       sub: "작업크기 관리",
       sizeCategory: [],
       currentSizeCategory: {},
+      currentSize: {},
       prevSEQ_ID: null,
       nextSEQ_ID: null,
       size: [],
@@ -167,10 +180,11 @@ export default {
       activeSize: false,
       selected: 1,
       indexTemplate: null,
+      indexSize: null,
       width: null,
       height: null,
       showAddTemplate: false,
-      templateName: "",
+      templateName: null,
     };
   },
   mixins: [table],
@@ -181,13 +195,30 @@ export default {
         this.$endloading();
       });
     },
+
     addTemplate() {
       this.$loading();
       const fd = new FormData();
       fd.append("TEMPLATE_TYPE_NAME", this.templateName);
       fd.append("ORDER", this.sizeCategory.length);
-      this.$axios.post("/admin/api/size_category_insert.php", fd).then(() => {
-        this.getSizeCategory();
+      if (this.templateName === null) {
+        alert("템플릿 타입을 입력하세요.");
+        this.$endloading();
+      } else {
+        this.$axios.post("/admin/api/size_category_insert.php", fd).then(() => {
+          this.getSizeCategory();
+        });
+      }
+    },
+    deleteTemplate() {
+      this.$loading();
+      const fd = new FormData();
+      fd.append("SEQ_ID", this.currentSizeCategory);
+      fd.append("SIZE_CATEGORY_ID", this.currentSizeCategory);
+      this.$axios.post("/admin/api/size_category_delete.php", fd).then(() => {
+        this.$axios.post("/admin/api/size_delete.php", fd).then(() => {
+          this.getSizeCategory();
+        });
       });
     },
     upCurrentTemplate(i) {
@@ -206,6 +237,7 @@ export default {
       }
       this.indexTemplate = i;
     },
+
     orderTemplate() {
       this.$loading();
       const fd = new FormData();
@@ -229,6 +261,12 @@ export default {
       fd.append("PREV", this.prevSEQ_ID);
       this.$axios.post("/admin/api/size_category_order.php", fd).then(() => {});
     },
+
+    activeTemplate(i) {
+      this.activeCategory = i;
+      this.currentSizeCategory = this.sizeCategory[i].SEQ_ID;
+      this.getSize(i);
+    },
     getSize(i) {
       this.$loading();
       this.$axios
@@ -242,9 +280,21 @@ export default {
           this.$endloading();
         });
     },
-    activeTemplate(i) {
-      this.activeCategory = i;
-      this.getSize(i);
+    upCurrentSize(i) {
+      this.currentSize = this.size[i].SEQ_ID;
+      this.prevSEQ_ID = this.size[i - 1].SEQ_ID;
+      i = i - 1;
+      if (i == -1) i = 0;
+      this.indexSize = i;
+    },
+    downCurrentSize(i) {
+      this.currentSize = this.size[i].SEQ_ID;
+      this.nextSEQ_ID = this.size[i + 1].SEQ_ID;
+      i = i + 1;
+      if (this.size.length == i) {
+        i = i - 1;
+      }
+      this.indexSize = i;
     },
     activeSizeName(i) {
       this.$loading();
