@@ -243,7 +243,8 @@
               </div>
               <div class="modal-body text-center">
                 <h3 id="title">
-                  "{{ currentUser.USER_ID }}" ID를 사용자 Level로 변경 합니다.
+                  "{{ currentUser.USER_ID }}" ID를 9(사용자) Level로 변경
+                  합니다.
                 </h3>
               </div>
               <div class="modal-footer justify-content-center">

@@ -2,13 +2,8 @@
 
 include("connect.php");
 
-if (isset($_POST['SIZE_CATEGORY_ID'])) {
-  $sql = "DELETE FROM `TB_SIZE` WHERE `SIZE_CATEGORY_ID` = {$_POST['SIZE_CATEGORY_ID']}";
-}
-
-if (isset($_POST['SIZE'])) {
-  $sql = "DELETE FROM `TB_SIZE` WHERE `SEQ_ID` = {$_POST['SIZE']}";
-}
+$sql = "INSERT INTO `TB_SIZE` (`SIZE_CATEGORY_ID`, `SIZE_NAME`, `ORDER`, `A_ID`, `U_ID`)
+ VALUES ({$_POST['SIZE_CATEGORY_ID']}, '{$_POST['SIZE_NAME']}', {$_POST['ORDER']}, 0, 0)";
 
 $result = mysqli_query($conn, $sql);
 if ($result == false) {

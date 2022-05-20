@@ -52,7 +52,9 @@
                         role="button"
                         class="material-symbols-rounded"
                         @click="
-                          upCurrentTemplate(i), orderTemplate(), orderPrev()
+                          upCurrentTemplate(i),
+                            orderTemplate(),
+                            orderTemplatePrev()
                         "
                       >
                         arrow_upward
@@ -62,7 +64,7 @@
                         class="material-symbols-rounded"
                         @click="
                           downCurrentTemplate(i);
-                          orderTemplate(), orderNext();
+                          orderTemplate(), orderTemplateNext();
                         "
                       >
                         arrow_downward
@@ -76,12 +78,35 @@
 
           <div class="col">
             <div class="d-flex flex-wrap justify-content-between my-3">
-              <button class="btn btn-primary" type="button">분류 추가</button>
-              <button class="btn btn-danger ms-auto me-2" type="button">
+              <button
+                class="btn btn-primary"
+                type="button"
+                @click="showAddSize = !showAddSize"
+              >
+                분류 추가
+              </button>
+              <button
+                class="btn btn-danger ms-auto me-2"
+                type="button"
+                @click="deleteSize()"
+              >
                 ❌ 삭제
               </button>
-              <button class="btn btn-secondary" type="button">저장</button>
+              <button
+                class="btn btn-secondary"
+                type="button"
+                @click="addSize()"
+              >
+                저장
+              </button>
             </div>
+            <input
+              class="form-control mb-3"
+              type="text"
+              placeholder="분류 이름"
+              v-if="showAddSize"
+              v-model="sizeName"
+            />
             <div class="card">
               <div class="card-body">
                 <ul class="list-group">
@@ -98,14 +123,16 @@
                       <span
                         role="button"
                         class="material-symbols-rounded"
-                        @click="upCurrentSize()"
+                        @click="upCurrentSize(i), orderSize(), orderSizePrev()"
                       >
                         arrow_upward
                       </span>
                       <span
                         role="button"
                         class="material-symbols-rounded"
-                        @click="downCurrentSize()"
+                        @click="
+                          downCurrentSize(i), orderSize(), orderSizeNext()
+                        "
                       >
                         arrow_downward
                       </span>
@@ -172,10 +199,10 @@ export default {
       sub: "작업크기 관리",
       sizeCategory: [],
       currentSizeCategory: {},
-      currentSize: {},
       prevSEQ_ID: null,
       nextSEQ_ID: null,
       size: [],
+      currentSize: {},
       activeCategory: false,
       activeSize: false,
       selected: 1,
@@ -184,7 +211,9 @@ export default {
       width: null,
       height: null,
       showAddTemplate: false,
+      showAddSize: false,
       templateName: null,
+      sizeName: null,
     };
   },
   mixins: [table],
@@ -195,14 +224,13 @@ export default {
         this.$endloading();
       });
     },
-
     addTemplate() {
       this.$loading();
       const fd = new FormData();
       fd.append("TEMPLATE_TYPE_NAME", this.templateName);
       fd.append("ORDER", this.sizeCategory.length);
       if (this.templateName === null) {
-        alert("템플릿 타입을 입력하세요.");
+        alert("템플릿 타입 이름을 입력하세요.");
         this.$endloading();
       } else {
         this.$axios.post("/admin/api/size_category_insert.php", fd).then(() => {
@@ -215,11 +243,15 @@ export default {
       const fd = new FormData();
       fd.append("SEQ_ID", this.currentSizeCategory);
       fd.append("SIZE_CATEGORY_ID", this.currentSizeCategory);
-      this.$axios.post("/admin/api/size_category_delete.php", fd).then(() => {
-        this.$axios.post("/admin/api/size_delete.php", fd).then(() => {
-          this.getSizeCategory();
+      if (window.confirm("정말 삭제하시겠습니까? 분류도 같이 삭제됩니다.")) {
+        this.$endloading();
+        this.$axios.post("/admin/api/size_category_delete.php", fd).then(() => {
+          this.$axios.post("/admin/api/size_delete.php", fd).then(() => {
+            this.getSizeCategory();
+            this.getSize(this.activeCategory);
+          });
         });
-      });
+      }
     },
     upCurrentTemplate(i) {
       this.currentSizeCategory = this.sizeCategory[i].SEQ_ID;
@@ -237,7 +269,6 @@ export default {
       }
       this.indexTemplate = i;
     },
-
     orderTemplate() {
       this.$loading();
       const fd = new FormData();
@@ -247,21 +278,20 @@ export default {
         this.getSizeCategory();
       });
     },
-    orderNext() {
+    orderTemplateNext() {
       this.$loading();
       const fd = new FormData();
       fd.append("ORDER", this.indexTemplate - 1);
       fd.append("NEXT", this.nextSEQ_ID);
       this.$axios.post("/admin/api/size_category_order.php", fd).then(() => {});
     },
-    orderPrev() {
+    orderTemplatePrev() {
       this.$loading();
       const fd = new FormData();
       fd.append("ORDER", this.indexTemplate + 1);
       fd.append("PREV", this.prevSEQ_ID);
       this.$axios.post("/admin/api/size_category_order.php", fd).then(() => {});
     },
-
     activeTemplate(i) {
       this.activeCategory = i;
       this.currentSizeCategory = this.sizeCategory[i].SEQ_ID;
@@ -296,9 +326,60 @@ export default {
       }
       this.indexSize = i;
     },
+    addSize() {
+      this.$loading();
+      const fd = new FormData();
+      fd.append("SIZE_CATEGORY_ID", this.currentSizeCategory);
+      fd.append("SIZE_NAME", this.sizeName);
+      fd.append("ORDER", this.size.length);
+      if (this.sizeName === null) {
+        alert("분류 이름을 입력하세요.");
+        this.$endloading();
+      } else if (this.activeCategory === false) {
+        alert("템플릿 타입을 선택하세요.");
+      } else {
+        this.$axios.post("/admin/api/size_insert.php", fd).then(() => {
+          this.getSize(this.activeCategory);
+        });
+      }
+    },
+    deleteSize() {
+      this.$loading();
+      const fd = new FormData();
+      fd.append("SIZE", this.currentSize);
+      if (window.confirm("정말 삭제하시겠습니까?")) {
+        this.$axios.post("/admin/api/size_delete.php", fd).then(() => {
+          this.getSize(this.activeCategory);
+        });
+      }
+    },
+    orderSize() {
+      this.$loading();
+      const fd = new FormData();
+      fd.append("ORDER", this.indexSize);
+      fd.append("SEQ_ID", this.currentSize);
+      this.$axios.post("/admin/api/size_order.php", fd).then(() => {
+        this.getSize(this.activeCategory);
+      });
+    },
+    orderSizeNext() {
+      this.$loading();
+      const fd = new FormData();
+      fd.append("ORDER", this.indexSize - 1);
+      fd.append("NEXT", this.nextSEQ_ID);
+      this.$axios.post("/admin/api/size_order.php", fd).then(() => {});
+    },
+    orderSizePrev() {
+      this.$loading();
+      const fd = new FormData();
+      fd.append("ORDER", this.indexSize + 1);
+      fd.append("PREV", this.prevSEQ_ID);
+      this.$axios.post("/admin/api/size_order.php", fd).then(() => {});
+    },
     activeSizeName(i) {
       this.$loading();
       this.activeSize = i;
+      this.currentSize = this.size[i].SEQ_ID;
       this.$axios
         .get("/admin/api/size.php", {
           params: {
