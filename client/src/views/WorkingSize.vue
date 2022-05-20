@@ -148,14 +148,20 @@
               class="d-flex flex-wrap justify-content-between alingn-items-center my-3"
             >
               <h5 class="fw-bold d-flex align-items-end">작업크기</h5>
-              <button class="btn btn-secondary" type="button">저장</button>
+              <button
+                class="btn btn-secondary"
+                type="button"
+                @click="changeSize()"
+              >
+                저장
+              </button>
             </div>
             <div class="card">
               <div class="card-body">
                 <div class="row">
                   <div class="col">
                     <h5>가로</h5>
-                    <input type="text" class="form-control" :value="width" />
+                    <input type="text" class="form-control" v-model="width" />
                   </div>
                   <div
                     class="col-1 d-flex align-items-end justify-content-center"
@@ -164,7 +170,7 @@
                   </div>
                   <div class="col">
                     <h5>세로</h5>
-                    <input type="text" class="form-control" :value="height" />
+                    <input type="text" class="form-control" v-model="height" />
                   </div>
                   <div class="col">
                     <h5>단위</h5>
@@ -239,12 +245,11 @@ export default {
       }
     },
     deleteTemplate() {
-      this.$loading();
       const fd = new FormData();
       fd.append("SEQ_ID", this.currentSizeCategory);
       fd.append("SIZE_CATEGORY_ID", this.currentSizeCategory);
       if (window.confirm("정말 삭제하시겠습니까? 분류도 같이 삭제됩니다.")) {
-        this.$endloading();
+        this.$loading();
         this.$axios.post("/admin/api/size_category_delete.php", fd).then(() => {
           this.$axios.post("/admin/api/size_delete.php", fd).then(() => {
             this.getSizeCategory();
@@ -392,6 +397,17 @@ export default {
           this.selected = response.data[0].SCALE_CD;
           this.$endloading();
         });
+    },
+    changeSize() {
+      this.$loading();
+      const fd = new FormData();
+      fd.append("SEQ_ID", this.currentSize);
+      fd.append("PAGE_WIDTH", this.width);
+      fd.append("PAGE_HEIGHT", this.height);
+      fd.append("SCALE_CD", this.selected);
+      this.$axios.post("/admin/api/size_update.php", fd).then(() => {
+        this.activeSizeName(this.activeSize);
+      });
     },
   },
   mounted() {
