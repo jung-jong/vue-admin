@@ -532,23 +532,7 @@ export default {
           console.log(e);
         });
     },
-    storageUse() {
-      this.$axios
-        .get("/admin/api/file_storage_update.php", {
-          params: {
-            id: this.currentStorage.USER_ID,
-          },
-        })
-        .then((response) => {
-          this.fileSize = response.data;
-          const storageUse = this.useSize(this.fileSize);
-          const fd = new FormData();
-          fd.append("STORAGE_USE", storageUse);
-          this.$axios
-            .post("/admin/api/file_storage_update.php", fd)
-            .then(() => {});
-        });
-    },
+
     fileDownload(id) {
       const fd = new FormData();
       fd.append("SEQ_ID", id);
@@ -609,8 +593,27 @@ export default {
       fd.append("SEQ_ID", id);
       this.$axios.post("/admin/api/file_delete.php", fd).then(() => {
         this.getFile(this.currentStorage.USER_ID);
+        this.storageUse();
         alert("삭제 성공");
       });
+    },
+    storageUse() {
+      this.$axios
+        .get("/admin/api/file_storage_update.php", {
+          params: {
+            id: this.currentStorage.USER_ID,
+          },
+        })
+        .then((response) => {
+          this.fileSize = response.data;
+          const storageUse = this.useSize(this.fileSize);
+          const fd = new FormData();
+          fd.append("STORAGE_USE", storageUse);
+          fd.append("USER_ID", this.currentStorage.USER_ID);
+          this.$axios
+            .post("/admin/api/file_storage_update.php", fd)
+            .then(() => {});
+        });
     },
     excelDownload() {
       const workBook = XLSX.utils.book_new();
@@ -619,7 +622,7 @@ export default {
       XLSX.writeFile(workBook, "user.xlsx");
     },
     sotorageFormat(e) {
-      return Math.floor(e);
+      return Math.ceil(e);
     },
     fileSizeFormat(x) {
       let s = ["Byte", "KB", "MB", "GB", "TB", "PB"];
@@ -628,7 +631,7 @@ export default {
     },
     useSize(e) {
       let size = e / 1024 / 1024;
-      return Math.floor(size);
+      return Math.ceil(size);
     },
     formData(id) {
       let fd = new FormData();

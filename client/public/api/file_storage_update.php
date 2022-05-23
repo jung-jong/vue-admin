@@ -11,26 +11,11 @@ if (isset($_GET['id'])) {
   while($row = mysqli_fetch_assoc($result)){
     $data[] = $row;
   }
-}
 
-if (isset($_POST['STORAGE_USE'])) {
-  $sql = "SELECT * FROM TB_USER_STATUS WHERE STORAGE_USE = '{$_POST['STORAGE_USE']}'";
-  
-  $result = mysqli_query($conn, $sql);
-  $use;
-  if ($result == false) {
-    error_log(mysqli_error($conn));
-    $use = array('DB'=>"error");
-  } else {
-    $use = array('DB'=>"success");
-  }
-  echo json_encode($use);
-}
-
-$idx=0;
-$storage = 0;
-foreach($data as $row)
-{
+  $idx=0;
+  $storage = 0;
+  foreach($data as $row)
+  {
     $id = $data[$idx]["FILE_DIR"];
     $file_name = $data[$idx]["FILE_NAME"];
     $file_dir = "../user/{$id}/upload/{$file_name}";
@@ -39,11 +24,30 @@ foreach($data as $row)
     $storage += $data[$idx]["FILE_SIZE"];
 
     $idx++;
+  }
+
+  echo json_encode($storage);
 }
 
+if (isset($_POST['STORAGE_USE'])) {
+  $sql = "UPDATE `TB_USER_STATUS` 
+  SET `STORAGE_USE` = {$_POST['STORAGE_USE']} 
+  WHERE `USER_ID` = '{$_POST['USER_ID']}'";
+  
+  
+  $result = mysqli_query($conn, $sql);
+  $use = array();
+  if ($result == false) {
+    error_log(mysqli_error($conn));
+    $use = array('DB'=>"error");
+  } else {
+    $use = array('DB'=>"success");
+  }
+
+  echo json_encode($use);
+}
 
 mysqli_close($conn);
 
-echo json_encode($storage);
 
 ?>
