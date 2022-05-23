@@ -222,6 +222,7 @@ export default {
   mixins: [table],
   methods: {
     getUserList() {
+      this.totalPage();
       this.$axios
         .get("/admin/api/user.php", {
           params: {
@@ -232,7 +233,6 @@ export default {
         .then((response) => {
           this.userList = response.data;
           this.$endloading();
-          this.totalPage();
         })
         .catch((e) => {
           console.log(e);
@@ -247,7 +247,8 @@ export default {
     getCurrentPage() {
       this.$loading();
       let i = this.currentPage;
-      i = 10 * i - 10;
+      let page = this.length;
+      i = page * i - page;
       this.start = i;
       if (this.search == "") {
         this.getUserList();
@@ -371,6 +372,7 @@ export default {
             })
             .then((response) => {
               this.totalPages = response.data;
+              this.totalPages = Math.ceil(this.totalPages / this.length);
               this.$endloading();
             });
         } else if (this.selected == "2") {
@@ -397,6 +399,7 @@ export default {
             })
             .then((response) => {
               this.totalPages = response.data;
+              this.totalPages = Math.ceil(this.totalPages / this.length);
               this.$endloading();
             });
         } else if (this.selected == "3") {
@@ -423,6 +426,7 @@ export default {
             })
             .then((response) => {
               this.totalPages = response.data;
+              this.totalPages = Math.ceil(this.totalPages / this.length);
               this.$endloading();
             });
         } else if (this.selected == "4") {
@@ -449,6 +453,7 @@ export default {
             })
             .then((response) => {
               this.totalPages = response.data;
+              this.totalPages = Math.ceil(this.totalPages / this.length);
               this.$endloading();
             });
         } else if (this.selected == "5") {
@@ -475,6 +480,7 @@ export default {
             })
             .then((response) => {
               this.totalPages = response.data;
+              this.totalPages = Math.ceil(this.totalPages / this.length);
               this.$endloading();
             });
         } else if (this.selected == "6") {
@@ -501,6 +507,7 @@ export default {
             })
             .then((response) => {
               this.totalPages = response.data;
+              this.totalPages = Math.ceil(this.totalPages / this.length);
               this.$endloading();
             });
         }

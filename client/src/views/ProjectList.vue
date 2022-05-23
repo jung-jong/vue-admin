@@ -266,13 +266,13 @@ export default {
       this.$axios.get("/admin/api/project_page.php").then((response) => {
         this.totalPages = response.data;
         this.totalPages = Math.ceil(this.totalPages / this.length);
-        console.log(this.totalPages);
       });
     },
     getCurrentPage() {
       this.$loading();
       let i = this.currentPage;
-      i = 10 * i - 10;
+      let page = this.length;
+      i = page * i - page;
       this.start = i;
       if (this.search == "") {
         this.getProjectList();
