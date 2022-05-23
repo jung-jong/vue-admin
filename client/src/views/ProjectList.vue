@@ -266,6 +266,7 @@ export default {
       this.$axios.get("/admin/api/project_page.php").then((response) => {
         this.totalPages = response.data;
         this.totalPages = Math.ceil(this.totalPages / this.length);
+        console.log(this.totalPages);
       });
     },
     getCurrentPage() {
@@ -342,7 +343,7 @@ export default {
               this.$endloading();
             });
           this.$axios
-            .get("/admin/api/total_page.php", {
+            .get("/admin/api/project_page.php", {
               params: {
                 id: "USER_ID",
                 search: search,
@@ -350,6 +351,7 @@ export default {
             })
             .then((response) => {
               this.totalPages = response.data;
+              this.totalPages = Math.ceil(this.totalPages / this.length);
               this.$endloading();
             });
         } else if (this.selected == "2") {
@@ -368,7 +370,7 @@ export default {
               this.$endloading();
             });
           this.$axios
-            .get("/admin/api/total_page.php", {
+            .get("/admin/api/project_page.php", {
               params: {
                 title: "TITLE",
                 search: search,
@@ -376,6 +378,7 @@ export default {
             })
             .then((response) => {
               this.totalPages = response.data;
+              this.totalPages = Math.ceil(this.totalPages / this.length);
               this.$endloading();
             });
         } else if (this.selected == "3") {
@@ -394,7 +397,7 @@ export default {
               this.$endloading();
             });
           this.$axios
-            .get("/admin/api/total_page.php", {
+            .get("/admin/api/project_page.php", {
               params: {
                 width: "WIDTH/HEIGHT",
                 search: search,
@@ -402,6 +405,7 @@ export default {
             })
             .then((response) => {
               this.totalPages = response.data;
+              this.totalPages = Math.ceil(this.totalPages / this.length);
               this.$endloading();
             });
         }

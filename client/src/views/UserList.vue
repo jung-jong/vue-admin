@@ -69,7 +69,7 @@
                 <td>
                   <b>{{ userList.STORAGE_USE }}MB</b> /
                   {{ userList.STORAGE_QUOTA }}MB ({{
-                    sizeFormat(
+                    sotorageFormat(
                       (userList.STORAGE_QUOTA * userList.STORAGE_USE) / 100
                     )
                   }}%)
@@ -158,7 +158,9 @@
                       <td>{{ i + 1 }}</td>
                       <td class="text-start">{{ file.FILE_NAME }}</td>
                       <td>{{ file.FILE_EXTENSION }}</td>
-                      <td class="text-end">{{ file.FILE_SIZE }}</td>
+                      <td class="text-end">
+                        {{ fileSizeFormat(file.FILE_SIZE) }}
+                      </td>
                       <td>
                         <a href="" @click.prevent="fileDownload(file.SEQ_ID)">
                           <img
@@ -523,6 +525,23 @@ export default {
           console.log(e);
         });
     },
+    storageUse() {
+      this.$axios
+        .get("/admin/api/file_storage_update.php", {
+          params: {
+            id: this.currentStorage.USER_ID,
+          },
+        })
+        .then((response) => {
+          this.fileSize = response.data;
+          const storageUse = this.useSize(this.fileSize);
+          const fd = new FormData();
+          fd.append("STORAGE_USE", storageUse);
+          this.$axios
+            .post("/admin/api/file_storage_update.php", fd)
+            .then(() => {});
+        });
+    },
     fileDownload(id) {
       const fd = new FormData();
       fd.append("SEQ_ID", id);
@@ -592,13 +611,17 @@ export default {
       XLSX.utils.book_append_sheet(workBook, workSheet, "user");
       XLSX.writeFile(workBook, "user.xlsx");
     },
-    sizeFormat(e) {
+    sotorageFormat(e) {
       return Math.floor(e);
+    },
+    fileSizeFormat(x) {
+      let s = ["Byte", "KB", "MB", "GB", "TB", "PB"];
+      let e = Math.floor(Math.log(x) / Math.log(1024));
+      return (x / Math.pow(1024, e)).toFixed(0) + s[e];
     },
     useSize(e) {
       let size = e / 1024 / 1024;
-      size = size.toFixed(3);
-      return Math.ceil(size);
+      return Math.floor(size);
     },
     formData(id) {
       let fd = new FormData();
