@@ -344,7 +344,8 @@ export default {
     getCurrentPage() {
       this.$loading();
       let i = this.currentPage;
-      i = 10 * i - 10;
+      let page = this.length;
+      i = page * i - page;
       this.start = i;
       if (this.search == "") {
         this.getAdminID();
@@ -414,6 +415,7 @@ export default {
           })
           .then((response) => {
             this.totalPages = response.data;
+            this.totalPages = Math.ceil(this.totalPages / this.length);
             this.$endloading();
           });
       } else if (window.event.code === "Enter" && search == "") {
