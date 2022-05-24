@@ -37,42 +37,40 @@
               v-model="templateName"
             />
             <div class="card">
-              <div class="card-body">
-                <ul class="list-group">
-                  <li
-                    v-for="(sizeCategory, i) in sizeCategory"
-                    :key="i"
-                    :class="{ active: i === activeCategory }"
-                    @click="activeTemplate(i)"
-                    class="list-group-item d-flex justify-content-between align-items-center"
-                  >
-                    {{ sizeCategory.TEMPLATE_TYPE_NAME }}
-                    <div class="d-flex">
-                      <span
-                        role="button"
-                        class="material-symbols-rounded"
-                        @click="
-                          upCurrentTemplate(i),
-                            orderTemplate(),
-                            orderTemplatePrev()
-                        "
-                      >
-                        arrow_upward
-                      </span>
-                      <span
-                        role="button"
-                        class="material-symbols-rounded"
-                        @click="
-                          downCurrentTemplate(i);
-                          orderTemplate(), orderTemplateNext();
-                        "
-                      >
-                        arrow_downward
-                      </span>
-                    </div>
-                  </li>
-                </ul>
-              </div>
+              <ul class="list-group list-group-flush">
+                <li
+                  v-for="(sizeCategory, i) in sizeCategory"
+                  :key="i"
+                  :class="{ active: i === activeCategory }"
+                  @click="activeTemplate(i)"
+                  class="list-group-item d-flex justify-content-between align-items-center"
+                >
+                  {{ sizeCategory.TEMPLATE_TYPE_NAME }}
+                  <div class="d-flex">
+                    <span
+                      role="button"
+                      class="material-symbols-rounded"
+                      @click="
+                        upCurrentTemplate(i),
+                          orderTemplate(),
+                          orderTemplatePrev()
+                      "
+                    >
+                      arrow_upward
+                    </span>
+                    <span
+                      role="button"
+                      class="material-symbols-rounded"
+                      @click="
+                        downCurrentTemplate(i);
+                        orderTemplate(), orderTemplateNext();
+                      "
+                    >
+                      arrow_downward
+                    </span>
+                  </div>
+                </li>
+              </ul>
             </div>
           </div>
 
@@ -108,38 +106,34 @@
               v-model="sizeName"
             />
             <div class="card">
-              <div class="card-body">
-                <ul class="list-group">
-                  <li
-                    v-for="(size, i) in size"
-                    :key="i"
-                    :class="{ active: i === activeSize }"
-                    @click="activeSizeName(i)"
-                    class="list-group-item d-flex justify-content-between align-items-center"
-                  >
-                    {{ size.ORDER }}
-                    {{ size.SIZE_NAME }}
-                    <div class="d-flex">
-                      <span
-                        role="button"
-                        class="material-symbols-rounded"
-                        @click="upCurrentSize(i), orderSize(), orderSizePrev()"
-                      >
-                        arrow_upward
-                      </span>
-                      <span
-                        role="button"
-                        class="material-symbols-rounded"
-                        @click="
-                          downCurrentSize(i), orderSize(), orderSizeNext()
-                        "
-                      >
-                        arrow_downward
-                      </span>
-                    </div>
-                  </li>
-                </ul>
-              </div>
+              <ul class="list-group list-group-flush">
+                <li
+                  v-for="(size, i) in size"
+                  :key="i"
+                  :class="{ active: i === activeSize }"
+                  @click="activeSizeName(i)"
+                  class="list-group-item d-flex justify-content-between align-items-center"
+                >
+                  {{ size.ORDER }}
+                  {{ size.SIZE_NAME }}
+                  <div class="d-flex">
+                    <span
+                      role="button"
+                      class="material-symbols-rounded"
+                      @click="upCurrentSize(i), orderSize(), orderSizePrev()"
+                    >
+                      arrow_upward
+                    </span>
+                    <span
+                      role="button"
+                      class="material-symbols-rounded"
+                      @click="downCurrentSize(i), orderSize(), orderSizeNext()"
+                    >
+                      arrow_downward
+                    </span>
+                  </div>
+                </li>
+              </ul>
             </div>
           </div>
 
