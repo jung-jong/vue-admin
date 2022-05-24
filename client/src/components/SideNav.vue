@@ -34,7 +34,7 @@
                 </router-link>
               </nav>
             </div>
-            <router-link class="nav-link" to="">테마 관리</router-link>
+            <router-link class="nav-link" to="/theme">테마 관리</router-link>
             <a
               class="nav-link collapsed"
               href=""

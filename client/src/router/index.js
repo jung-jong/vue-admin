@@ -4,6 +4,7 @@ import ProjectList from "@/views/ProjectList";
 import UserList from "@/views/UserList";
 import AdminID from "@/views/AdminID";
 import WorkingSize from "@/views/WorkingSize";
+import ThemeManamement from "@/views/ThemeManagement";
 
 Vue.use(VueRouter);
 
@@ -24,6 +25,10 @@ const routes = [
   {
     path: "/woking-size",
     component: WorkingSize,
+  },
+  {
+    path: "/theme",
+    component: ThemeManamement,
   },
 ];
 
