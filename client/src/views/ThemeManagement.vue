@@ -15,7 +15,13 @@
             </select>
             <div class="card">
               <ul class="list-group list-group-flush">
-                <li class="list-group-item">템플릿</li>
+                <li
+                  v-for="(contents, i) in contents"
+                  :key="i"
+                  class="list-group-item"
+                >
+                  {{ contents.CONTENTS_TYPE_NAME }}
+                </li>
               </ul>
             </div>
           </div>
@@ -200,6 +206,7 @@ export default {
   data() {
     return {
       main: "테마 관리",
+      contents: [],
       selected: 1,
       apiCheck: false,
       adminCheck: true,
@@ -207,6 +214,17 @@ export default {
     };
   },
   mixins: [table],
+  methods: {
+    getContents() {
+      this.$axios.get("/admin/api/contents_category.php").then((response) => {
+        this.contents = response.data;
+        this.$endloading();
+      });
+    },
+  },
+  mounted() {
+    this.getContents();
+  },
 };
 </script>
 
