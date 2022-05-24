@@ -469,6 +469,6 @@ export default {
   margin: 0 1rem;
 }
 .overflow-auto {
-  height: 60vh;
+  max-height: 70vh;
 }
 </style>
