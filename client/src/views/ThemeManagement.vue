@@ -4,20 +4,26 @@
       <div class="container-fluid px-4">
         <page-name :mainMenu="main" />
         <table-loading v-if="tableLoading" />
-        <div class="row gx-4 my-3 overflow-auto" id="top">
+        <div class="row gx-4 my-3" id="top">
           <div class="col-2">
             <h5 class="fw-bold my-3">컨텐츠 타입</h5>
             <select v-model="selected" class="form-select m-0 mb-1 w-100">
-              <option value="1">px</option>
-              <option value="2">mm</option>
-              <option value="3">cm</option>
-              <option value="4">inch</option>
+              <option v-for="(contents, i) in contents" :key="i" :value="i + 1">
+                {{ contents.CONTENTS_TYPE_NAME }}
+              </option>
             </select>
             <div class="card">
-              <ul class="list-group list-group-flush">
+              <ul class="list-group list-group-flush overflow-auto h-100">
                 <li
                   v-for="(contents, i) in contents"
                   :key="i"
+                  :class="{ active: i === activeContents }"
+                  @click="
+                    selectContents(i, contents);
+                    getTheme();
+                    totalPage();
+                    $loading();
+                  "
                   class="list-group-item"
                 >
                   {{ contents.CONTENTS_TYPE_NAME }}
@@ -32,10 +38,10 @@
               <div class="form-check mb-3">
                 <input
                   class="form-check-input"
-                  type="checkbox"
-                  value=""
+                  type="radio"
+                  value="1"
                   id="flexCheckDefault"
-                  v-model="apiCheck"
+                  v-model="check"
                 />
                 <label class="form-check-label" for="flexCheckDefault">
                   API 기준
@@ -44,10 +50,10 @@
               <div class="form-check">
                 <input
                   class="form-check-input"
-                  type="checkbox"
-                  value=""
+                  type="radio"
+                  value="2"
                   id="flexCheckChecked"
-                  v-model="adminCheck"
+                  v-model="check"
                 />
                 <label class="form-check-label" for="flexCheckChecked">
                   자체 설정
@@ -68,34 +74,54 @@
                 + 테마 추가
               </button>
             </div>
-            <div class="card">
-              <ul class="list-group list-group-flush">
+            <div class="card justify-content-between" id="theme">
+              <ul class="list-group list-group-flush overflow-auto">
                 <li
-                  :class="{ active: i === activeTheme }"
+                  v-for="(themeList, i) in themeList"
+                  :key="i"
+                  :class="{ active: i === activeThemeList }"
+                  @click="selectThemeList(i, themeList)"
                   class="list-group-item d-flex justify-content-between align-items-center"
                 >
+                  {{ themeList.THEME_NAME }}
                   <div class="d-flex">
                     <span class="material-symbols-rounded"> delete </span>
-                    <span role="button" class="material-symbols-rounded">
+                    <span
+                      role="button"
+                      class="material-symbols-rounded"
+                      @click="
+                        upCurrentTheme(i);
+                        orderTheme();
+                      "
+                    >
                       arrow_upward
                     </span>
-                    <span role="button" class="material-symbols-rounded">
+                    <span
+                      role="button"
+                      class="material-symbols-rounded"
+                      @click="
+                        downCurrentTheme(i);
+                        orderTheme();
+                      "
+                    >
                       arrow_downward
                     </span>
                   </div>
                 </li>
               </ul>
-              <v-pagination
-                v-model="currentPage"
-                :page-count="totalPages"
-                :classes="bootstrapPaginationClasses"
-                :labels="paginationAnchorTexts"
-              ></v-pagination>
+              <div @click="getCurrentPage()">
+                <v-pagination
+                  v-model="currentPage"
+                  :page-count="totalPages"
+                  :classes="bootstrapPaginationClasses"
+                  :labels="paginationAnchorTexts"
+                ></v-pagination>
+              </div>
             </div>
           </div>
         </div>
 
-        <div id="bottom" class="d-flex flex-column">
+        <div id="bottom" class="d-flex flex-column position-relative">
           <div class="d-flex align-items-center justify-content-between">
             <h5 class="fw-bold my-3">콘텐츠 리스트</h5>
             <button
@@ -207,10 +233,18 @@ export default {
     return {
       main: "테마 관리",
       contents: [],
-      selected: 1,
-      apiCheck: false,
-      adminCheck: true,
-      activeTheme: false,
+      currentContents: {},
+      themeList: [],
+      currentThemeList: {},
+      selected: 0,
+      check: 2,
+      activeContents: false,
+      activeThemeList: false,
+      start: 0,
+      length: 10,
+      indexTheme: null,
+      prevSEQ_ID: null,
+      nextSEQ_ID: null,
     };
   },
   mixins: [table],
@@ -220,6 +254,103 @@ export default {
         this.contents = response.data;
         this.$endloading();
       });
+    },
+    selectContents(i, contents) {
+      this.activeContents = i;
+      this.selected = i + 1;
+      this.currentContents = contents;
+    },
+    getTheme() {
+      if (this.check === 2) {
+        this.$axios
+          .get("/admin/api/theme.php", {
+            params: {
+              contents: this.currentContents.SEQ_ID,
+              start: this.start,
+              length: this.length,
+            },
+          })
+          .then((response) => {
+            this.themeList = response.data;
+            this.$endloading();
+          });
+      }
+    },
+    selectThemeList(i, themeList) {
+      this.activeThemeList = i;
+      this.currentThemeList = themeList;
+    },
+    totalPage() {
+      this.$axios.get("/admin/api/theme_page.php").then((response) => {
+        this.totalPages = response.data;
+        this.totalPages = Math.ceil(this.totalPages / this.length);
+      });
+    },
+    getCurrentPage() {
+      this.$loading();
+      let i = this.currentPage;
+      let page = this.length;
+      i = page * i - page;
+      this.start = i;
+      if (this.check === 2) {
+        this.$axios
+          .get("/admin/api/theme.php", {
+            params: {
+              contents: this.currentContents.SEQ_ID,
+              start: this.start,
+              length: this.length,
+            },
+          })
+          .then((response) => {
+            this.themeList = response.data;
+            this.$endloading();
+          });
+      }
+    },
+    upCurrentTheme(i) {
+      if (i !== 0) {
+        this.currentThemeList = this.themeList[i].SEQ_ID;
+        this.prevSEQ_ID = this.themeList[i - 1].SEQ_ID;
+        i = i - 1;
+        if (i == -1) i = 0;
+        this.indexTheme = i;
+        this.orderThemePrev();
+      }
+    },
+    downCurrentTheme(i) {
+      if (this.length - 1 !== i) {
+        this.currentThemeList = this.themeList[i].SEQ_ID;
+        this.nextSEQ_ID = this.themeList[i + 1].SEQ_ID;
+        i = i + 1;
+        if (this.length == i) {
+          i = i - 1;
+        }
+        this.indexTheme = i;
+        this.orderThemeNext();
+      }
+    },
+    orderTheme() {
+      this.$loading();
+      const fd = new FormData();
+      fd.append("ORDER", this.indexTheme);
+      fd.append("SEQ_ID", this.currentThemeList);
+      this.$axios.post("/admin/api/theme_order.php", fd).then(() => {
+        this.getTheme();
+      });
+    },
+    orderThemeNext() {
+      this.$loading();
+      const fd = new FormData();
+      fd.append("ORDER", this.indexTheme - 1);
+      fd.append("NEXT", this.nextSEQ_ID);
+      this.$axios.post("/admin/api/theme_order.php", fd).then(() => {});
+    },
+    orderThemePrev() {
+      this.$loading();
+      const fd = new FormData();
+      fd.append("ORDER", this.indexTheme + 1);
+      fd.append("PREV", this.prevSEQ_ID);
+      this.$axios.post("/admin/api/theme_order.php", fd).then(() => {});
     },
   },
   mounted() {
@@ -236,10 +367,13 @@ export default {
   height: 50vh;
 }
 .overflow-auto {
-  max-height: 50vh;
+  max-height: 40vh;
 }
 #bottom {
-  height: 450px;
+  height: 30vh;
   background-color: antiquewhite;
+}
+#theme {
+  height: calc(40vh + 42px);
 }
 </style>

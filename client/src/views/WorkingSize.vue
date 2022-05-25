@@ -253,11 +253,13 @@ export default {
       }
     },
     upCurrentTemplate(i) {
-      this.currentSizeCategory = this.sizeCategory[i].SEQ_ID;
-      this.prevSEQ_ID = this.sizeCategory[i - 1].SEQ_ID;
-      i = i - 1;
-      if (i == -1) i = 0;
-      this.indexTemplate = i;
+      if (i !== 0) {
+        this.currentSizeCategory = this.sizeCategory[i].SEQ_ID;
+        this.prevSEQ_ID = this.sizeCategory[i - 1].SEQ_ID;
+        i = i - 1;
+        if (i == -1) i = 0;
+        this.indexTemplate = i;
+      }
     },
     downCurrentTemplate(i) {
       this.currentSizeCategory = this.sizeCategory[i].SEQ_ID;
