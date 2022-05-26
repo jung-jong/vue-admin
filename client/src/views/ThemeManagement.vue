@@ -65,14 +65,37 @@
           <div class="col-8">
             <div class="d-flex align-items-center justify-content-between">
               <h5 class="fw-bold my-3">테마 리스트</h5>
-              <button
-                type="button"
-                class="btn btn-primary"
-                data-bs-toggle="modal"
-                data-bs-target="#addID"
-              >
-                + 테마 추가
-              </button>
+              <div class="dropdown">
+                <button
+                  type="button"
+                  class="btn btn-primary dropdown-toggle"
+                  data-bs-toggle="dropdown"
+                >
+                  + 테마 추가
+                </button>
+                <ul class="dropdown-menu p-3" style="width: 300px">
+                  <li class="mb-3">
+                    <input
+                      class="form-control"
+                      type="text"
+                      placeholder="테마 제목"
+                      v-model="themeName"
+                    />
+                  </li>
+                  <li class="d-flex justify-content-center">
+                    <button type="button" class="btn btn-secondary me-3">
+                      취소
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-primary"
+                      @click="addTheme()"
+                    >
+                      등록
+                    </button>
+                  </li>
+                </ul>
+              </div>
             </div>
             <div class="card justify-content-between" id="theme">
               <ul class="list-group list-group-flush overflow-auto">
@@ -251,6 +274,7 @@ export default {
       indexTheme: null,
       prevSEQ_ID: null,
       nextSEQ_ID: null,
+      themeName: null,
     };
   },
   mixins: [table],
@@ -389,6 +413,22 @@ export default {
       fd.append("ORDER", this.indexTheme + 1);
       fd.append("PREV", this.prevSEQ_ID);
       this.$axios.post("/admin/api/theme_order.php", fd).then(() => {});
+    },
+    addTheme() {
+      const fd = new FormData();
+      fd.append("CONTENTS_CATEGORY_ID", this.currentContents.SEQ_ID);
+      fd.append("THEME_NAME", this.themeName);
+      fd.append("ORDER", this.contents.length);
+      if (this.themeName === null) {
+        alert("테마 제목을 입력하세요.");
+      } else if (this.activeContents === false) {
+        alert("컨텐츠를 선택하세요.");
+      } else {
+        this.$loading();
+        this.$axios.post("/admin/api/theme_insert.php", fd).then(() => {
+          this.getTheme();
+        });
+      }
     },
     deleteTheme(id) {
       const fd = new FormData();

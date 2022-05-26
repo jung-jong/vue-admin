@@ -32,7 +32,7 @@
             <input
               class="form-control mb-3"
               type="text"
-              placeholder="템플릿 타입 이름"
+              placeholder="템플릿 타입 제목"
               v-if="showAddTemplate"
               v-model="templateName"
             />
@@ -101,7 +101,7 @@
             <input
               class="form-control mb-3"
               type="text"
-              placeholder="분류 이름"
+              placeholder="분류 제목"
               v-if="showAddSize"
               v-model="sizeName"
             />
@@ -328,17 +328,16 @@ export default {
       this.indexSize = i;
     },
     addSize() {
-      this.$loading();
       const fd = new FormData();
       fd.append("SIZE_CATEGORY_ID", this.currentSizeCategory);
       fd.append("SIZE_NAME", this.sizeName);
       fd.append("ORDER", this.size.length);
       if (this.sizeName === null) {
-        alert("분류 이름을 입력하세요.");
-        this.$endloading();
+        alert("분류 제목을 입력하세요.");
       } else if (this.activeCategory === false) {
         alert("템플릿 타입을 선택하세요.");
       } else {
+        this.$loading();
         this.$axios.post("/admin/api/size_insert.php", fd).then(() => {
           this.getSize(this.activeCategory);
         });
