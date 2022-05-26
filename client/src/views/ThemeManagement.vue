@@ -312,10 +312,14 @@ export default {
     },
     totalPage() {
       if (this.check === 2) {
-        this.$axios.get("/admin/api/theme_page.php").then((response) => {
-          this.totalPages = response.data;
-          this.totalPages = Math.ceil(this.totalPages / this.length);
-        });
+        this.$axios
+          .get("/admin/api/theme_page.php", {
+            params: { contents: this.currentContents.SEQ_ID },
+          })
+          .then((response) => {
+            this.totalPages = response.data;
+            this.totalPages = Math.ceil(this.totalPages / this.length);
+          });
       }
     },
     getCurrentPage() {
