@@ -85,7 +85,13 @@
                 >
                   {{ themeList.THEME_NAME }}
                   <div class="d-flex">
-                    <span class="material-symbols-rounded"> delete </span>
+                    <span
+                      role="button"
+                      class="material-symbols-rounded"
+                      @click="deleteTheme(themeList.SEQ_ID)"
+                    >
+                      delete
+                    </span>
                     <span
                       role="button"
                       class="material-symbols-rounded"
@@ -281,18 +287,20 @@ export default {
       this.currentThemeList = themeList;
     },
     totalPage() {
-      this.$axios.get("/admin/api/theme_page.php").then((response) => {
-        this.totalPages = response.data;
-        this.totalPages = Math.ceil(this.totalPages / this.length);
-      });
+      if (this.check === 2) {
+        this.$axios.get("/admin/api/theme_page.php").then((response) => {
+          this.totalPages = response.data;
+          this.totalPages = Math.ceil(this.totalPages / this.length);
+        });
+      }
     },
     getCurrentPage() {
-      this.$loading();
-      let i = this.currentPage;
-      let page = this.length;
-      i = page * i - page;
-      this.start = i;
       if (this.check === 2) {
+        this.$loading();
+        let i = this.currentPage;
+        let page = this.length;
+        i = page * i - page;
+        this.start = i;
         this.$axios
           .get("/admin/api/theme.php", {
             params: {
@@ -308,25 +316,55 @@ export default {
       }
     },
     upCurrentTheme(i) {
+      this.currentThemeList = this.themeList[i].SEQ_ID;
       if (i !== 0) {
-        this.currentThemeList = this.themeList[i].SEQ_ID;
         this.prevSEQ_ID = this.themeList[i - 1].SEQ_ID;
-        i = i - 1;
-        if (i == -1) i = 0;
-        this.indexTheme = i;
+        this.indexTheme = i - 1;
         this.orderThemePrev();
+      } else if (i === 0) {
+        this.indexTheme = this.start - 1;
+        let i = this.currentPage;
+        let page = this.length;
+        i = page * i - page;
+        this.start = i;
+        this.$axios
+          .get("/admin/api/theme.php", {
+            params: {
+              contents: this.currentContents.SEQ_ID,
+              start: this.start - 1,
+              length: 1,
+            },
+          })
+          .then((response) => {
+            this.prevSEQ_ID = response.data[0].SEQ_ID;
+            this.orderThemePrev();
+          });
       }
     },
     downCurrentTheme(i) {
-      if (this.length - 1 !== i) {
-        this.currentThemeList = this.themeList[i].SEQ_ID;
+      this.currentThemeList = this.themeList[i].SEQ_ID;
+      if (i <= 8) {
         this.nextSEQ_ID = this.themeList[i + 1].SEQ_ID;
-        i = i + 1;
-        if (this.length == i) {
-          i = i - 1;
-        }
-        this.indexTheme = i;
+        this.indexTheme = i + 1;
         this.orderThemeNext();
+      } else if (i === 9) {
+        this.indexTheme = this.start + this.length;
+        let i = this.currentPage;
+        let page = this.length;
+        i = page * i - page;
+        this.start = i;
+        this.$axios
+          .get("/admin/api/theme.php", {
+            params: {
+              contents: this.currentContents.SEQ_ID,
+              start: this.start + this.length,
+              length: 1,
+            },
+          })
+          .then((response) => {
+            this.nextSEQ_ID = response.data[0].SEQ_ID;
+            this.orderThemeNext();
+          });
       }
     },
     orderTheme() {
@@ -351,6 +389,16 @@ export default {
       fd.append("ORDER", this.indexTheme + 1);
       fd.append("PREV", this.prevSEQ_ID);
       this.$axios.post("/admin/api/theme_order.php", fd).then(() => {});
+    },
+    deleteTheme(id) {
+      const fd = new FormData();
+      fd.append("SEQ_ID", id);
+      if (window.confirm("정말 삭제하시겠습니까?")) {
+        this.$loading();
+        this.$axios.post("/admin/api/theme_delete.php", fd).then(() => {
+          this.getTheme();
+        });
+      }
     },
   },
   mounted() {
