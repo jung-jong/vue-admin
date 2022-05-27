@@ -4,6 +4,8 @@ import router from "./router";
 import "@/assets/css/styles.css";
 import mixin from "@/mixins";
 import axios from "axios";
+import "bootstrap";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 //url:포트번호
 // axios.defaults.baseURL = "http://nemolabs.iptime.org:1080";

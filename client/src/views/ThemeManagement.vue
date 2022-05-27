@@ -16,6 +16,7 @@
                 {{ contents.CONTENTS_TYPE_NAME }}
               </option>
             </select>
+
             <div class="card">
               <ul class="list-group list-group-flush overflow-auto h-100">
                 <li
@@ -27,9 +28,6 @@
                     getTheme();
                   "
                   class="list-group-item"
-                  data-bs-toggle="tooltip"
-                  data-bs-placement="right"
-                  title="Tooltip on right"
                 >
                   {{ contents.CONTENTS_TYPE_NAME }}
                 </li>
@@ -66,6 +64,10 @@
                   자체 설정
                 </label>
               </div>
+            </div>
+            <div class="alert alert-danger my-3" role="alert" v-if="apiCheck">
+              API 기준에서 선택할 수<br />
+              없습니다.
             </div>
           </div>
 
@@ -235,6 +237,7 @@ export default {
       prevSEQ_ID: null,
       nextSEQ_ID: null,
       themeName: "",
+      apiCheck: false,
     };
   },
   mixins: [table],
@@ -248,12 +251,14 @@ export default {
     selectContents(i, contents) {
       if (this.check == "1") {
         const contentsType = contents.CONTENTS_TYPE_NAME;
-        if (contentsType == "템플릿") return;
-        if (contentsType == "텍스트") return;
-        if (contentsType == "도형") return;
-        if (contentsType == "표") return;
-        if (contentsType == "차트") return;
-        if (contentsType == "스타일") return;
+        let apiCheck = (this.apiCheck = true);
+        if (contentsType == "템플릿") return apiCheck;
+        if (contentsType == "텍스트") return apiCheck;
+        if (contentsType == "도형") return apiCheck;
+        if (contentsType == "표") return apiCheck;
+        if (contentsType == "차트") return apiCheck;
+        if (contentsType == "스타일") return apiCheck;
+        // if ((apiCheck = false)) return (apiCheck = this.apiCheck = false);
       }
       this.activeContents = i;
       this.selected = i + 1;
