@@ -4,7 +4,7 @@
       <div class="container-fluid px-4">
         <page-name :mainMenu="main" />
         <table-loading v-if="tableLoading" />
-        <div class="row gx-4 my-3" id="top">
+        <div class="row gx-4 mb-3" id="top">
           <div class="col-2">
             <h5 class="fw-bold my-3">컨텐츠 타입</h5>
             <select
@@ -27,6 +27,9 @@
                     getTheme();
                   "
                   class="list-group-item"
+                  data-bs-toggle="tooltip"
+                  data-bs-placement="right"
+                  title="Tooltip on right"
                 >
                   {{ contents.CONTENTS_TYPE_NAME }}
                 </li>
@@ -44,6 +47,7 @@
                   value="1"
                   id="flexCheckDefault"
                   v-model="check"
+                  @change="getTheme()"
                 />
                 <label class="form-check-label" for="flexCheckDefault">
                   API 기준
@@ -56,6 +60,7 @@
                   value="2"
                   id="flexCheckChecked"
                   v-model="check"
+                  @change="getTheme()"
                 />
                 <label class="form-check-label" for="flexCheckChecked">
                   자체 설정
@@ -177,7 +182,7 @@
               + 콘텐츠 추가
             </button>
           </div>
-          <div class="card p-3 flex-row flex-wrap overflow-auto">
+          <div class="card px-3 flex-row flex-wrap overflow-auto">
             <div class="d-flex flex-column m-2">
               <div class="form-check form-check-inline">
                 <input class="form-check-input" type="checkbox" value="" />
@@ -186,67 +191,7 @@
               <img
                 src="../assets/memo.png"
                 class="img-thumbnail"
-                style="width: 200px; height: 200px"
-                alt="../assets/memo.png"
-              />
-            </div>
-            <div class="d-flex flex-column m-2">
-              <div class="form-check form-check-inline">
-                <input class="form-check-input" type="checkbox" value="" />
-                <span class="material-symbols-rounded"> delete </span>
-              </div>
-              <img
-                src="../assets/memo.png"
-                class="img-thumbnail"
-                style="width: 200px; height: 200px"
-                alt="../assets/memo.png"
-              />
-            </div>
-            <div class="d-flex flex-column m-2">
-              <div class="form-check form-check-inline">
-                <input class="form-check-input" type="checkbox" value="" />
-                <span class="material-symbols-rounded"> delete </span>
-              </div>
-              <img
-                src="../assets/memo.png"
-                class="img-thumbnail"
-                style="width: 200px; height: 200px"
-                alt="../assets/memo.png"
-              />
-            </div>
-            <div class="d-flex flex-column m-2">
-              <div class="form-check form-check-inline">
-                <input class="form-check-input" type="checkbox" value="" />
-                <span class="material-symbols-rounded"> delete </span>
-              </div>
-              <img
-                src="../assets/memo.png"
-                class="img-thumbnail"
-                style="width: 200px; height: 200px"
-                alt="../assets/memo.png"
-              />
-            </div>
-            <div class="d-flex flex-column m-2">
-              <div class="form-check form-check-inline">
-                <input class="form-check-input" type="checkbox" value="" />
-                <span class="material-symbols-rounded"> delete </span>
-              </div>
-              <img
-                src="../assets/memo.png"
-                class="img-thumbnail"
-                style="width: 200px; height: 200px"
-                alt="../assets/memo.png"
-              />
-            </div>
-            <div class="d-flex flex-column m-2">
-              <div class="form-check form-check-inline">
-                <input class="form-check-input" type="checkbox" value="" />
-                <span class="material-symbols-rounded"> delete </span>
-              </div>
-              <img
-                src="../assets/memo.png"
-                class="img-thumbnail"
-                style="width: 200px; height: 200px"
+                style="width: 150px; height: 150px"
                 alt="../assets/memo.png"
               />
             </div>
@@ -281,7 +226,7 @@ export default {
       themeList: [],
       currentThemeList: {},
       selected: 0,
-      check: 2,
+      check: "2",
       activeContents: false,
       activeThemeList: false,
       start: 0,
@@ -301,6 +246,15 @@ export default {
       });
     },
     selectContents(i, contents) {
+      if (this.check == "1") {
+        const contentsType = contents.CONTENTS_TYPE_NAME;
+        if (contentsType == "템플릿") return;
+        if (contentsType == "텍스트") return;
+        if (contentsType == "도형") return;
+        if (contentsType == "표") return;
+        if (contentsType == "차트") return;
+        if (contentsType == "스타일") return;
+      }
       this.activeContents = i;
       this.selected = i + 1;
       this.currentContents = contents;
@@ -310,7 +264,8 @@ export default {
       this.getTheme();
     },
     getTheme() {
-      if (this.check === 2) {
+      if (this.check == "2") {
+        this.themeList = [];
         this.$loading();
         this.$axios
           .get("/admin/api/theme.php", {
@@ -325,6 +280,8 @@ export default {
             this.totalPage();
             this.$endloading();
           });
+      } else if (this.check == "1") {
+        this.themeList = [];
       }
     },
     selectThemeList(i, themeList) {
@@ -332,7 +289,7 @@ export default {
       this.currentThemeList = themeList;
     },
     totalPage() {
-      if (this.check === 2) {
+      if (this.check == "2") {
         this.$axios
           .get("/admin/api/theme_page.php", {
             params: { contents: this.currentContents.SEQ_ID },
@@ -344,7 +301,7 @@ export default {
       }
     },
     getCurrentPage() {
-      if (this.check === 2) {
+      if (this.check == "2") {
         this.$loading();
         let i = this.currentPage;
         let page = this.length;
@@ -479,8 +436,7 @@ export default {
   max-height: 40vh;
 }
 #bottom {
-  height: 30vh;
-  background-color: antiquewhite;
+  height: 35vh;
 }
 #theme {
   height: calc(40vh + 42px);
