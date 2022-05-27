@@ -7,7 +7,11 @@
         <div class="row gx-4 my-3" id="top">
           <div class="col-2">
             <h5 class="fw-bold my-3">컨텐츠 타입</h5>
-            <select v-model="selected" class="form-select m-0 mb-1 w-100">
+            <select
+              v-model="selected"
+              class="form-select m-0 mb-1 w-100"
+              @change="selectContents(selected - 1), selectOption(selected)"
+            >
               <option v-for="(contents, i) in contents" :key="i" :value="i + 1">
                 {{ contents.CONTENTS_TYPE_NAME }}
               </option>
@@ -21,8 +25,6 @@
                   @click="
                     selectContents(i, contents);
                     getTheme();
-                    totalPage();
-                    $loading();
                   "
                   class="list-group-item"
                 >
@@ -70,7 +72,7 @@
                   type="button"
                   class="btn btn-primary dropdown-toggle"
                   data-bs-toggle="dropdown"
-                  data-bs-auto-close="outside"
+                  data-bs-auto-close="inside"
                 >
                   + 테마 추가
                 </button>
@@ -303,8 +305,13 @@ export default {
       this.selected = i + 1;
       this.currentContents = contents;
     },
+    selectOption(i) {
+      this.currentContents = this.contents[i - 1];
+      this.getTheme();
+    },
     getTheme() {
       if (this.check === 2) {
+        this.$loading();
         this.$axios
           .get("/admin/api/theme.php", {
             params: {
@@ -315,6 +322,7 @@ export default {
           })
           .then((response) => {
             this.themeList = response.data;
+            this.totalPage();
             this.$endloading();
           });
       }
@@ -436,7 +444,7 @@ export default {
         const fd = new FormData();
         fd.append("CONTENTS_CATEGORY_ID", this.currentContents.SEQ_ID);
         fd.append("THEME_NAME", this.themeName);
-        fd.append("ORDER", this.contents.length);
+        fd.append("ORDER", this.themeList.length);
         this.$loading();
         this.$axios.post("/admin/api/theme_insert.php", fd).then(() => {
           this.getTheme();
