@@ -24,18 +24,23 @@
               <button
                 class="btn btn-secondary"
                 type="button"
-                @click="addTemplate()"
+                @click="addTemplate(), (templateName = '')"
               >
                 저장
               </button>
             </div>
-            <input
-              class="form-control mb-3"
-              type="text"
-              placeholder="템플릿 타입 제목"
-              v-if="showAddTemplate"
-              v-model="templateName"
-            />
+            <div class="mb-3">
+              <input
+                class="form-control"
+                :class="{ 'is-invalid': templateName === '' }"
+                type="text"
+                v-if="showAddTemplate"
+                v-model="templateName"
+              />
+              <div v-if="templateName === ''" class="invalid-feedback">
+                템플릿 타입 제목을 입력하세요.
+              </div>
+            </div>
             <div class="card">
               <ul class="list-group list-group-flush">
                 <li
@@ -93,18 +98,29 @@
               <button
                 class="btn btn-secondary"
                 type="button"
-                @click="addSize()"
+                @click="addSize(), (sizeName = '')"
               >
                 저장
               </button>
             </div>
-            <input
-              class="form-control mb-3"
-              type="text"
-              placeholder="분류 제목"
-              v-if="showAddSize"
-              v-model="sizeName"
-            />
+            <div class="mb-3">
+              <input
+                class="form-control"
+                :class="[
+                  { 'is-invalid': sizeName === '' },
+                  { 'is-invalid': activeCategory === false },
+                ]"
+                type="text"
+                v-if="showAddSize"
+                v-model="sizeName"
+              />
+              <div v-if="activeCategory === false" class="invalid-feedback">
+                템플릿 타입을 선택하세요.
+              </div>
+              <div v-if="sizeName === ''" class="invalid-feedback">
+                분류 제목을 입력하세요.
+              </div>
+            </div>
             <div class="card">
               <ul class="list-group list-group-flush">
                 <li
@@ -114,7 +130,6 @@
                   @click="activeSizeName(i)"
                   class="list-group-item d-flex justify-content-between align-items-center"
                 >
-                  {{ size.ORDER }}
                   {{ size.SIZE_NAME }}
                   <div class="d-flex">
                     <span
@@ -212,8 +227,8 @@ export default {
       height: null,
       showAddTemplate: false,
       showAddSize: false,
-      templateName: null,
-      sizeName: null,
+      templateName: "",
+      sizeName: "",
     };
   },
   mixins: [table],
@@ -225,14 +240,11 @@ export default {
       });
     },
     addTemplate() {
-      this.$loading();
-      const fd = new FormData();
-      fd.append("TEMPLATE_TYPE_NAME", this.templateName);
-      fd.append("ORDER", this.sizeCategory.length);
-      if (this.templateName === null) {
-        alert("템플릿 타입 이름을 입력하세요.");
-        this.$endloading();
-      } else {
+      if (this.templateName !== "") {
+        this.$loading();
+        const fd = new FormData();
+        fd.append("TEMPLATE_TYPE_NAME", this.templateName);
+        fd.append("ORDER", this.sizeCategory.length);
         this.$axios.post("/admin/api/size_category_insert.php", fd).then(() => {
           this.getSizeCategory();
         });
@@ -328,16 +340,12 @@ export default {
       this.indexSize = i;
     },
     addSize() {
-      const fd = new FormData();
-      fd.append("SIZE_CATEGORY_ID", this.currentSizeCategory);
-      fd.append("SIZE_NAME", this.sizeName);
-      fd.append("ORDER", this.size.length);
-      if (this.sizeName === null) {
-        alert("분류 제목을 입력하세요.");
-      } else if (this.activeCategory === false) {
-        alert("템플릿 타입을 선택하세요.");
-      } else {
+      if ((this.activeCategory !== false) & (this.sizeName !== "")) {
         this.$loading();
+        const fd = new FormData();
+        fd.append("SIZE_CATEGORY_ID", this.currentSizeCategory);
+        fd.append("SIZE_NAME", this.sizeName);
+        fd.append("ORDER", this.size.length);
         this.$axios.post("/admin/api/size_insert.php", fd).then(() => {
           this.getSize(this.activeCategory);
         });

@@ -65,11 +65,12 @@
           <div class="col-8">
             <div class="d-flex align-items-center justify-content-between">
               <h5 class="fw-bold my-3">테마 리스트</h5>
-              <div class="dropdown">
+              <div class="btn-group">
                 <button
                   type="button"
                   class="btn btn-primary dropdown-toggle"
                   data-bs-toggle="dropdown"
+                  data-bs-auto-close="outside"
                 >
                   + 테마 추가
                 </button>
@@ -77,10 +78,22 @@
                   <li class="mb-3">
                     <input
                       class="form-control"
+                      :class="[
+                        { 'is-invalid': themeName === '' },
+                        { 'is-invalid': activeContents === false },
+                      ]"
                       type="text"
-                      placeholder="테마 제목"
                       v-model="themeName"
                     />
+                    <div
+                      v-if="activeContents === false"
+                      class="invalid-feedback"
+                    >
+                      컨텐츠 타입을 선택하세요.
+                    </div>
+                    <div v-if="themeName === ''" class="invalid-feedback">
+                      테마 제목을 입력하세요.
+                    </div>
                   </li>
                   <li class="d-flex justify-content-center">
                     <button type="button" class="btn btn-secondary me-3">
@@ -89,7 +102,7 @@
                     <button
                       type="button"
                       class="btn btn-primary"
-                      @click="addTheme()"
+                      @click="addTheme(), (themeName = '')"
                     >
                       등록
                     </button>
@@ -274,7 +287,7 @@ export default {
       indexTheme: null,
       prevSEQ_ID: null,
       nextSEQ_ID: null,
-      themeName: null,
+      themeName: "",
     };
   },
   mixins: [table],
@@ -419,15 +432,11 @@ export default {
       this.$axios.post("/admin/api/theme_order.php", fd).then(() => {});
     },
     addTheme() {
-      const fd = new FormData();
-      fd.append("CONTENTS_CATEGORY_ID", this.currentContents.SEQ_ID);
-      fd.append("THEME_NAME", this.themeName);
-      fd.append("ORDER", this.contents.length);
-      if (this.themeName === null) {
-        alert("테마 제목을 입력하세요.");
-      } else if (this.activeContents === false) {
-        alert("컨텐츠를 선택하세요.");
-      } else {
+      if ((this.activeContents !== false) & (this.themeName !== "")) {
+        const fd = new FormData();
+        fd.append("CONTENTS_CATEGORY_ID", this.currentContents.SEQ_ID);
+        fd.append("THEME_NAME", this.themeName);
+        fd.append("ORDER", this.contents.length);
         this.$loading();
         this.$axios.post("/admin/api/theme_insert.php", fd).then(() => {
           this.getTheme();

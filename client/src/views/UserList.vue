@@ -589,13 +589,15 @@ export default {
       // window.URL.revokeObjectURL(url);
     },
     fileDelete(id) {
-      const fd = new FormData();
-      fd.append("SEQ_ID", id);
-      this.$axios.post("/admin/api/file_delete.php", fd).then(() => {
-        this.getFile(this.currentStorage.USER_ID);
-        this.storageUse();
-        alert("삭제 성공");
-      });
+      if (window.confirm("정말 삭제하시겠습니까?")) {
+        this.$loading();
+        const fd = new FormData();
+        fd.append("SEQ_ID", id);
+        this.$axios.post("/admin/api/file_delete.php", fd).then(() => {
+          this.getFile(this.currentStorage.USER_ID);
+          this.storageUse();
+        });
+      }
     },
     storageUse() {
       this.$axios
@@ -612,7 +614,9 @@ export default {
           fd.append("USER_ID", this.currentStorage.USER_ID);
           this.$axios
             .post("/admin/api/file_storage_update.php", fd)
-            .then(() => {});
+            .then(() => {
+              this.getUserList();
+            });
         });
     },
     excelDownload() {
