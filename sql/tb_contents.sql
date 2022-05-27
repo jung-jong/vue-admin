@@ -1,7 +1,7 @@
 -- --------------------------------------------------------
 -- 호스트:                          127.0.0.1
--- 서버 버전:                        10.7.3-MariaDB - mariadb.org binary distribution
--- 서버 OS:                        Win64
+-- 서버 버전:                        8.0.29-0ubuntu0.20.04.3 - (Ubuntu)
+-- 서버 OS:                        Linux
 -- HeidiSQL 버전:                  12.0.0.6468
 -- --------------------------------------------------------
 
@@ -14,26 +14,30 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
--- 테이블 admin.tb_contents 구조 내보내기
-CREATE TABLE IF NOT EXISTS `tb_contents` (
-  `SEQ_ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `THUMB_IMG_PATH` varchar(256) NOT NULL,
-  `NAME` varchar(64) NOT NULL,
-  `TYPE` varchar(64) NOT NULL,
-  `TAGS` varchar(256) NOT NULL,
-  `PUBLIC_FLAG` int(11) NOT NULL DEFAULT 0,
-  `DEL` int(11) NOT NULL DEFAULT 0,
-  `A_ID` bigint(20) unsigned NOT NULL,
-  `U_ID` bigint(20) unsigned NOT NULL,
-  `D_ID` bigint(20) unsigned DEFAULT NULL,
-  `A_DATE` datetime NOT NULL DEFAULT current_timestamp(),
-  `U_DATE` datetime NOT NULL DEFAULT current_timestamp(),
-  `D_DATE` datetime DEFAULT NULL,
-  PRIMARY KEY (`SEQ_ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+-- 테이블 tongro.TB_CONTENTS 구조 내보내기
+CREATE TABLE IF NOT EXISTS `TB_CONTENTS` (
+  `SEQ_ID` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '고유ID',
+  `CONTENTS_NAME` varchar(64) NOT NULL COMMENT '콘텐츠 이름',
+  `THEME_ID` bigint unsigned NOT NULL COMMENT '테마 SEQ_ID / TB_THEME.SEQ_ID',
+  `KEYWORD` varchar(256) NOT NULL COMMENT '키워드',
+  `THUMB_SMALL_PATH` varchar(256) CHARACTER SET utf8mb3 COLLATE utf8_general_ci NOT NULL COMMENT '썸네일 이미지 경로 (작은 크기)',
+  `THUMB_BIG_PATH` varchar(256) NOT NULL COMMENT '썸네일 이미지 경로 (큰 크기)',
+  `CONTENTS_PATH` varchar(256) NOT NULL COMMENT '컨텐츠 파일 경로',
+  `USE_TYPE` int NOT NULL COMMENT '컨텐츠 용도 / 1:웹용, 2:인쇄용',
+  `SIZE_CATEGORY_ID` bigint NOT NULL COMMENT '작업크기 카테고리 ID / TB_SIZE_CATEGORY.SEQ_ID\n- 템플릿 컨텐츠인 경우만 해당',
+  `SIZE_INFO_ID` bigint NOT NULL COMMENT '작업크기 정보 ID / TB_SIZE.SEQ_ID\n- 템플릿 컨텐츠인 경우만 해당',
+  `PUBLIC_FLAG` int NOT NULL DEFAULT '0' COMMENT '사용 여부 / 0 : false, 1 : true',
+  `DEL` int NOT NULL DEFAULT '0' COMMENT '삭제여부 0 : false, 1 : true',
+  `A_ID` bigint unsigned NOT NULL COMMENT '생성자 ID',
+  `U_ID` bigint unsigned NOT NULL COMMENT '수정자 ID',
+  `D_ID` bigint unsigned DEFAULT NULL COMMENT '삭제자 ID',
+  `A_DATE` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일',
+  `U_DATE` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '수정일',
+  `D_DATE` datetime DEFAULT NULL COMMENT '삭제일',
+  PRIMARY KEY (`SEQ_ID`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='컨텐츠';
 
--- 테이블 데이터 admin.tb_contents:~0 rows (대략적) 내보내기
-DELETE FROM `tb_contents`;
+-- 내보낼 데이터가 선택되어 있지 않습니다.
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
