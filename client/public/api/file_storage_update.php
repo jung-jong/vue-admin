@@ -3,7 +3,7 @@ include("connect.php");
 header("Content-Type:text/html;charset=utf-8");
 
 if (isset($_GET['id'])) {
-  $sql = "SELECT * FROM TB_UPLOAD_FILE WHERE FILE_DIR = '{$_GET['id']}'";
+  $sql = "SELECT * FROM TB_MY_UPLOAD WHERE FILE_DIR = '{$_GET['id']}'";
   
   $result = mysqli_query($conn, $sql);
 

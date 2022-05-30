@@ -2,14 +2,12 @@
 -- 호스트:                          127.0.0.1
 -- 서버 버전:                        8.0.29-0ubuntu0.20.04.3 - (Ubuntu)
 -- 서버 OS:                        Linux
--- HeidiSQL 버전:                  12.0.0.6468
+-- HeidiSQL 버전:                  11.3.0.6295
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET NAMES utf8 */;
 /*!50503 SET NAMES utf8mb4 */;
-/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
-/*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
@@ -20,9 +18,8 @@ CREATE TABLE IF NOT EXISTS `TB_CONTENTS` (
   `CONTENTS_NAME` varchar(64) NOT NULL COMMENT '콘텐츠 이름',
   `THEME_ID` bigint unsigned NOT NULL COMMENT '테마 SEQ_ID / TB_THEME.SEQ_ID',
   `KEYWORD` varchar(256) NOT NULL COMMENT '키워드',
-  `THUMB_SMALL_PATH` varchar(256) CHARACTER SET utf8mb3 COLLATE utf8_general_ci NOT NULL COMMENT '썸네일 이미지 경로 (작은 크기)',
-  `THUMB_BIG_PATH` varchar(256) NOT NULL COMMENT '썸네일 이미지 경로 (큰 크기)',
-  `CONTENTS_PATH` varchar(256) NOT NULL COMMENT '컨텐츠 파일 경로',
+  `THUMB_PATH` varchar(256) CHARACTER SET utf8mb3 COLLATE utf8_general_ci NOT NULL COMMENT '썸네일 이미지 경로 (작은 크기)\r\n컨텐츠 타입별 아래의 경로에 업로드\r\n- 템플릿 컨텐츠\r\n  ./contents/template/thumb/SEQ_ID.png \r\n- 텍스트 컨텐츠\r\n  ./contents/text/thumb/SEQ_ID.png\r\n- 도형 컨텐츠\r\n  ./contents/shape/thumb/SEQ_ID.png\r\n- 표 컨텐츠\r\n  ./contents/table/thumb/SEQ_ID.png\r\n- 차트 컨텐츠\r\n  ./contents/chart/thumb/SEQ_ID.png\r\n- 스타일 컨텐츠\r\n  ./contents/style/thumb/SEQ_ID.png\r\n',
+  `CONTENTS_PATH` varchar(256) CHARACTER SET utf8mb3 COLLATE utf8_general_ci NOT NULL COMMENT '컨텐츠 파일 경로\r\n컨텐츠 타입에 따라 아래의 경로에 업로드\r\n- 디자인 템플릿\r\n  ./contents/template/\r\n- 텍스트 컨텐츠\r\n  ./contents/text/ \r\n- 도형 컨텐츠\r\n  ./contents/shape/\r\n- 표 컨텐츠\r\n  ./contents/table/ \r\n- 차트 컨텐츠\r\n  ./contents/chart/\r\n- 스타일 컨텐츠\r\n  ./contents/style/\r\n',
   `USE_TYPE` int NOT NULL COMMENT '컨텐츠 용도 / 1:웹용, 2:인쇄용',
   `SIZE_CATEGORY_ID` bigint NOT NULL COMMENT '작업크기 카테고리 ID / TB_SIZE_CATEGORY.SEQ_ID\n- 템플릿 컨텐츠인 경우만 해당',
   `SIZE_INFO_ID` bigint NOT NULL COMMENT '작업크기 정보 ID / TB_SIZE.SEQ_ID\n- 템플릿 컨텐츠인 경우만 해당',
@@ -37,9 +34,10 @@ CREATE TABLE IF NOT EXISTS `TB_CONTENTS` (
   PRIMARY KEY (`SEQ_ID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='컨텐츠';
 
--- 내보낼 데이터가 선택되어 있지 않습니다.
+-- 테이블 데이터 tongro.TB_CONTENTS:~0 rows (대략적) 내보내기
+/*!40000 ALTER TABLE `TB_CONTENTS` DISABLE KEYS */;
+/*!40000 ALTER TABLE `TB_CONTENTS` ENABLE KEYS */;
 
-/*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

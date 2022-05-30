@@ -66,8 +66,7 @@
               </div>
             </div>
             <div class="alert alert-danger my-3" role="alert" v-if="apiCheck">
-              API 기준에서 선택할 수<br />
-              없습니다.
+              API 기준에서 선택할 수 없습니다.
             </div>
           </div>
 
@@ -179,7 +178,7 @@
               type="button"
               class="btn btn-primary"
               data-bs-toggle="modal"
-              data-bs-target="#addID"
+              data-bs-target="#staticBackdrop"
             >
               + 콘텐츠 추가
             </button>
@@ -205,6 +204,222 @@
           >
             저 장
           </button>
+        </div>
+
+        <!-- 템플릿 추가 -->
+        <div
+          class="modal fade"
+          id="staticBackdrop"
+          data-bs-backdrop="static"
+          data-bs-keyboard="false"
+        >
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">
+                  템플릿 추가 - {{ currentContents.CONTENTS_TYPE_NAME }}
+                </h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <div class="mb-3 row">
+                  <label for="conname" class="col-2 col-form-label fw-bold"
+                    >콘텐츠 이름</label
+                  >
+                  <div class="col-10">
+                    <input type="text" class="form-control" id="conname" />
+                  </div>
+                </div>
+                <div class="mb-3 row">
+                  <label for="contype" class="col-2 col-form-label fw-bold"
+                    >콘텐츠 타입</label
+                  >
+                  <div class="col-10">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="contype"
+                      readonly
+                      :value="currentContents.CONTENTS_TYPE_NAME"
+                    />
+                  </div>
+                </div>
+                <div class="mb-3 row">
+                  <label for="contheme" class="col-2 col-form-label fw-bold"
+                    >콘텐츠 테마</label
+                  >
+                  <div class="col-10">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="contheme"
+                      readonly
+                    />
+                  </div>
+                </div>
+                <div class="mb-3 row">
+                  <label for="keyword" class="col-2 col-form-label fw-bold"
+                    >키워드</label
+                  >
+                  <div class="col-10">
+                    <input type="text" class="form-control" id="keyword" />
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-2 col-form-label fw-bold">썸네일</div>
+                  <div class="col-10">
+                    <div class="row">
+                      <span class="material-symbols-rounded">
+                        add_photo_alternate
+                      </span>
+                      <img :src="thumbnail" id="thumbnail" alt="" />
+                      <div class="input-group mb-3 w-auto">
+                        <input
+                          type="file"
+                          class="form-control"
+                          id="inputGroupFile02"
+                          @change="onFileSelected(this)"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-2 col-form-label fw-bold">콘텐츠</div>
+                  <div class="col-10">
+                    <div class="row">
+                      <img :src="thumbnail" id="thumbnail" alt="" />
+                      <div class="input-group mb-3 w-auto">
+                        <input
+                          type="file"
+                          class="form-control"
+                          id="inputGroupFile02"
+                          @change="onFileSelected(this)"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-2 col-form-label fw-bold">콘텐츠 용도</div>
+                  <div class="col-10">
+                    <div class="form-check form-check-inline">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        name="inlineRadioOptions"
+                        id="inlineRadio1"
+                        value="option1"
+                      />
+                      <label class="form-check-label" for="inlineRadio1"
+                        >웹용</label
+                      >
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        name="inlineRadioOptions"
+                        id="inlineRadio2"
+                        value="option2"
+                      />
+                      <label class="form-check-label" for="inlineRadio2"
+                        >인쇄용</label
+                      >
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-2 col-form-label fw-bold">콘텐츠 용도</div>
+                  <div class="col-10">
+                    <div class="row">
+                      <div class="col">
+                        <select class="form-select" v-model="selectWorkingSize">
+                          <option
+                            value="1"
+                            v-for="(sizeCategory, i) in sizeCategory"
+                            :key="i"
+                          >
+                            {{ sizeCategory.TEMPLATE_TYPE_NAME }}
+                          </option>
+                        </select>
+                        <select class="form-select" v-model="selectSize">
+                          <option value="1">One</option>
+                          <option value="2">Two</option>
+                          <option value="3">Three</option>
+                        </select>
+                      </div>
+                      <div class="col">
+                        <div class="row">
+                          <div class="col">
+                            <p>가로</p>
+                            <input
+                              type="text"
+                              class="form-control"
+                              v-model="width"
+                            />
+                          </div>
+                          <div class="col">
+                            <p>세로</p>
+                            <input
+                              type="text"
+                              class="form-control"
+                              v-model="height"
+                            />
+                          </div>
+                          <div class="col">
+                            <p>단위</p>
+                            <input
+                              type="text"
+                              class="form-control"
+                              v-model="height"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-2 col-form-label fw-bold">작업크기</div>
+                  <div class="col-10">
+                    <div class="form-check form-check-inline">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="inlineRadio1"
+                        value="option1"
+                      />
+                      <label class="form-check-label" for="inlineRadio1"
+                        >사용</label
+                      >
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="inlineRadio2"
+                        value="option2"
+                      />
+                      <label class="form-check-label" for="inlineRadio2"
+                        >미사용</label
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary m-auto">
+                  업로드
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </main>
@@ -238,6 +453,9 @@ export default {
       nextSEQ_ID: null,
       themeName: "",
       apiCheck: false,
+      contentsList: [],
+      thumbnail: "",
+      sizeCategory: [],
     };
   },
   mixins: [table],
@@ -251,20 +469,36 @@ export default {
     selectContents(i, contents) {
       if (this.check == "1") {
         const contentsType = contents.CONTENTS_TYPE_NAME;
-        let apiCheck = (this.apiCheck = true);
-        if (contentsType == "템플릿") return apiCheck;
-        if (contentsType == "텍스트") return apiCheck;
-        if (contentsType == "도형") return apiCheck;
-        if (contentsType == "표") return apiCheck;
-        if (contentsType == "차트") return apiCheck;
-        if (contentsType == "스타일") return apiCheck;
-        // if ((apiCheck = false)) return (apiCheck = this.apiCheck = false);
+        const warnning =
+          contentsType == "템플릿" ||
+          contentsType == "텍스트" ||
+          contentsType == "도형" ||
+          contentsType == "표" ||
+          contentsType == "차트" ||
+          contentsType == "스타일";
+        if (warnning) {
+          return (this.apiCheck = true);
+        } else {
+          this.apiCheck = false;
+        }
       }
       this.activeContents = i;
       this.selected = i + 1;
       this.currentContents = contents;
     },
     selectOption(i) {
+      if (
+        (this.check == "1") & (i == 1) ||
+        i == 12 ||
+        i == 13 ||
+        i == 14 ||
+        i == 15 ||
+        i == 16
+      ) {
+        return (this.apiCheck = true);
+      } else {
+        this.apiCheck = false;
+      }
       this.currentContents = this.contents[i - 1];
       this.getTheme();
     },
@@ -423,6 +657,27 @@ export default {
         });
       }
     },
+    getContentsList() {
+      this.$axios.get("/admin/api/contents.php").then((response) => {
+        this.contentsList = response.data;
+      });
+    },
+    onFileSelected(event) {
+      var input = event.target;
+      if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = (e) => {
+          this.thumbnail = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    },
+    getSizeCategory() {
+      this.$axios.get("/admin/api/size_category.php").then((response) => {
+        this.sizeCategory = response.data;
+        this.$endloading();
+      });
+    },
   },
   mounted() {
     this.getContents();
@@ -445,5 +700,25 @@ export default {
 }
 #theme {
   height: calc(40vh + 42px);
+}
+.modal-dialog {
+  max-width: 1000px !important;
+}
+.modal-content {
+  width: 100% !important;
+}
+.alert {
+  animation: 0.5s warnning;
+}
+@keyframes warnning {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 </style>
