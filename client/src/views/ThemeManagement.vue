@@ -6,7 +6,7 @@
         <table-loading v-if="tableLoading" />
         <div class="row gx-4 mb-3" id="top">
           <div class="col-2">
-            <h5 class="fw-bold my-3">컨텐츠 타입</h5>
+            <h5 class="fw-bold my-3">콘텐츠 타입</h5>
             <select
               v-model="selected"
               class="form-select m-0 mb-1 w-100"
@@ -44,7 +44,7 @@
                   type="radio"
                   value="1"
                   id="flexCheckDefault"
-                  v-model="check"
+                  v-model="listCheck"
                   @change="getTheme()"
                 />
                 <label class="form-check-label" for="flexCheckDefault">
@@ -57,7 +57,7 @@
                   type="radio"
                   value="2"
                   id="flexCheckChecked"
-                  v-model="check"
+                  v-model="listCheck"
                   @change="getTheme()"
                 />
                 <label class="form-check-label" for="flexCheckChecked">
@@ -97,7 +97,7 @@
                       v-if="activeContents === false"
                       class="invalid-feedback"
                     >
-                      컨텐츠 타입을 선택하세요.
+                      콘텐츠 타입을 선택하세요.
                     </div>
                     <div v-if="themeName === ''" class="invalid-feedback">
                       테마 제목을 입력하세요.
@@ -179,6 +179,7 @@
               class="btn btn-primary"
               data-bs-toggle="modal"
               data-bs-target="#staticBackdrop"
+              @click="getSizeCategory()"
             >
               + 콘텐츠 추가
             </button>
@@ -206,18 +207,19 @@
           </button>
         </div>
 
-        <!-- 템플릿 추가 -->
+        <!-- 콘텐츠 추가 -->
         <div
           class="modal fade"
           id="staticBackdrop"
           data-bs-backdrop="static"
           data-bs-keyboard="false"
         >
+          <!-- 템플릿 -->
           <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
               <div class="modal-header">
                 <h5 class="modal-title" id="staticBackdropLabel">
-                  템플릿 추가 - {{ currentContents.CONTENTS_TYPE_NAME }}
+                  콘텐츠 추가 - {{ currentContents.CONTENTS_TYPE_NAME }}
                 </h5>
                 <button
                   type="button"
@@ -226,13 +228,18 @@
                   aria-label="Close"
                 ></button>
               </div>
-              <div class="modal-body">
+              <div class="modal-body p-5">
                 <div class="mb-3 row">
                   <label for="conname" class="col-2 col-form-label fw-bold"
                     >콘텐츠 이름</label
                   >
                   <div class="col-10">
-                    <input type="text" class="form-control" id="conname" />
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="conname"
+                      v-model="contentsName"
+                    />
                   </div>
                 </div>
                 <div class="mb-3 row">
@@ -259,6 +266,7 @@
                       class="form-control"
                       id="contheme"
                       readonly
+                      :value="currentThemeList.THEME_NAME"
                     />
                   </div>
                 </div>
@@ -267,81 +275,89 @@
                     >키워드</label
                   >
                   <div class="col-10">
-                    <input type="text" class="form-control" id="keyword" />
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="keyword"
+                      v-model="keyword"
+                    />
                   </div>
                 </div>
-                <div class="row">
+                <div class="mb-3 row">
                   <div class="col-2 col-form-label fw-bold">썸네일</div>
                   <div class="col-10">
-                    <div class="row">
-                      <span class="material-symbols-rounded">
-                        add_photo_alternate
-                      </span>
-                      <img :src="thumbnail" id="thumbnail" alt="" />
-                      <div class="input-group mb-3 w-auto">
+                    <div class="row flex-column">
+                      <img
+                        :src="thumbnail"
+                        id="thumbnail"
+                        :class="{ thubnail: thumbnail != null }"
+                        class="p-0"
+                        alt=""
+                      />
+                      <div class="input-group w-50">
                         <input
                           type="file"
                           class="form-control"
-                          id="inputGroupFile02"
-                          @change="onFileSelected(this)"
+                          id="thumbFile"
+                          @change="onFileSelected($event)"
                         />
                       </div>
                     </div>
                   </div>
                 </div>
-                <div class="row">
+                <div class="row mb-3">
                   <div class="col-2 col-form-label fw-bold">콘텐츠</div>
                   <div class="col-10">
                     <div class="row">
-                      <img :src="thumbnail" id="thumbnail" alt="" />
-                      <div class="input-group mb-3 w-auto">
+                      <div class="input-group w-50">
                         <input
                           type="file"
                           class="form-control"
-                          id="inputGroupFile02"
-                          @change="onFileSelected(this)"
+                          id="contentsFile"
                         />
                       </div>
                     </div>
                   </div>
                 </div>
-                <div class="row">
+                <div class="row align-items-center mb-3">
                   <div class="col-2 col-form-label fw-bold">콘텐츠 용도</div>
                   <div class="col-10">
                     <div class="form-check form-check-inline">
                       <input
                         class="form-check-input"
                         type="checkbox"
-                        name="inlineRadioOptions"
-                        id="inlineRadio1"
-                        value="option1"
+                        id="useWeb"
+                        value="web"
+                        v-model="useType"
                       />
-                      <label class="form-check-label" for="inlineRadio1"
-                        >웹용</label
-                      >
+                      <label class="form-check-label" for="useWeb">웹용</label>
                     </div>
                     <div class="form-check form-check-inline">
                       <input
                         class="form-check-input"
                         type="checkbox"
-                        name="inlineRadioOptions"
-                        id="inlineRadio2"
-                        value="option2"
+                        id="usePrint"
+                        value="print"
+                        v-model="useType"
                       />
-                      <label class="form-check-label" for="inlineRadio2"
+                      <label class="form-check-label" for="usePrint"
                         >인쇄용</label
                       >
                     </div>
                   </div>
                 </div>
-                <div class="row">
-                  <div class="col-2 col-form-label fw-bold">콘텐츠 용도</div>
+                <div class="row mb-3">
+                  <div class="col-2 col-form-label fw-bold">작업크기</div>
                   <div class="col-10">
                     <div class="row">
                       <div class="col">
-                        <select class="form-select" v-model="selectWorkingSize">
+                        <select
+                          class="form-select me-3"
+                          v-model="selectWorkingSize"
+                          @change="getSize()"
+                        >
                           <option
-                            value="1"
+                            :value="i + 1"
                             v-for="(sizeCategory, i) in sizeCategory"
                             :key="i"
                           >
@@ -349,9 +365,13 @@
                           </option>
                         </select>
                         <select class="form-select" v-model="selectSize">
-                          <option value="1">One</option>
-                          <option value="2">Two</option>
-                          <option value="3">Three</option>
+                          <option
+                            :value="i + 1"
+                            v-for="(size, i) in size"
+                            :key="i"
+                          >
+                            {{ size.SIZE_NAME }}
+                          </option>
                         </select>
                       </div>
                       <div class="col">
@@ -362,6 +382,7 @@
                               type="text"
                               class="form-control"
                               v-model="width"
+                              readonly
                             />
                           </div>
                           <div class="col">
@@ -370,6 +391,7 @@
                               type="text"
                               class="form-control"
                               v-model="height"
+                              readonly
                             />
                           </div>
                           <div class="col">
@@ -377,7 +399,8 @@
                             <input
                               type="text"
                               class="form-control"
-                              v-model="height"
+                              v-model="scale"
+                              readonly
                             />
                           </div>
                         </div>
@@ -385,17 +408,18 @@
                     </div>
                   </div>
                 </div>
-                <div class="row">
-                  <div class="col-2 col-form-label fw-bold">작업크기</div>
+                <div class="row align-items-center mb-3">
+                  <div class="col-2 col-form-label fw-bold">사용여부</div>
                   <div class="col-10">
                     <div class="form-check form-check-inline">
                       <input
                         class="form-check-input"
                         type="checkbox"
-                        id="inlineRadio1"
-                        value="option1"
+                        id="publicTrue"
+                        value="true"
+                        v-model="publicFlag"
                       />
-                      <label class="form-check-label" for="inlineRadio1"
+                      <label class="form-check-label" for="publicTrue"
                         >사용</label
                       >
                     </div>
@@ -403,10 +427,11 @@
                       <input
                         class="form-check-input"
                         type="checkbox"
-                        id="inlineRadio2"
-                        value="option2"
+                        id="publicFalse"
+                        value="false"
+                        v-model="publicFlag"
                       />
-                      <label class="form-check-label" for="inlineRadio2"
+                      <label class="form-check-label" for="publicFalse"
                         >미사용</label
                       >
                     </div>
@@ -414,7 +439,7 @@
                 </div>
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-primary m-auto">
+                <button type="button" class="btn btn-lg btn-primary m-auto">
                   업로드
                 </button>
               </div>
@@ -443,7 +468,7 @@ export default {
       themeList: [],
       currentThemeList: {},
       selected: 0,
-      check: "2",
+      listCheck: "2",
       activeContents: false,
       activeThemeList: false,
       start: 0,
@@ -454,8 +479,20 @@ export default {
       themeName: "",
       apiCheck: false,
       contentsList: [],
-      thumbnail: "",
+
+      // 콘텐츠 추가
+      contentsName: "",
+      keyword: "",
+      thumbnail: null,
       sizeCategory: [],
+      selectWorkingSize: 1,
+      size: [],
+      selectSize: 1,
+      width: null,
+      height: null,
+      scale: null,
+      useType: [],
+      publicFlag: [],
     };
   },
   mixins: [table],
@@ -467,7 +504,8 @@ export default {
       });
     },
     selectContents(i, contents) {
-      if (this.check == "1") {
+      this.apiCheck = false;
+      if (this.listCheck == "1") {
         const contentsType = contents.CONTENTS_TYPE_NAME;
         const warnning =
           contentsType == "템플릿" ||
@@ -476,11 +514,7 @@ export default {
           contentsType == "표" ||
           contentsType == "차트" ||
           contentsType == "스타일";
-        if (warnning) {
-          return (this.apiCheck = true);
-        } else {
-          this.apiCheck = false;
-        }
+        if (warnning) return (this.apiCheck = true);
       }
       this.activeContents = i;
       this.selected = i + 1;
@@ -488,7 +522,7 @@ export default {
     },
     selectOption(i) {
       if (
-        (this.check == "1") & (i == 1) ||
+        (this.listCheck == "1") & (i == 1) ||
         i == 12 ||
         i == 13 ||
         i == 14 ||
@@ -503,7 +537,7 @@ export default {
       this.getTheme();
     },
     getTheme() {
-      if (this.check == "2") {
+      if (this.listCheck == "2") {
         this.themeList = [];
         this.$loading();
         this.$axios
@@ -519,7 +553,7 @@ export default {
             this.totalPage();
             this.$endloading();
           });
-      } else if (this.check == "1") {
+      } else if (this.listCheck == "1") {
         this.themeList = [];
       }
     },
@@ -528,7 +562,7 @@ export default {
       this.currentThemeList = themeList;
     },
     totalPage() {
-      if (this.check == "2") {
+      if (this.listCheck == "2") {
         this.$axios
           .get("/admin/api/theme_page.php", {
             params: { contents: this.currentContents.SEQ_ID },
@@ -540,7 +574,7 @@ export default {
       }
     },
     getCurrentPage() {
-      if (this.check == "2") {
+      if (this.listCheck == "2") {
         this.$loading();
         let i = this.currentPage;
         let page = this.length;
@@ -663,9 +697,9 @@ export default {
       });
     },
     onFileSelected(event) {
-      var input = event.target;
+      const input = event.target;
       if (input.files && input.files[0]) {
-        var reader = new FileReader();
+        const reader = new FileReader();
         reader.onload = (e) => {
           this.thumbnail = e.target.result;
         };
@@ -675,8 +709,66 @@ export default {
     getSizeCategory() {
       this.$axios.get("/admin/api/size_category.php").then((response) => {
         this.sizeCategory = response.data;
+        this.getSize();
         this.$endloading();
       });
+    },
+    getSize() {
+      this.$loading();
+      this.$axios
+        .get("/admin/api/size.php", {
+          params: {
+            template: this.sizeCategory[this.selectWorkingSize - 1].SEQ_ID,
+          },
+        })
+        .then((response) => {
+          this.size = response.data;
+          this.activeSizeName();
+          this.$endloading();
+        });
+    },
+    activeSizeName() {
+      this.$loading();
+      this.$axios
+        .get("/admin/api/size.php", {
+          params: {
+            size: this.size[this.selectSize - 1].SEQ_ID,
+          },
+        })
+        .then((response) => {
+          this.width = response.data[0].PAGE_WIDTH;
+          this.height = response.data[0].PAGE_HEIGHT;
+          this.scale = response.data[0].SCALE_CD;
+          this.scaleFormat(this.scale);
+          this.$endloading();
+        });
+    },
+    templateUpload() {
+      this.$loading();
+      const fd = new FormData();
+      fd.append("CONTENTS_NAME", this.contentsName);
+      fd.append("THEME_ID", this.currentThemeList.THEME_ID);
+      fd.append("KEYWORD", this.keyword);
+      fd.append("THUMB_PATH", "./contents/template/thumb/SEQ_ID.png");
+      fd.append("CONTENTS_PATH", "./contents/template/");
+      fd.append("USE_TYPE", this.useType);
+      fd.append(
+        "SIZE_CATEGORY_ID",
+        this.sizeCategory[this.selectWorkingSize - 1].SEQ_ID
+      );
+      fd.append("SIZE_INFO_ID", this.size[this.selectSize - 1].SEQ_ID);
+      fd.append("PUBLIC_FLAG", this.publicFlag);
+      fd.append("A_ID", 0);
+      fd.append("U_ID", 0);
+      this.$axios
+        .post("/admin/api/theme_template_upload.php", fd)
+        .then(() => {});
+    },
+    scaleFormat(value) {
+      if (value == 1) return (this.scale = "px");
+      if (value == 2) return (this.scale = "mm");
+      if (value == 3) return (this.scale = "cm");
+      if (value == 4) return (this.scale = "inch");
     },
   },
   mounted() {
@@ -701,14 +793,8 @@ export default {
 #theme {
   height: calc(40vh + 42px);
 }
-.modal-dialog {
-  max-width: 1000px !important;
-}
-.modal-content {
-  width: 100% !important;
-}
 .alert {
-  animation: 0.5s warnning;
+  animation: 0.3s warnning;
 }
 @keyframes warnning {
   0% {
@@ -720,5 +806,18 @@ export default {
   100% {
     transform: scale(1);
   }
+}
+.modal-dialog {
+  max-width: 1000px !important;
+}
+.modal-content {
+  width: 100% !important;
+}
+.form-select {
+  margin: 0;
+}
+.thubnail {
+  width: 100px;
+  height: 100px;
 }
 </style>
