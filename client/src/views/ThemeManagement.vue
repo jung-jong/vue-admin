@@ -46,6 +46,7 @@
                   id="flexCheckDefault"
                   v-model="listCheck"
                   @change="getTheme()"
+                  @click="activeContents = false"
                 />
                 <label class="form-check-label" for="flexCheckDefault">
                   API 기준
@@ -179,7 +180,11 @@
               class="btn btn-primary"
               data-bs-toggle="modal"
               data-bs-target="#staticBackdrop"
-              @click="getSizeCategory()"
+              @click="
+                getSizeCategory();
+                thumbPathFormat();
+                contentsPathFormat();
+              "
             >
               + 콘텐츠 추가
             </button>
@@ -327,8 +332,8 @@
                         class="form-check-input"
                         type="checkbox"
                         id="useWeb"
-                        value="web"
-                        v-model="useType"
+                        v-model="useWeb"
+                        @change="checkFormat()"
                       />
                       <label class="form-check-label" for="useWeb">웹용</label>
                     </div>
@@ -337,8 +342,8 @@
                         class="form-check-input"
                         type="checkbox"
                         id="usePrint"
-                        value="print"
-                        v-model="useType"
+                        v-model="usePrint"
+                        @change="checkFormat()"
                       />
                       <label class="form-check-label" for="usePrint"
                         >인쇄용</label
@@ -416,8 +421,8 @@
                         class="form-check-input"
                         type="checkbox"
                         id="publicTrue"
-                        value="true"
-                        v-model="publicFlag"
+                        v-model="publicTrue"
+                        @change="checkFormat()"
                       />
                       <label class="form-check-label" for="publicTrue"
                         >사용</label
@@ -428,8 +433,8 @@
                         class="form-check-input"
                         type="checkbox"
                         id="publicFalse"
-                        value="false"
-                        v-model="publicFlag"
+                        v-model="publicFalse"
+                        @change="checkFormat()"
                       />
                       <label class="form-check-label" for="publicFalse"
                         >미사용</label
@@ -439,7 +444,12 @@
                 </div>
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-lg btn-primary m-auto">
+                <button
+                  type="button"
+                  class="btn btn-lg btn-primary m-auto"
+                  :data-bs-dismiss="modal"
+                  @click="templateUpload()"
+                >
                   업로드
                 </button>
               </div>
@@ -491,8 +501,15 @@ export default {
       width: null,
       height: null,
       scale: null,
-      useType: [],
-      publicFlag: [],
+      useWeb: false,
+      usePrint: false,
+      publicTrue: false,
+      publicFalse: false,
+      modal: "modal",
+      thumbPath: null,
+      contentsPath: null,
+      //로컬
+      file: null,
     };
   },
   mixins: [table],
@@ -740,35 +757,86 @@ export default {
           this.height = response.data[0].PAGE_HEIGHT;
           this.scale = response.data[0].SCALE_CD;
           this.scaleFormat(this.scale);
+
           this.$endloading();
         });
+    },
+    contentsPathFormat() {
+      const contentsType = this.currentContents.CONTENTS_TYPE_NAME;
+      if (contentsType == "템플릿")
+        return (this.contentsPath = "./contents/template/");
+      if (contentsType == "텍스트")
+        return (this.contentsPath = "./contents/text/");
+      if (contentsType == "도형")
+        return (this.contentsPath = "./contents/shape/");
+      if (contentsType == "표")
+        return (this.contentsPath = "./contents/table/");
+      if (contentsType == "차트")
+        return (this.contentsPath = "./contents/chart/");
+      if (contentsType == "스타일")
+        return (this.contentsPath = "./contents/style/");
+    },
+    thumbPathFormat() {
+      this.$axios.get("/admin/api/theme_thumb_path.php").then((response) => {
+        this.thumbPath = parseInt(response.data[0].SEQ_ID) + 1;
+        this.thumbPath = `./contents/template/thumb/${this.thumbPath}.png`;
+        this.file = parseInt(response.data[0].SEQ_ID) + 1;
+      });
     },
     templateUpload() {
       this.$loading();
       const fd = new FormData();
       fd.append("CONTENTS_NAME", this.contentsName);
-      fd.append("THEME_ID", this.currentThemeList.THEME_ID);
+      fd.append("THEME_ID", this.currentThemeList.SEQ_ID);
       fd.append("KEYWORD", this.keyword);
-      fd.append("THUMB_PATH", "./contents/template/thumb/SEQ_ID.png");
-      fd.append("CONTENTS_PATH", "./contents/template/");
-      fd.append("USE_TYPE", this.useType);
+      fd.append("THUMB_PATH", this.thumbPath);
+      fd.append("CONTENTS_PATH", this.contentsPath);
+      if (this.useWeb === 1) {
+        fd.append("USE_TYPE", this.useWeb);
+      } else if (this.usePrint === 2) {
+        fd.append("USE_TYPE", this.usePrint);
+      }
       fd.append(
         "SIZE_CATEGORY_ID",
         this.sizeCategory[this.selectWorkingSize - 1].SEQ_ID
       );
       fd.append("SIZE_INFO_ID", this.size[this.selectSize - 1].SEQ_ID);
-      fd.append("PUBLIC_FLAG", this.publicFlag);
+      if (this.publicTrue === 1) {
+        fd.append("PUBLIC_FLAG", this.publicTrue);
+      } else if (this.publicFalse === 0) {
+        fd.append("PUBLIC_FLAG", this.publicFalse);
+      }
       fd.append("A_ID", 0);
       fd.append("U_ID", 0);
-      this.$axios
-        .post("/admin/api/theme_template_upload.php", fd)
-        .then(() => {});
+      this.$axios.post("/admin/api/theme_template_upload.php", fd).then(() => {
+        this.contentsName = "";
+        this.keyword = "";
+        this.useWeb = false;
+        this.usePrint = false;
+        this.publicFalse = false;
+        this.publicTrue = false;
+        this.thumbnailUpload();
+      });
+    },
+    thumbnailUpload() {
+      const fd = new FormData();
+      fd.append("base64", this.thumbnail);
+      fd.append("file", this.file);
+      this.$axios.post("/admin/api/theme-thumbnail.php", fd).then(() => {
+        alert("성공");
+      });
     },
     scaleFormat(value) {
       if (value == 1) return (this.scale = "px");
       if (value == 2) return (this.scale = "mm");
       if (value == 3) return (this.scale = "cm");
       if (value == 4) return (this.scale = "inch");
+    },
+    checkFormat() {
+      if (this.useWeb === true) return (this.useWeb = 1);
+      if (this.usePrint === true) return (this.usePrint = 2);
+      if (this.publicFalse === true) return (this.publicFalse = 0);
+      if (this.publicTrue === true) return (this.publicTrue = 1);
     },
   },
   mounted() {
