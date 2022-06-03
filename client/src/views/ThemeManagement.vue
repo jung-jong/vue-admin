@@ -11,8 +11,14 @@
               v-model="selected"
               class="form-select m-0 mb-1 w-100"
               @change="selectContents(selected - 1), selectOption(selected)"
+              disabled
             >
-              <option v-for="(contents, i) in contents" :key="i" :value="i + 1">
+              <option
+                v-for="(contents, i) in contents"
+                :key="i"
+                :value="i + 1"
+                v-show="false"
+              >
                 {{ contents.CONTENTS_TYPE_NAME }}
               </option>
             </select>
@@ -20,14 +26,12 @@
             <div class="card">
               <ul class="list-group list-group-flush overflow-auto h-100">
                 <li
+                  class="list-group-item"
                   v-for="(contents, i) in contents"
                   :key="i"
-                  :class="{ active: i === activeContents }"
-                  @click="
-                    selectContents(i, contents);
-                    getTheme();
-                  "
-                  class="list-group-item"
+                  :class="[{ active: i === activeContents }, { hover: hover }]"
+                  @click="selectContents(i, contents)"
+                  @mouseenter="hoverType(contents.CONTENTS_TYPE_NAME)"
                 >
                   {{ contents.CONTENTS_TYPE_NAME }}
                 </li>
@@ -46,7 +50,11 @@
                   id="flexCheckDefault"
                   v-model="listCheck"
                   @change="getTheme()"
-                  @click="activeContents = false"
+                  @click="
+                    activeContents = false;
+                    themeListShow = false;
+                    contentsListShow = false;
+                  "
                 />
                 <label class="form-check-label" for="flexCheckDefault">
                   API 기준
@@ -60,6 +68,11 @@
                   id="flexCheckChecked"
                   v-model="listCheck"
                   @change="getTheme()"
+                  @click="
+                    activeContents = false;
+                    themeListShow = false;
+                    contentsListShow = false;
+                  "
                 />
                 <label class="form-check-label" for="flexCheckChecked">
                   자체 설정
@@ -79,7 +92,7 @@
                   type="button"
                   class="btn btn-primary dropdown-toggle"
                   data-bs-toggle="dropdown"
-                  data-bs-auto-close="inside"
+                  data-bs-auto-close="true"
                 >
                   + 테마 추가
                 </button>
@@ -105,7 +118,11 @@
                     </div>
                   </li>
                   <li class="d-flex justify-content-center">
-                    <button type="button" class="btn btn-secondary me-3">
+                    <button
+                      type="button"
+                      class="btn btn-secondary me-3"
+                      @click="themeName = ''"
+                    >
                       취소
                     </button>
                     <button
@@ -119,7 +136,11 @@
                 </ul>
               </div>
             </div>
-            <div class="card justify-content-between" id="theme">
+            <div
+              class="card justify-content-between"
+              id="theme"
+              v-if="themeListShow"
+            >
               <ul class="list-group list-group-flush overflow-auto">
                 <li
                   v-for="(themeList, i) in themeList"
@@ -129,7 +150,7 @@
                     selectThemeList(i, themeList);
                     getContentsList();
                   "
-                  class="list-group-item d-flex justify-content-between align-items-center"
+                  class="list-group-item d-flex justify-content-between align-items-center hover"
                 >
                   {{ themeList.THEME_NAME }}
                   <div class="d-flex">
@@ -175,7 +196,11 @@
           </div>
         </div>
 
-        <div id="bottom" class="d-flex flex-column position-relative">
+        <div
+          id="bottom"
+          class="d-flex flex-column position-relative"
+          v-if="contentsListShow"
+        >
           <div class="d-flex align-items-center justify-content-between">
             <h5 class="fw-bold my-3">콘텐츠 리스트</h5>
             <button
@@ -501,6 +526,9 @@ export default {
       apiCheck: false,
       contentsList: [],
       contentsListImg: {}, //로컬서버
+      themeListShow: false,
+      contentsListShow: false,
+      hover: true,
 
       // 콘텐츠 추가
       contentsName: "",
@@ -545,27 +573,75 @@ export default {
           contentsType == "차트" ||
           contentsType == "스타일";
         if (warnning) return (this.apiCheck = true);
+      } else if (this.listCheck == "2") {
+        const contentsType = contents.CONTENTS_TYPE_NAME;
+        const warnning =
+          contentsType == "사진" ||
+          contentsType == "일러스트" ||
+          contentsType == "3D" ||
+          contentsType == "아이콘" ||
+          contentsType == "논텍스트" ||
+          contentsType == "배경" ||
+          contentsType == "동영상" ||
+          contentsType == "모션그래픽" ||
+          contentsType == "GIF" ||
+          contentsType == "사운드";
+        if (warnning) return (this.apiCheck = true);
       }
       this.activeContents = i;
       this.selected = i + 1;
       this.currentContents = contents;
-    },
-    selectOption(i) {
-      if (
-        (this.listCheck == "1") & (i == 1) ||
-        i == 12 ||
-        i == 13 ||
-        i == 14 ||
-        i == 15 ||
-        i == 16
-      ) {
-        return (this.apiCheck = true);
-      } else {
-        this.apiCheck = false;
-      }
-      this.currentContents = this.contents[i - 1];
+      this.themeListShow = true;
       this.getTheme();
     },
+    hoverType(value) {
+      const hover =
+        value == "템플릿" ||
+        value == "텍스트" ||
+        value == "도형" ||
+        value == "표" ||
+        value == "차트" ||
+        value == "스타일";
+      if (hover) {
+        this.hover = true;
+      } else {
+        this.hover = false;
+      }
+      if (this.listCheck == "1") {
+        const hover =
+          value == "사진" ||
+          value == "일러스트" ||
+          value == "3D" ||
+          value == "아이콘" ||
+          value == "논텍스트" ||
+          value == "배경" ||
+          value == "동영상" ||
+          value == "모션그래픽" ||
+          value == "GIF" ||
+          value == "사운드";
+        if (hover) {
+          this.hover = true;
+        } else {
+          this.hover = false;
+        }
+      }
+    },
+    // selectOption(i) {
+    //   if (
+    //     (this.listCheck == "1") & (i == 1) ||
+    //     i == 12 ||
+    //     i == 13 ||
+    //     i == 14 ||
+    //     i == 15 ||
+    //     i == 16
+    //   ) {
+    //     return (this.apiCheck = true);
+    //   } else {
+    //     this.apiCheck = false;
+    //   }
+    //   this.currentContents = this.contents[i - 1];
+    //   this.getTheme();
+    // },
     getTheme() {
       if (this.listCheck == "2") {
         this.themeList = [];
@@ -722,7 +798,8 @@ export default {
       }
     },
     getContentsList() {
-      console.log(this.currentThemeList.SEQ_ID);
+      this.contentsListShow = true;
+      this.$loading();
       this.$axios
         .get("/admin/api/contents.php", {
           params: {
@@ -732,6 +809,7 @@ export default {
         .then((response) => {
           this.contentsList = response.data;
           this.contentsListImg = "http://localhost/admin"; //로컬서버
+          this.$endloading();
         });
     },
     thumbFileSelect(event) {
@@ -927,5 +1005,10 @@ export default {
 .thubnail {
   width: 100px;
   height: 100px;
+}
+.hover:hover {
+  cursor: pointer;
+  background-color: var(--bs-blue);
+  color: var(--bs-white);
 }
 </style>
