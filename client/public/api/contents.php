@@ -2,7 +2,7 @@
 
 include("connect.php");
 
-$sql = "SELECT * FROM TB_CONTENTS";
+$sql = "SELECT * FROM `TB_CONTENTS` WHERE `THEME_ID` = {$_GET['id']}";
 
 $result = mysqli_query($conn, $sql);
 $data = array();

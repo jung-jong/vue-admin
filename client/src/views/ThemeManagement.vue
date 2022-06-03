@@ -125,7 +125,10 @@
                   v-for="(themeList, i) in themeList"
                   :key="i"
                   :class="{ active: i === activeThemeList }"
-                  @click="selectThemeList(i, themeList)"
+                  @click="
+                    selectThemeList(i, themeList);
+                    getContentsList();
+                  "
                   class="list-group-item d-flex justify-content-between align-items-center"
                 >
                   {{ themeList.THEME_NAME }}
@@ -190,13 +193,17 @@
             </button>
           </div>
           <div class="card px-3 flex-row flex-wrap overflow-auto">
-            <div class="d-flex flex-column m-2">
+            <div
+              class="d-flex flex-column m-2"
+              v-for="(contentsList, i) in contentsList"
+              :key="i"
+            >
               <div class="form-check form-check-inline">
                 <input class="form-check-input" type="checkbox" value="" />
                 <span class="material-symbols-rounded"> delete </span>
               </div>
               <img
-                src="../assets/memo.png"
+                :src="contentsListImg + contentsList.THUMB_PATH"
                 class="img-thumbnail"
                 style="width: 150px; height: 150px"
                 alt="../assets/memo.png"
@@ -493,6 +500,7 @@ export default {
       themeName: "",
       apiCheck: false,
       contentsList: [],
+      contentsListImg: {}, //로컬서버
 
       // 콘텐츠 추가
       contentsName: "",
@@ -714,9 +722,17 @@ export default {
       }
     },
     getContentsList() {
-      this.$axios.get("/admin/api/contents.php").then((response) => {
-        this.contentsList = response.data;
-      });
+      console.log(this.currentThemeList.SEQ_ID);
+      this.$axios
+        .get("/admin/api/contents.php", {
+          params: {
+            id: this.currentThemeList.SEQ_ID,
+          },
+        })
+        .then((response) => {
+          this.contentsList = response.data;
+          this.contentsListImg = "http://localhost/admin"; //로컬서버
+        });
     },
     thumbFileSelect(event) {
       const input = event.target;
