@@ -304,7 +304,7 @@
                           type="file"
                           class="form-control"
                           id="thumbFile"
-                          @change="onFileSelected($event)"
+                          @change="thumbFileSelect($event)"
                         />
                       </div>
                     </div>
@@ -319,6 +319,7 @@
                           type="file"
                           class="form-control"
                           id="contentsFile"
+                          @change="contentsFileSelect($event)"
                         />
                       </div>
                     </div>
@@ -369,7 +370,11 @@
                             {{ sizeCategory.TEMPLATE_TYPE_NAME }}
                           </option>
                         </select>
-                        <select class="form-select" v-model="selectSize">
+                        <select
+                          class="form-select"
+                          v-model="selectSize"
+                          @change="getSize()"
+                        >
                           <option
                             :value="i + 1"
                             v-for="(size, i) in size"
@@ -447,7 +452,6 @@
                 <button
                   type="button"
                   class="btn btn-lg btn-primary m-auto"
-                  :data-bs-dismiss="modal"
                   @click="templateUpload()"
                 >
                   업로드
@@ -494,6 +498,7 @@ export default {
       contentsName: "",
       keyword: "",
       thumbnail: null,
+      contentsFile: null,
       sizeCategory: [],
       selectWorkingSize: 1,
       size: [],
@@ -508,8 +513,8 @@ export default {
       modal: "modal",
       thumbPath: null,
       contentsPath: null,
+      jsonFileName: null,
       //로컬
-      file: null,
     };
   },
   mixins: [table],
@@ -713,7 +718,7 @@ export default {
         this.contentsList = response.data;
       });
     },
-    onFileSelected(event) {
+    thumbFileSelect(event) {
       const input = event.target;
       if (input.files && input.files[0]) {
         const reader = new FileReader();
@@ -721,6 +726,17 @@ export default {
           this.thumbnail = e.target.result;
         };
         reader.readAsDataURL(input.files[0]);
+      }
+    },
+    contentsFileSelect(event) {
+      const input = event.target;
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.contentsFile = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+        this.jsonFileName = input.files[0].name;
       }
     },
     getSizeCategory() {
@@ -779,8 +795,7 @@ export default {
     thumbPathFormat() {
       this.$axios.get("/admin/api/theme_thumb_path.php").then((response) => {
         this.thumbPath = parseInt(response.data[0].SEQ_ID) + 1;
-        this.thumbPath = `./contents/template/thumb/${this.thumbPath}.png`;
-        this.file = parseInt(response.data[0].SEQ_ID) + 1;
+        this.thumbPath = `${this.contentsPath}/thumb/${this.thumbPath}.png`;
       });
     },
     templateUpload() {
@@ -809,21 +824,30 @@ export default {
       fd.append("A_ID", 0);
       fd.append("U_ID", 0);
       this.$axios.post("/admin/api/theme_template_upload.php", fd).then(() => {
+        this.thumbnailUpload();
+        this.contentsFileUpload();
         this.contentsName = "";
         this.keyword = "";
         this.useWeb = false;
         this.usePrint = false;
         this.publicFalse = false;
         this.publicTrue = false;
-        this.thumbnailUpload();
       });
     },
     thumbnailUpload() {
       const fd = new FormData();
       fd.append("base64", this.thumbnail);
-      fd.append("file", this.file);
-      this.$axios.post("/admin/api/theme-thumbnail.php", fd).then(() => {
-        alert("성공");
+      fd.append("thumbnail", this.thumbPath);
+      this.$axios.post("/admin/api/theme-file-upload.php", fd).then(() => {
+        alert("업로드 성공");
+      });
+    },
+    contentsFileUpload() {
+      const fd = new FormData();
+      fd.append("base64", this.contentsFile);
+      fd.append("contents", this.contentsPath + this.jsonFileName);
+      this.$axios.post("/admin/api/theme-file-upload.php", fd).then(() => {
+        alert("업로드 성공");
       });
     },
     scaleFormat(value) {
