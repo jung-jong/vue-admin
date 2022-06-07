@@ -79,7 +79,7 @@
                 </label>
               </div>
             </div>
-            <div class="alert alert-danger my-3" role="alert" v-if="apiCheck">
+            <div class="alert alert-danger my-3" role="alert" v-if="warnning">
               API 기준에서 선택할 수 없습니다.
             </div>
           </div>
@@ -136,11 +136,7 @@
                 </ul>
               </div>
             </div>
-            <div
-              class="card justify-content-between"
-              id="theme"
-              v-if="themeListShow"
-            >
+            <div class="card justify-content-between" id="theme">
               <ul class="list-group list-group-flush overflow-auto">
                 <li
                   v-for="(themeList, i) in themeList"
@@ -184,7 +180,12 @@
                   </div>
                 </li>
               </ul>
-              <div @click="getCurrentPage()">
+              <div
+                @click="
+                  getCurrentPage();
+                  activeThemeList = false;
+                "
+              >
                 <v-pagination
                   v-model="currentPage"
                   :page-count="totalPages"
@@ -270,13 +271,20 @@
                   <label for="conname" class="col-2 col-form-label fw-bold"
                     >콘텐츠 이름</label
                   >
-                  <div class="col-10">
+                  <div class="col-10 position-relative">
                     <input
                       type="text"
                       class="form-control"
                       id="conname"
+                      :class="{ 'is-invalid': invalidContentsName }"
                       v-model="contentsName"
                     />
+                    <div
+                      class="invalid-tooltip"
+                      :class="{ 'd-block': invalidContentsName }"
+                    >
+                      콘텐츠 이름을 입력하세요.
+                    </div>
                   </div>
                 </div>
                 <div class="mb-3 row">
@@ -311,13 +319,20 @@
                   <label for="keyword" class="col-2 col-form-label fw-bold"
                     >키워드</label
                   >
-                  <div class="col-10">
+                  <div class="col-10 position-relative">
                     <input
                       type="text"
                       class="form-control"
                       id="keyword"
+                      :class="{ 'is-invalid': invalidKeyword }"
                       v-model="keyword"
                     />
+                    <div
+                      class="invalid-tooltip"
+                      :class="{ 'd-block': invalidKeyword }"
+                    >
+                      키워드를 입력하세요.
+                    </div>
                   </div>
                 </div>
                 <div class="mb-3 row">
@@ -359,7 +374,7 @@
                 </div>
                 <div class="row align-items-center mb-3">
                   <div class="col-2 col-form-label fw-bold">콘텐츠 용도</div>
-                  <div class="col-10">
+                  <div class="col-10 position-relative">
                     <div class="form-check form-check-inline">
                       <input
                         class="form-check-input"
@@ -381,6 +396,12 @@
                       <label class="form-check-label" for="usePrint"
                         >인쇄용</label
                       >
+                    </div>
+                    <div
+                      class="invalid-tooltip"
+                      :class="{ 'd-block': invalidType }"
+                    >
+                      한 가지를 선택해 주세요.
                     </div>
                   </div>
                 </div>
@@ -452,7 +473,7 @@
                 </div>
                 <div class="row align-items-center mb-3">
                   <div class="col-2 col-form-label fw-bold">사용여부</div>
-                  <div class="col-10">
+                  <div class="col-10 position-relative">
                     <div class="form-check form-check-inline">
                       <input
                         class="form-check-input"
@@ -476,6 +497,12 @@
                       <label class="form-check-label" for="publicFalse"
                         >미사용</label
                       >
+                    </div>
+                    <div
+                      class="invalid-tooltip"
+                      :class="{ 'd-block': invalidPublic }"
+                    >
+                      한 가지를 선택해 주세요.
                     </div>
                   </div>
                 </div>
@@ -523,7 +550,7 @@ export default {
       prevSEQ_ID: null,
       nextSEQ_ID: null,
       themeName: "",
-      apiCheck: false,
+      warnning: false,
       contentsList: [],
       contentsListImg: {}, //로컬서버
       themeListShow: false,
@@ -550,7 +577,10 @@ export default {
       thumbPath: null,
       contentsPath: null,
       jsonFileName: null,
-      //로컬
+      invalidContentsName: false,
+      invalidKeyword: false,
+      invalidType: false,
+      invalidPublic: false,
     };
   },
   mixins: [table],
@@ -562,7 +592,7 @@ export default {
       });
     },
     selectContents(i, contents) {
-      this.apiCheck = false;
+      this.warnning = false;
       if (this.listCheck == "1") {
         const contentsType = contents.CONTENTS_TYPE_NAME;
         const warnning =
@@ -572,41 +602,17 @@ export default {
           contentsType == "표" ||
           contentsType == "차트" ||
           contentsType == "스타일";
-        if (warnning) return (this.apiCheck = true);
-      } else if (this.listCheck == "2") {
-        const contentsType = contents.CONTENTS_TYPE_NAME;
-        const warnning =
-          contentsType == "사진" ||
-          contentsType == "일러스트" ||
-          contentsType == "3D" ||
-          contentsType == "아이콘" ||
-          contentsType == "논텍스트" ||
-          contentsType == "배경" ||
-          contentsType == "동영상" ||
-          contentsType == "모션그래픽" ||
-          contentsType == "GIF" ||
-          contentsType == "사운드";
-        if (warnning) return (this.apiCheck = true);
+        if (warnning) return (this.warnning = true);
       }
       this.activeContents = i;
       this.selected = i + 1;
       this.currentContents = contents;
+      this.activeThemeList = false;
       this.themeListShow = true;
+      this.contentsListShow = false;
       this.getTheme();
     },
     hoverType(value) {
-      const hover =
-        value == "템플릿" ||
-        value == "텍스트" ||
-        value == "도형" ||
-        value == "표" ||
-        value == "차트" ||
-        value == "스타일";
-      if (hover) {
-        this.hover = true;
-      } else {
-        this.hover = false;
-      }
       if (this.listCheck == "1") {
         const hover =
           value == "사진" ||
@@ -624,6 +630,8 @@ export default {
         } else {
           this.hover = false;
         }
+      } else {
+        this.hover = true;
       }
     },
     // selectOption(i) {
@@ -635,9 +643,9 @@ export default {
     //     i == 15 ||
     //     i == 16
     //   ) {
-    //     return (this.apiCheck = true);
+    //     return (this.warnning = true);
     //   } else {
-    //     this.apiCheck = false;
+    //     this.warnning = false;
     //   }
     //   this.currentContents = this.contents[i - 1];
     //   this.getTheme();
@@ -780,7 +788,12 @@ export default {
         const fd = new FormData();
         fd.append("CONTENTS_CATEGORY_ID", this.currentContents.SEQ_ID);
         fd.append("THEME_NAME", this.themeName);
-        fd.append("ORDER", this.themeList.length);
+        if (this.totalPages > 2) {
+          fd.append("ORDER", this.themeList.length);
+        } else {
+          let lastOrder = (this.totalPages - 1) * 10;
+          fd.append("ORDER", this.themeList.length + lastOrder);
+        }
         this.$loading();
         this.$axios.post("/admin/api/theme_insert.php", fd).then(() => {
           this.getTheme();
@@ -831,14 +844,23 @@ export default {
         };
         reader.readAsDataURL(input.files[0]);
         this.jsonFileName = input.files[0].name;
+        this.$axios
+          .get("/admin/api/theme-thumb-file-name.php")
+          .then((response) => {
+            this.jsonFileName = `${parseInt(response.data[0].SEQ_ID) + 1}_${
+              this.jsonFileName
+            }`;
+          });
       }
     },
     getSizeCategory() {
-      this.$axios.get("/admin/api/size_category.php").then((response) => {
-        this.sizeCategory = response.data;
-        this.getSize();
-        this.$endloading();
-      });
+      if (this.currentContents.CONTENTS_TYPE_NAME == "템플릿") {
+        this.$axios.get("/admin/api/size_category.php").then((response) => {
+          this.sizeCategory = response.data;
+          this.getSize();
+          this.$endloading();
+        });
+      }
     },
     getSize() {
       this.$loading();
@@ -887,12 +909,37 @@ export default {
         return (this.contentsPath = "./contents/style/");
     },
     thumbPathFormat() {
-      this.$axios.get("/admin/api/theme_thumb_path.php").then((response) => {
-        this.thumbPath = parseInt(response.data[0].SEQ_ID) + 1;
-        this.thumbPath = `${this.contentsPath}/thumb/${this.thumbPath}.png`;
-      });
+      this.$axios
+        .get("/admin/api/theme-thumb-file-name.php")
+        .then((response) => {
+          if (response.data.length == 0) {
+            this.thumbPath = 1;
+          } else {
+            this.thumbPath = parseInt(response.data[0].SEQ_ID) + 1;
+          }
+          this.thumbPath = `${this.contentsPath}thumb/${this.thumbPath}.png`;
+        });
     },
     templateUpload() {
+      if (this.contentsName === "") return (this.invalidContentsName = true);
+      if (this.keyword === "") return (this.invalidKeyword = true);
+      if (
+        (this.useWeb === 1) & (this.usePrint === 2) ||
+        (this.useWeb === false) & (this.usePrint === false)
+      )
+        return (this.invalidType = true);
+      if (
+        (this.useWeb === 1) & (this.usePrint === 2) ||
+        (this.useWeb === false) & (this.usePrint === false)
+      )
+        return (this.invalidType = true);
+
+      if (
+        (this.publicTrue === 1) & (this.publicFalse === 0) ||
+        (this.publicTrue === false) & (this.publicFalse === false)
+      )
+        return (this.invalidPublic = true);
+
       this.$loading();
       const fd = new FormData();
       fd.append("CONTENTS_NAME", this.contentsName);
