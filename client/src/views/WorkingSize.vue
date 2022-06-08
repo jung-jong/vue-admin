@@ -48,7 +48,7 @@
                   :key="i"
                   :class="{ active: i === activeCategory }"
                   @click="activeTemplate(i)"
-                  class="list-group-item d-flex justify-content-between align-items-center"
+                  class="list-group-item d-flex justify-content-between align-items-center hover"
                 >
                   {{ sizeCategory.TEMPLATE_TYPE_NAME }}
                   <div class="d-flex">
@@ -128,7 +128,7 @@
                   :key="i"
                   :class="{ active: i === activeSize }"
                   @click="activeSizeName(i)"
-                  class="list-group-item d-flex justify-content-between align-items-center"
+                  class="list-group-item d-flex justify-content-between align-items-center hover"
                 >
                   {{ size.SIZE_NAME }}
                   <div class="d-flex">
@@ -220,7 +220,7 @@ export default {
       currentSize: {},
       activeCategory: false,
       activeSize: false,
-      selected: 1,
+      selected: "1",
       indexTemplate: null,
       indexSize: null,
       width: null,
@@ -251,6 +251,7 @@ export default {
       }
     },
     deleteTemplate() {
+      if (this.activeCategory === false) return;
       const fd = new FormData();
       fd.append("SEQ_ID", this.currentSizeCategory);
       fd.append("SIZE_CATEGORY_ID", this.currentSizeCategory);
@@ -309,6 +310,10 @@ export default {
       this.activeCategory = i;
       this.currentSizeCategory = this.sizeCategory[i].SEQ_ID;
       this.getSize(i);
+      this.activeSize = false;
+      this.width = null;
+      this.height = null;
+      this.selected = "1";
     },
     getSize(i) {
       this.$loading();
@@ -352,6 +357,7 @@ export default {
       }
     },
     deleteSize() {
+      if (this.activeSize === false) return;
       this.$loading();
       const fd = new FormData();
       fd.append("SIZE", this.currentSize);
@@ -419,4 +425,10 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.hover:hover {
+  cursor: pointer;
+  background-color: var(--bs-blue);
+  color: var(--bs-white);
+}
+</style>
