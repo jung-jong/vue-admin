@@ -278,10 +278,18 @@
                       id="conname"
                       :class="{ 'is-invalid': invalidContentsName }"
                       v-model="contentsName"
+                      @change="
+                        contentsName !== ''
+                          ? (invalidContentsName = false)
+                          : (invalidContentsName = true)
+                      "
                     />
                     <div
                       class="invalid-tooltip"
-                      :class="{ 'd-block': invalidContentsName }"
+                      :class="[
+                        { 'd-block': invalidContentsName },
+                        { 'd-none': contentsName !== '' },
+                      ]"
                     >
                       콘텐츠 이름을 입력하세요.
                     </div>
@@ -326,10 +334,18 @@
                       id="keyword"
                       :class="{ 'is-invalid': invalidKeyword }"
                       v-model="keyword"
+                      @change="
+                        keyword !== ''
+                          ? (invalidKeyword = false)
+                          : (invalidKeyword = true)
+                      "
                     />
                     <div
                       class="invalid-tooltip"
-                      :class="{ 'd-block': invalidKeyword }"
+                      :class="[
+                        { 'd-block': invalidKeyword },
+                        { 'd-none': keyword !== '' },
+                      ]"
                     >
                       키워드를 입력하세요.
                     </div>
@@ -351,7 +367,12 @@
                           type="file"
                           class="form-control"
                           id="thumbFile"
-                          @change="thumbFileSelect($event)"
+                          accept="image/*"
+                          :class="{ 'is-invalid': invalidThumbnail }"
+                          @change="
+                            thumbFileSelect($event);
+                            invalidThumbnail = false;
+                          "
                         />
                       </div>
                     </div>
@@ -366,7 +387,12 @@
                           type="file"
                           class="form-control"
                           id="contentsFile"
-                          @change="contentsFileSelect($event)"
+                          accept=".json"
+                          :class="{ 'is-invalid': invalidContents }"
+                          @change="
+                            contentsFileSelect($event);
+                            invalidContents = false;
+                          "
                         />
                       </div>
                     </div>
@@ -378,30 +404,24 @@
                     <div class="form-check form-check-inline">
                       <input
                         class="form-check-input"
-                        type="checkbox"
+                        type="radio"
                         id="useWeb"
-                        v-model="useWeb"
-                        @change="checkFormat()"
+                        value="web"
+                        v-model="typeCheck"
                       />
                       <label class="form-check-label" for="useWeb">웹용</label>
                     </div>
                     <div class="form-check form-check-inline">
                       <input
                         class="form-check-input"
-                        type="checkbox"
+                        type="radio"
                         id="usePrint"
-                        v-model="usePrint"
-                        @change="checkFormat()"
+                        value="print"
+                        v-model="typeCheck"
                       />
                       <label class="form-check-label" for="usePrint"
                         >인쇄용</label
                       >
-                    </div>
-                    <div
-                      class="invalid-tooltip"
-                      :class="{ 'd-block': invalidType }"
-                    >
-                      한 가지를 선택해 주세요.
                     </div>
                   </div>
                 </div>
@@ -477,10 +497,10 @@
                     <div class="form-check form-check-inline">
                       <input
                         class="form-check-input"
-                        type="checkbox"
+                        type="radio"
                         id="publicTrue"
-                        v-model="publicTrue"
-                        @change="checkFormat()"
+                        value="true"
+                        v-model="publicFlage"
                       />
                       <label class="form-check-label" for="publicTrue"
                         >사용</label
@@ -489,20 +509,14 @@
                     <div class="form-check form-check-inline">
                       <input
                         class="form-check-input"
-                        type="checkbox"
+                        type="radio"
                         id="publicFalse"
-                        v-model="publicFalse"
-                        @change="checkFormat()"
+                        value="false"
+                        v-model="publicFlage"
                       />
                       <label class="form-check-label" for="publicFalse"
                         >미사용</label
                       >
-                    </div>
-                    <div
-                      class="invalid-tooltip"
-                      :class="{ 'd-block': invalidPublic }"
-                    >
-                      한 가지를 선택해 주세요.
                     </div>
                   </div>
                 </div>
@@ -561,6 +575,7 @@ export default {
       contentsName: "",
       keyword: "",
       thumbnail: null,
+      extension: null,
       contentsFile: null,
       sizeCategory: [],
       selectWorkingSize: 1,
@@ -569,21 +584,19 @@ export default {
       width: null,
       height: null,
       scale: null,
-      useWeb: false,
-      usePrint: false,
-      publicTrue: false,
-      publicFalse: false,
-      modal: "modal",
+      typeCheck: "web",
+      publicFlage: "true",
       thumbPath: null,
       contentsPath: null,
       jsonFileName: null,
       invalidContentsName: false,
       invalidKeyword: false,
-      invalidType: false,
-      invalidPublic: false,
+      invalidThumbnail: false,
+      invalidContents: false,
     };
   },
   mixins: [table],
+  computed: {},
   methods: {
     getContents() {
       this.$axios.get("/admin/api/contents_category.php").then((response) => {
@@ -833,6 +846,8 @@ export default {
           this.thumbnail = e.target.result;
         };
         reader.readAsDataURL(input.files[0]);
+        this.extension = input.files[0].name;
+        this.thumbPath = this.thumbPath + this.extension.split(".", 2)[1];
       }
     },
     contentsFileSelect(event) {
@@ -917,29 +932,14 @@ export default {
           } else {
             this.thumbPath = parseInt(response.data[0].SEQ_ID) + 1;
           }
-          this.thumbPath = `${this.contentsPath}thumb/${this.thumbPath}.png`;
+          this.thumbPath = `${this.contentsPath}thumb/${this.thumbPath}.`;
         });
     },
     templateUpload() {
       if (this.contentsName === "") return (this.invalidContentsName = true);
       if (this.keyword === "") return (this.invalidKeyword = true);
-      if (
-        (this.useWeb === 1) & (this.usePrint === 2) ||
-        (this.useWeb === false) & (this.usePrint === false)
-      )
-        return (this.invalidType = true);
-      if (
-        (this.useWeb === 1) & (this.usePrint === 2) ||
-        (this.useWeb === false) & (this.usePrint === false)
-      )
-        return (this.invalidType = true);
-
-      if (
-        (this.publicTrue === 1) & (this.publicFalse === 0) ||
-        (this.publicTrue === false) & (this.publicFalse === false)
-      )
-        return (this.invalidPublic = true);
-
+      if (this.thumbnail === null) return (this.invalidThumbnail = true);
+      if (this.contentsFile === null) return (this.invalidContents = true);
       this.$loading();
       const fd = new FormData();
       fd.append("CONTENTS_NAME", this.contentsName);
@@ -947,32 +947,34 @@ export default {
       fd.append("KEYWORD", this.keyword);
       fd.append("THUMB_PATH", this.thumbPath);
       fd.append("CONTENTS_PATH", this.contentsPath);
-      if (this.useWeb === 1) {
-        fd.append("USE_TYPE", this.useWeb);
-      } else if (this.usePrint === 2) {
-        fd.append("USE_TYPE", this.usePrint);
+      if (this.typeCheck === "web") {
+        fd.append("USE_TYPE", 1);
+      } else if (this.typeCheck === "print") {
+        fd.append("USE_TYPE", 2);
       }
       fd.append(
         "SIZE_CATEGORY_ID",
         this.sizeCategory[this.selectWorkingSize - 1].SEQ_ID
       );
       fd.append("SIZE_INFO_ID", this.size[this.selectSize - 1].SEQ_ID);
-      if (this.publicTrue === 1) {
-        fd.append("PUBLIC_FLAG", this.publicTrue);
-      } else if (this.publicFalse === 0) {
-        fd.append("PUBLIC_FLAG", this.publicFalse);
+      if (this.publicFlage === "true") {
+        fd.append("PUBLIC_FLAG", 1);
+      } else if (this.publicFlage === "false") {
+        fd.append("PUBLIC_FLAG", 0);
       }
       fd.append("A_ID", 0);
       fd.append("U_ID", 0);
+      const img = document.querySelector("#thumbFile");
+      const json = document.querySelector("#contentsFile");
       this.$axios.post("/admin/api/theme_template_upload.php", fd).then(() => {
         this.thumbnailUpload();
         this.contentsFileUpload();
         this.contentsName = "";
         this.keyword = "";
-        this.useWeb = false;
-        this.usePrint = false;
-        this.publicFalse = false;
-        this.publicTrue = false;
+        this.thumbnail = null;
+        this.contentsFile = null;
+        img.value = "";
+        json.value = "";
       });
     },
     thumbnailUpload() {
@@ -980,7 +982,7 @@ export default {
       fd.append("base64", this.thumbnail);
       fd.append("thumbnail", this.thumbPath);
       this.$axios.post("/admin/api/theme-file-upload.php", fd).then(() => {
-        alert("업로드 성공");
+        alert("썸네일");
       });
     },
     contentsFileUpload() {
@@ -988,7 +990,7 @@ export default {
       fd.append("base64", this.contentsFile);
       fd.append("contents", this.contentsPath + this.jsonFileName);
       this.$axios.post("/admin/api/theme-file-upload.php", fd).then(() => {
-        alert("업로드 성공");
+        alert("콘텐츠");
       });
     },
     scaleFormat(value) {
@@ -996,12 +998,6 @@ export default {
       if (value == 2) return (this.scale = "mm");
       if (value == 3) return (this.scale = "cm");
       if (value == 4) return (this.scale = "inch");
-    },
-    checkFormat() {
-      if (this.useWeb === true) return (this.useWeb = 1);
-      if (this.usePrint === true) return (this.usePrint = 2);
-      if (this.publicFalse === true) return (this.publicFalse = 0);
-      if (this.publicTrue === true) return (this.publicTrue = 1);
     },
   },
   mounted() {
