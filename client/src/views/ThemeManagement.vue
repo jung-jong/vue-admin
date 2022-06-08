@@ -219,7 +219,13 @@
               :key="i"
             >
               <div class="form-check form-check-inline">
-                <input class="form-check-input" type="checkbox" value="" />
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  :value="1"
+                  v-model="useContents"
+                  @change="publicContents(contentsList.PUBLIC_FLAG)"
+                />
                 <span class="material-symbols-rounded"> delete </span>
               </div>
               <img
@@ -564,6 +570,7 @@ export default {
       themeListShow: false,
       contentsListShow: false,
       hover: true,
+      useContents: [],
 
       // 콘텐츠 추가
       contentsName: "",
@@ -838,6 +845,10 @@ export default {
           this.$endloading();
         });
     },
+    publicContents(value) {
+      if (value == 1) this.useContents = 1;
+      if (value == 0) this.useContents = 0;
+    },
     thumbFileSelect(event) {
       const input = event.target;
       if (input.files && input.files[0]) {
@@ -981,17 +992,13 @@ export default {
       const fd = new FormData();
       fd.append("base64", this.thumbnail);
       fd.append("thumbnail", this.thumbPath);
-      this.$axios.post("/admin/api/theme-file-upload.php", fd).then(() => {
-        alert("썸네일");
-      });
+      this.$axios.post("/admin/api/theme-file-upload.php", fd).then(() => {});
     },
     contentsFileUpload() {
       const fd = new FormData();
       fd.append("base64", this.contentsFile);
       fd.append("contents", this.contentsPath + this.jsonFileName);
-      this.$axios.post("/admin/api/theme-file-upload.php", fd).then(() => {
-        alert("콘텐츠");
-      });
+      this.$axios.post("/admin/api/theme-file-upload.php", fd).then(() => {});
     },
     scaleFormat(value) {
       if (value == 1) return (this.scale = "px");
