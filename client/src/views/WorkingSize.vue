@@ -42,7 +42,7 @@
               </div>
             </div>
             <div class="card">
-              <ul class="list-group list-group-flush">
+              <ul class="list-group list-group-flush overflow-auto">
                 <li
                   v-for="(sizeCategory, i) in sizeCategory"
                   :key="i"
@@ -122,7 +122,7 @@
               </div>
             </div>
             <div class="card">
-              <ul class="list-group list-group-flush">
+              <ul class="list-group list-group-flush overflow-auto">
                 <li
                   v-for="(size, i) in size"
                   :key="i"

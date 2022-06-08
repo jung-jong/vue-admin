@@ -10,15 +10,9 @@
             <select
               v-model="selected"
               class="form-select m-0 mb-1 w-100"
-              @change="selectContents(selected - 1), selectOption(selected)"
-              disabled
+              @change="selectOption(selected)"
             >
-              <option
-                v-for="(contents, i) in contents"
-                :key="i"
-                :value="i + 1"
-                v-show="false"
-              >
+              <option v-for="(contents, i) in contents" :key="i" :value="i + 1">
                 {{ contents.CONTENTS_TYPE_NAME }}
               </option>
             </select>
@@ -153,14 +147,14 @@
                     <span
                       role="button"
                       class="material-symbols-rounded"
-                      @click="deleteTheme(themeList.SEQ_ID)"
+                      @click.stop="deleteTheme(themeList.SEQ_ID)"
                     >
                       delete
                     </span>
                     <span
                       role="button"
                       class="material-symbols-rounded"
-                      @click="
+                      @click.stop="
                         upCurrentTheme(i);
                         orderTheme();
                       "
@@ -170,7 +164,7 @@
                     <span
                       role="button"
                       class="material-symbols-rounded"
-                      @click="
+                      @click.stop="
                         downCurrentTheme(i);
                         orderTheme();
                       "
@@ -647,22 +641,26 @@ export default {
         this.hover = true;
       }
     },
-    // selectOption(i) {
-    //   if (
-    //     (this.listCheck == "1") & (i == 1) ||
-    //     i == 12 ||
-    //     i == 13 ||
-    //     i == 14 ||
-    //     i == 15 ||
-    //     i == 16
-    //   ) {
-    //     return (this.warnning = true);
-    //   } else {
-    //     this.warnning = false;
-    //   }
-    //   this.currentContents = this.contents[i - 1];
-    //   this.getTheme();
-    // },
+    selectOption(i) {
+      if (
+        (this.listCheck == "1") & (i == 1) ||
+        (this.listCheck == "1") & (i == 12) ||
+        (this.listCheck == "1") & (i == 13) ||
+        (this.listCheck == "1") & (i == 14) ||
+        (this.listCheck == "1") & (i == 15) ||
+        (this.listCheck == "1") & (i == 16)
+      ) {
+        return (this.warnning = true);
+      } else {
+        this.warnning = false;
+      }
+      this.currentContents = this.contents[i - 1];
+      this.activeContents = i - 1;
+      this.activeThemeList = false;
+      this.themeListShow = true;
+      this.contentsListShow = false;
+      this.getTheme();
+    },
     getTheme() {
       if (this.listCheck == "2") {
         this.themeList = [];
@@ -722,12 +720,14 @@ export default {
       }
     },
     upCurrentTheme(i) {
+      if (this.themeList[i].ORDER == 0) return;
       this.currentThemeList = this.themeList[i].SEQ_ID;
       if (i !== 0) {
         this.prevSEQ_ID = this.themeList[i - 1].SEQ_ID;
-        this.indexTheme = i - 1;
+        this.indexTheme = this.themeList[i].ORDER - 1;
         this.orderThemePrev();
       } else if (i === 0) {
+        //2페이지 이상
         this.indexTheme = this.start - 1;
         let i = this.currentPage;
         let page = this.length;
@@ -751,7 +751,7 @@ export default {
       this.currentThemeList = this.themeList[i].SEQ_ID;
       if (i <= 8) {
         this.nextSEQ_ID = this.themeList[i + 1].SEQ_ID;
-        this.indexTheme = i + 1;
+        this.indexTheme = parseInt(this.themeList[i].ORDER) + 1;
         this.orderThemeNext();
       } else if (i === 9) {
         this.indexTheme = this.start + this.length;
