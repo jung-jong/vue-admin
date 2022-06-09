@@ -212,7 +212,7 @@
               + 콘텐츠 추가
             </button>
           </div>
-          <div class="card px-3 flex-row flex-wrap overflow-auto">
+          <div class="card px-3 flex-row flex-wrap overflow-auto h-100">
             <div
               class="d-flex flex-column m-2"
               v-for="(contentsList, i) in contentsList"
@@ -222,9 +222,9 @@
                 <input
                   class="form-check-input"
                   type="checkbox"
-                  :value="1"
+                  :value="contentsList.SEQ_ID"
                   v-model="useContents"
-                  @change="publicContents(contentsList.PUBLIC_FLAG)"
+                  @click="contentsListCheck($event)"
                 />
                 <span class="material-symbols-rounded"> delete </span>
               </div>
@@ -240,6 +240,7 @@
             type="button"
             class="btn btn-secondary text-center btn-lg my-3 mx-auto"
             style="width: 200px"
+            @click="contentsUseUnused()"
           >
             저 장
           </button>
@@ -571,6 +572,7 @@ export default {
       contentsListShow: false,
       hover: true,
       useContents: [],
+      unusedContents: [],
 
       // 콘텐츠 추가
       contentsName: "",
@@ -599,7 +601,7 @@ export default {
   mixins: [table],
   computed: {},
   methods: {
-    getContents() {
+    getContentsType() {
       this.$axios.get("/admin/api/contents_category.php").then((response) => {
         this.contents = response.data;
         this.$endloading();
@@ -843,11 +845,55 @@ export default {
           this.contentsList = response.data;
           this.contentsListImg = "http://localhost/admin"; //로컬서버
           this.$endloading();
+          this.useContents = [];
+          for (const i in this.contentsList) {
+            if (this.contentsList[i].PUBLIC_FLAG == 1) {
+              this.useContents.push(this.contentsList[i].SEQ_ID);
+            }
+          }
         });
     },
-    publicContents(value) {
-      if (value == 1) this.useContents = 1;
-      if (value == 0) this.useContents = 0;
+    contentsListCheck(event) {
+      let value = event.target.value;
+      if (event.target.checked === false) {
+        this.unusedContents.push(value);
+        let set = new Set(this.unusedContents);
+        this.unusedContents = [...set];
+      } else if (event.target.checked === true) {
+        const index = this.unusedContents.indexOf(value);
+        if (index > -1) this.unusedContents.splice(index, 1);
+      }
+    },
+    contentsUseUnused() {
+      if (this.useContents !== []) {
+        // 사용
+        for (const i in this.useContents) {
+          const show = this.contentsList.filter((e) => {
+            return e.SEQ_ID == this.useContents[i];
+          });
+          const fd = new FormData();
+          fd.append("PUBLIC_FLAG", 1);
+          fd.append("SEQ_ID", show[0].SEQ_ID);
+          this.$axios
+            .post("/admin/api/theme-public-contents.php", fd)
+            .then((response) => {
+              if (response.data.DB == "error") alert("error");
+            });
+        }
+      }
+      if (this.unusedContents !== []) {
+        // 미사용
+        for (const i in this.unusedContents) {
+          const fd = new FormData();
+          fd.append("PUBLIC_FLAG", 0);
+          fd.append("SEQ_ID", this.unusedContents[i]);
+          this.$axios
+            .post("/admin/api/theme-public-contents.php", fd)
+            .then((response) => {
+              if (response.data.DB == "error") alert("error");
+            });
+        }
+      }
     },
     thumbFileSelect(event) {
       const input = event.target;
@@ -873,9 +919,13 @@ export default {
         this.$axios
           .get("/admin/api/theme-thumb-file-name.php")
           .then((response) => {
-            this.jsonFileName = `${parseInt(response.data[0].SEQ_ID) + 1}_${
-              this.jsonFileName
-            }`;
+            if (response.data.length == 0) {
+              this.jsonFileName = `1_${this.jsonFileName}`;
+            } else {
+              this.jsonFileName = `${parseInt(response.data[0].SEQ_ID) + 1}_${
+                this.jsonFileName
+              }`;
+            }
           });
       }
     },
@@ -986,6 +1036,7 @@ export default {
         this.contentsFile = null;
         img.value = "";
         json.value = "";
+        this.getContentsList();
       });
     },
     thumbnailUpload() {
@@ -1008,7 +1059,7 @@ export default {
     },
   },
   mounted() {
-    this.getContents();
+    this.getContentsType();
   },
 };
 </script>
