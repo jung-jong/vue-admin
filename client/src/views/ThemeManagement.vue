@@ -226,7 +226,13 @@
                   v-model="useContents"
                   @click="contentsListCheck($event)"
                 />
-                <span class="material-symbols-rounded"> delete </span>
+                <span
+                  class="material-symbols-rounded"
+                  role="button"
+                  @click="deleteContents(contentsList)"
+                >
+                  delete
+                </span>
               </div>
               <img
                 :src="contentsListImg + contentsList.THUMB_PATH"
@@ -526,7 +532,10 @@
                 <button
                   type="button"
                   class="btn btn-lg btn-primary m-auto"
-                  @click="templateUpload()"
+                  @click="
+                    templateUpload();
+                    thumbPathFormat();
+                  "
                 >
                   업로드
                 </button>
@@ -824,10 +833,10 @@ export default {
     },
     deleteTheme(id) {
       const fd = new FormData();
-      fd.append("SEQ_ID", id);
+      fd.append("deleteTheme", id);
       if (window.confirm("정말 삭제하시겠습니까?")) {
         this.$loading();
-        this.$axios.post("/admin/api/theme_delete.php", fd).then(() => {
+        this.$axios.post("/admin/api/theme-delete.php", fd).then(() => {
           this.getTheme();
         });
       }
@@ -881,7 +890,8 @@ export default {
           this.$axios
             .post("/admin/api/theme-public-contents.php", fd)
             .then((response) => {
-              if (response.data.DB == "error") return alert("api error");
+              if (response.data.DB !== "success")
+                return alert("API Error: " + response.data);
               if (
                 (this.unusedContents == []) & (this.useContents !== []) ||
                 (this.unusedContents !== []) & (this.useContents !== [])
@@ -899,11 +909,27 @@ export default {
           this.$axios
             .post("/admin/api/theme-public-contents.php", fd)
             .then((response) => {
-              if (response.data.DB == "error") return alert("api error");
+              if (response.data.DB !== "success")
+                return alert("API Error: " + response.data);
               if ((this.unusedContents !== []) & (this.useContents == []))
                 alert("사용여부 변경됨");
             });
         }
+      }
+    },
+    deleteContents(contents) {
+      const fd = new FormData();
+      fd.append("deleteContents", contents.SEQ_ID);
+      fd.append("thumbPath", contents.THUMB_PATH);
+      fd.append("contentsPath", contents.CONTENTS_PATH);
+      if (window.confirm("정말 삭제하시겠습니까?")) {
+        this.$loading();
+        this.$axios.post("/admin/api/theme-delete.php", fd).then((response) => {
+          console.log(response.data);
+          if (response.data.DB !== "success")
+            return alert("API Error: " + response.data);
+          this.getContentsList();
+        });
       }
     },
     thumbFileSelect(event) {
