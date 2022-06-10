@@ -846,7 +846,9 @@ export default {
           this.contentsListImg = "http://localhost/admin"; //로컬서버
           this.$endloading();
           this.useContents = [];
+          this.unusedContents = [];
           for (const i in this.contentsList) {
+            // 사용 컨텐츠 보여줌
             if (this.contentsList[i].PUBLIC_FLAG == 1) {
               this.useContents.push(this.contentsList[i].SEQ_ID);
             }
@@ -859,30 +861,37 @@ export default {
         this.unusedContents.push(value);
         let set = new Set(this.unusedContents);
         this.unusedContents = [...set];
+        const index = this.useContents.indexOf(value);
+        if (index > -1) this.useContents.splice(index, 1);
       } else if (event.target.checked === true) {
+        this.useContents.push(value);
+        let set = new Set(this.useContents);
+        this.useContents = [...set];
         const index = this.unusedContents.indexOf(value);
         if (index > -1) this.unusedContents.splice(index, 1);
       }
     },
     contentsUseUnused() {
+      // 사용
       if (this.useContents !== []) {
-        // 사용
         for (const i in this.useContents) {
-          const show = this.contentsList.filter((e) => {
-            return e.SEQ_ID == this.useContents[i];
-          });
           const fd = new FormData();
           fd.append("PUBLIC_FLAG", 1);
-          fd.append("SEQ_ID", show[0].SEQ_ID);
+          fd.append("SEQ_ID", this.useContents[i]);
           this.$axios
             .post("/admin/api/theme-public-contents.php", fd)
             .then((response) => {
-              if (response.data.DB == "error") alert("error");
+              if (response.data.DB == "error") return alert("api error");
+              if (
+                (this.unusedContents == []) & (this.useContents !== []) ||
+                (this.unusedContents !== []) & (this.useContents !== [])
+              )
+                alert("사용여부 변경됨");
             });
         }
       }
+      // 미사용
       if (this.unusedContents !== []) {
-        // 미사용
         for (const i in this.unusedContents) {
           const fd = new FormData();
           fd.append("PUBLIC_FLAG", 0);
@@ -890,7 +899,9 @@ export default {
           this.$axios
             .post("/admin/api/theme-public-contents.php", fd)
             .then((response) => {
-              if (response.data.DB == "error") alert("error");
+              if (response.data.DB == "error") return alert("api error");
+              if ((this.unusedContents !== []) & (this.useContents == []))
+                alert("사용여부 변경됨");
             });
         }
       }
