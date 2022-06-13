@@ -24,7 +24,7 @@
                   v-for="(contents, i) in contents"
                   :key="i"
                   :class="[{ active: i === activeContents }, { hover: hover }]"
-                  @click="selectContents(i, contents)"
+                  @click="selectContentsType(i, contents)"
                   @mouseenter="hoverType(contents.CONTENTS_TYPE_NAME)"
                 >
                   {{ contents.CONTENTS_TYPE_NAME }}
@@ -46,7 +46,6 @@
                   @change="getTheme()"
                   @click="
                     activeContents = false;
-                    themeListShow = false;
                     contentsListShow = false;
                   "
                 />
@@ -64,7 +63,6 @@
                   @change="getTheme()"
                   @click="
                     activeContents = false;
-                    themeListShow = false;
                     contentsListShow = false;
                   "
                 />
@@ -207,6 +205,8 @@
                 getSizeCategory();
                 thumbPathFormat();
                 contentsPathFormat();
+                contentsName = '';
+                keyword = '';
               "
             >
               + 콘텐츠 추가
@@ -227,18 +227,37 @@
                   @click="contentsListCheck($event)"
                 />
                 <span
-                  class="material-symbols-rounded"
+                  class="material-symbols-rounded me-1"
                   role="button"
                   @click="deleteContents(contentsList)"
                 >
                   delete
                 </span>
+                <span
+                  class="material-symbols-rounded"
+                  role="button"
+                  data-bs-toggle="modal"
+                  data-bs-target="#editModal"
+                  @click="
+                    selectContentsList(contentsList);
+                    getSizeCategory();
+                  "
+                >
+                  edit_note
+                </span>
               </div>
+              <!-- <img
+                :src="contentsList.THUMB_PATH"
+                class="img-thumbnail"
+                style="width: 150px; height: 150px"
+                alt=""
+              /> -->
+              <!-- 로컬서버 -->
               <img
                 :src="contentsListImg + contentsList.THUMB_PATH"
                 class="img-thumbnail"
                 style="width: 150px; height: 150px"
-                alt="../assets/memo.png"
+                alt=""
               />
             </div>
           </div>
@@ -366,8 +385,9 @@
                         :src="thumbnail"
                         id="thumbnail"
                         :class="{ thubnail: thumbnail != null }"
-                        class="p-0"
+                        class="p-0 m-2"
                         alt=""
+                        v-if="thumbnail != null ? true : false"
                       />
                       <div class="input-group w-50">
                         <input
@@ -532,12 +552,296 @@
                 <button
                   type="button"
                   class="btn btn-lg btn-primary m-auto"
-                  @click="
-                    templateUpload();
-                    thumbPathFormat();
-                  "
+                  @click="templateUpload()"
                 >
                   업로드
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- 콘텐츠 수정 -->
+        <div
+          class="modal fade"
+          id="editModal"
+          data-bs-backdrop="static"
+          data-bs-keyboard="false"
+        >
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="editModalTitle">
+                  콘텐츠 수정 - {{ currentContents.CONTENTS_TYPE_NAME }}
+                </h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body p-5">
+                <div class="mb-3 row">
+                  <label for="conname" class="col-2 col-form-label fw-bold"
+                    >콘텐츠 이름</label
+                  >
+                  <div class="col-10 position-relative">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="conname"
+                      :class="{ 'is-invalid': invalidContentsName }"
+                      v-model="contentsName"
+                      @change="
+                        contentsName !== ''
+                          ? (invalidContentsName = false)
+                          : (invalidContentsName = true)
+                      "
+                    />
+                    <div
+                      class="invalid-tooltip"
+                      :class="[
+                        { 'd-block': invalidContentsName },
+                        { 'd-none': contentsName !== '' },
+                      ]"
+                    >
+                      콘텐츠 이름을 입력하세요.
+                    </div>
+                  </div>
+                </div>
+                <div class="mb-3 row">
+                  <label for="contype" class="col-2 col-form-label fw-bold"
+                    >콘텐츠 타입</label
+                  >
+                  <div class="col-10">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="contype"
+                      readonly
+                      :value="currentContents.CONTENTS_TYPE_NAME"
+                    />
+                  </div>
+                </div>
+                <div class="mb-3 row">
+                  <label for="contheme" class="col-2 col-form-label fw-bold"
+                    >콘텐츠 테마</label
+                  >
+                  <div class="col-10">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="contheme"
+                      readonly
+                      :value="currentThemeList.THEME_NAME"
+                    />
+                  </div>
+                </div>
+                <div class="mb-3 row">
+                  <label for="keyword" class="col-2 col-form-label fw-bold"
+                    >키워드</label
+                  >
+                  <div class="col-10 position-relative">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="keyword"
+                      :class="{ 'is-invalid': invalidKeyword }"
+                      v-model="keyword"
+                      @change="
+                        keyword !== ''
+                          ? (invalidKeyword = false)
+                          : (invalidKeyword = true)
+                      "
+                    />
+                    <div
+                      class="invalid-tooltip"
+                      :class="[
+                        { 'd-block': invalidKeyword },
+                        { 'd-none': keyword !== '' },
+                      ]"
+                    >
+                      키워드를 입력하세요.
+                    </div>
+                  </div>
+                </div>
+                <div class="mb-3 row">
+                  <div class="col-2 col-form-label fw-bold">썸네일</div>
+                  <div class="col-10">
+                    <div class="row flex-column">
+                      <img
+                        :src="thumbnail"
+                        :class="{ thubnail: thumbnail != null }"
+                        class="p-0 m-2"
+                        alt=""
+                        v-if="thumbnail != null ? true : false"
+                      />
+                      <div class="input-group w-50">
+                        <input
+                          type="file"
+                          class="form-control"
+                          id="thumbFile"
+                          accept="image/*"
+                          :class="{ 'is-invalid': invalidThumbnail }"
+                          @change="
+                            thumbFileSelect($event);
+                            invalidThumbnail = false;
+                          "
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="row mb-3">
+                  <div class="col-2 col-form-label fw-bold">콘텐츠</div>
+                  <div class="col-10">
+                    <div class="row">
+                      <div class="input-group w-50">
+                        <input
+                          type="file"
+                          class="form-control"
+                          id="contentsFile"
+                          accept=".json"
+                          :class="{ 'is-invalid': invalidContents }"
+                          @change="
+                            contentsFileSelect($event);
+                            invalidContents = false;
+                          "
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="row align-items-center mb-3">
+                  <div class="col-2 col-form-label fw-bold">콘텐츠 용도</div>
+                  <div class="col-10 position-relative">
+                    <div class="form-check form-check-inline">
+                      <input
+                        class="form-check-input"
+                        type="radio"
+                        id="useWeb"
+                        value="web"
+                        v-model="typeCheck"
+                      />
+                      <label class="form-check-label" for="useWeb">웹용</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input
+                        class="form-check-input"
+                        type="radio"
+                        id="usePrint"
+                        value="print"
+                        v-model="typeCheck"
+                      />
+                      <label class="form-check-label" for="usePrint"
+                        >인쇄용</label
+                      >
+                    </div>
+                  </div>
+                </div>
+                <div class="row mb-3">
+                  <div class="col-2 col-form-label fw-bold">작업크기</div>
+                  <div class="col-10">
+                    <div class="row">
+                      <div class="col">
+                        <select
+                          class="form-select me-3"
+                          v-model="selectWorkingSize"
+                          @change="getSize()"
+                        >
+                          <option
+                            :value="i + 1"
+                            v-for="(sizeCategory, i) in sizeCategory"
+                            :key="i"
+                          >
+                            {{ sizeCategory.TEMPLATE_TYPE_NAME }}
+                          </option>
+                        </select>
+                        <select
+                          class="form-select"
+                          v-model="selectSize"
+                          @change="getSize()"
+                        >
+                          <option
+                            :value="i + 1"
+                            v-for="(size, i) in size"
+                            :key="i"
+                          >
+                            {{ size.SIZE_NAME }}
+                          </option>
+                        </select>
+                      </div>
+                      <div class="col">
+                        <div class="row">
+                          <div class="col">
+                            <p>가로</p>
+                            <input
+                              type="text"
+                              class="form-control"
+                              v-model="width"
+                              readonly
+                            />
+                          </div>
+                          <div class="col">
+                            <p>세로</p>
+                            <input
+                              type="text"
+                              class="form-control"
+                              v-model="height"
+                              readonly
+                            />
+                          </div>
+                          <div class="col">
+                            <p>단위</p>
+                            <input
+                              type="text"
+                              class="form-control"
+                              v-model="scale"
+                              readonly
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="row align-items-center mb-3">
+                  <div class="col-2 col-form-label fw-bold">사용여부</div>
+                  <div class="col-10 position-relative">
+                    <div class="form-check form-check-inline">
+                      <input
+                        class="form-check-input"
+                        type="radio"
+                        id="publicTrue"
+                        value="true"
+                        v-model="publicFlage"
+                      />
+                      <label class="form-check-label" for="publicTrue"
+                        >사용</label
+                      >
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input
+                        class="form-check-input"
+                        type="radio"
+                        id="publicFalse"
+                        value="false"
+                        v-model="publicFlage"
+                      />
+                      <label class="form-check-label" for="publicFalse"
+                        >미사용</label
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button
+                  type="button"
+                  class="btn btn-lg btn-primary m-auto"
+                  @click="templateUpload()"
+                >
+                  수정
                 </button>
               </div>
             </div>
@@ -576,8 +880,8 @@ export default {
       themeName: "",
       warnning: false,
       contentsList: [],
+      currentContentsList: {},
       contentsListImg: {}, //로컬서버
-      themeListShow: false,
       contentsListShow: false,
       hover: true,
       useContents: [],
@@ -616,7 +920,7 @@ export default {
         this.$endloading();
       });
     },
-    selectContents(i, contents) {
+    selectContentsType(i, contents) {
       this.warnning = false;
       if (this.listCheck == "1") {
         const contentsType = contents.CONTENTS_TYPE_NAME;
@@ -633,7 +937,6 @@ export default {
       this.selected = i + 1;
       this.currentContents = contents;
       this.activeThemeList = false;
-      this.themeListShow = true;
       this.contentsListShow = false;
       this.getTheme();
     },
@@ -675,7 +978,6 @@ export default {
       this.currentContents = this.contents[i - 1];
       this.activeContents = i - 1;
       this.activeThemeList = false;
-      this.themeListShow = true;
       this.contentsListShow = false;
       this.getTheme();
     },
@@ -892,11 +1194,6 @@ export default {
             .then((response) => {
               if (response.data.DB !== "success")
                 return alert("API Error: " + response.data);
-              if (
-                (this.unusedContents == []) & (this.useContents !== []) ||
-                (this.unusedContents !== []) & (this.useContents !== [])
-              )
-                alert("사용여부 변경됨");
             });
         }
       }
@@ -911,11 +1208,11 @@ export default {
             .then((response) => {
               if (response.data.DB !== "success")
                 return alert("API Error: " + response.data);
-              if ((this.unusedContents !== []) & (this.useContents == []))
-                alert("사용여부 변경됨");
             });
         }
       }
+      if (this.unusedContents !== [] || this.useContents !== [])
+        alert("사용여부 변경됨");
     },
     deleteContents(contents) {
       const fd = new FormData();
@@ -925,7 +1222,6 @@ export default {
       if (window.confirm("정말 삭제하시겠습니까?")) {
         this.$loading();
         this.$axios.post("/admin/api/theme-delete.php", fd).then((response) => {
-          console.log(response.data);
           if (response.data.DB !== "success")
             return alert("API Error: " + response.data);
           this.getContentsList();
@@ -1087,6 +1383,44 @@ export default {
       fd.append("base64", this.contentsFile);
       fd.append("contents", this.contentsPath + this.jsonFileName);
       this.$axios.post("/admin/api/theme-file-upload.php", fd).then(() => {});
+    },
+    selectContentsList(contents) {
+      console.log(contents);
+      this.currentContentsList = contents;
+      this.contentsName = contents.CONTENTS_NAME;
+      this.keyword = contents.KEYWORD;
+      this.typeCheck = contents.USE_TYPE;
+      this.selectWorkingSize = contents.SIZE_CATEGORY_ID;
+      this.selectSize = contents.SIZE_INFO_ID;
+      this.publicFlage = contents.PUBLIC_FLAG;
+    },
+    contentsListUpdate() {
+      if (this.contentsName === "") return (this.invalidContentsName = true);
+      if (this.keyword === "") return (this.invalidKeyword = true);
+      if (this.thumbnail === null) return (this.invalidThumbnail = true);
+      if (this.contentsFile === null) return (this.invalidContents = true);
+      this.$loading();
+      const fd = new FormData();
+      fd.append("SEQ_ID", this.currentContentsList.SEQ_ID);
+      fd.append("CONTENTS_NAME", this.contentsName);
+      fd.append("KEYWORD", this.keyword);
+      fd.append("THUMB_PATH", this.thumbPath);
+      fd.append("CONTENTS_PATH", this.contentsPath);
+      if (this.typeCheck === "web") {
+        fd.append("USE_TYPE", 1);
+      } else if (this.typeCheck === "print") {
+        fd.append("USE_TYPE", 2);
+      }
+      fd.append(
+        "SIZE_CATEGORY_ID",
+        this.sizeCategory[this.selectWorkingSize - 1].SEQ_ID
+      );
+      fd.append("SIZE_INFO_ID", this.size[this.selectSize - 1].SEQ_ID);
+      if (this.publicFlage === "true") {
+        fd.append("PUBLIC_FLAG", 1);
+      } else if (this.publicFlage === "false") {
+        fd.append("PUBLIC_FLAG", 0);
+      }
     },
     scaleFormat(value) {
       if (value == 1) return (this.scale = "px");

@@ -3,7 +3,7 @@ include("connect.php");
 
 header('Content-Type: text/html; charset=utf-8');
 
-$sql = "SELECT * FROM TB_UPLOAD_FILE WHERE SEQ_ID = '{$_POST['SEQ_ID']}'";
+$sql = "SELECT * FROM TB_MY_UPLOAD WHERE SEQ_ID = '{$_POST['SEQ_ID']}'";
 
 $result = mysqli_query($conn, $sql);
 

@@ -30,14 +30,9 @@ if (isset($_POST['deleteContents'])) {
       closedir($dh);
     }
   }
-  $i = 0;
   foreach ($data as $data) {
     $name = strstr($data, $id);
     $data = array($name);
-    if ($name === "") {
-      echo "컨텐츠 파일 삭제실패\n";
-      return;
-    }
   }
   $name = $dir . $data[0];
   if (!file_exists($name)) {
