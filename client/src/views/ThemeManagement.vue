@@ -204,7 +204,6 @@
               @click="
                 getSizeCategory();
                 thumbPathFormat();
-                contentsPathFormat();
                 contentsName = '';
                 keyword = '';
               "
@@ -241,6 +240,7 @@
                   @click="
                     selectContentsList(contentsList);
                     getSizeCategory();
+                    thumbPathFormat(contentsList.SEQ_ID);
                   "
                 >
                   edit_note
@@ -463,7 +463,7 @@
                           @change="getSize()"
                         >
                           <option
-                            :value="i + 1"
+                            :value="i"
                             v-for="(sizeCategory, i) in sizeCategory"
                             :key="i"
                           >
@@ -475,11 +475,7 @@
                           v-model="selectSize"
                           @change="getSize()"
                         >
-                          <option
-                            :value="i + 1"
-                            v-for="(size, i) in size"
-                            :key="i"
-                          >
+                          <option :value="i" v-for="(size, i) in size" :key="i">
                             {{ size.SIZE_NAME }}
                           </option>
                         </select>
@@ -750,7 +746,7 @@
                           @change="getSize()"
                         >
                           <option
-                            :value="i + 1"
+                            :value="i"
                             v-for="(sizeCategory, i) in sizeCategory"
                             :key="i"
                           >
@@ -762,11 +758,7 @@
                           v-model="selectSize"
                           @change="getSize()"
                         >
-                          <option
-                            :value="i + 1"
-                            v-for="(size, i) in size"
-                            :key="i"
-                          >
+                          <option :value="i" v-for="(size, i) in size" :key="i">
                             {{ size.SIZE_NAME }}
                           </option>
                         </select>
@@ -839,7 +831,7 @@
                 <button
                   type="button"
                   class="btn btn-lg btn-primary m-auto"
-                  @click="templateUpload()"
+                  @click="contentsListUpdate()"
                 >
                   수정
                 </button>
@@ -881,7 +873,7 @@ export default {
       warnning: false,
       contentsList: [],
       currentContentsList: {},
-      contentsListImg: {}, //로컬서버
+      contentsListImg: "http://localhost/admin", //로컬서버
       contentsListShow: false,
       hover: true,
       useContents: [],
@@ -894,9 +886,9 @@ export default {
       extension: null,
       contentsFile: null,
       sizeCategory: [],
-      selectWorkingSize: 1,
+      selectWorkingSize: 0,
       size: [],
-      selectSize: 1,
+      selectSize: 0,
       width: null,
       height: null,
       scale: null,
@@ -904,7 +896,7 @@ export default {
       publicFlage: "true",
       thumbPath: null,
       contentsPath: null,
-      jsonFileName: null,
+      contentsFileName: null,
       invalidContentsName: false,
       invalidKeyword: false,
       invalidThumbnail: false,
@@ -964,12 +956,12 @@ export default {
     },
     selectOption(i) {
       if (
-        (this.listCheck == "1") & (i == 1) ||
-        (this.listCheck == "1") & (i == 12) ||
-        (this.listCheck == "1") & (i == 13) ||
-        (this.listCheck == "1") & (i == 14) ||
-        (this.listCheck == "1") & (i == 15) ||
-        (this.listCheck == "1") & (i == 16)
+        (this.listCheck == "1" && i == 1) ||
+        (this.listCheck == "1" && i == 12) ||
+        (this.listCheck == "1" && i == 13) ||
+        (this.listCheck == "1" && i == 14) ||
+        (this.listCheck == "1" && i == 15) ||
+        (this.listCheck == "1" && i == 16)
       ) {
         return (this.warnning = true);
       } else {
@@ -1154,7 +1146,6 @@ export default {
         })
         .then((response) => {
           this.contentsList = response.data;
-          this.contentsListImg = "http://localhost/admin"; //로컬서버
           this.$endloading();
           this.useContents = [];
           this.unusedContents = [];
@@ -1239,6 +1230,7 @@ export default {
         this.extension = input.files[0].name;
         this.thumbPath = this.thumbPath + this.extension.split(".", 2)[1];
       }
+      console.log("select" + this.thumbPath);
     },
     contentsFileSelect(event) {
       const input = event.target;
@@ -1248,16 +1240,16 @@ export default {
           this.contentsFile = e.target.result;
         };
         reader.readAsDataURL(input.files[0]);
-        this.jsonFileName = input.files[0].name;
+        this.contentsFileName = input.files[0].name;
         this.$axios
           .get("/admin/api/theme-thumb-file-name.php")
           .then((response) => {
             if (response.data.length == 0) {
-              this.jsonFileName = `1_${this.jsonFileName}`;
+              this.contentsFileName = `1_${this.contentsFileName}`;
             } else {
-              this.jsonFileName = `${parseInt(response.data[0].SEQ_ID) + 1}_${
-                this.jsonFileName
-              }`;
+              this.contentsFileName = `${
+                parseInt(response.data[0].SEQ_ID) + 1
+              }_${this.contentsFileName}`;
             }
           });
       }
@@ -1276,7 +1268,7 @@ export default {
       this.$axios
         .get("/admin/api/size.php", {
           params: {
-            template: this.sizeCategory[this.selectWorkingSize - 1].SEQ_ID,
+            template: this.sizeCategory[this.selectWorkingSize].SEQ_ID,
           },
         })
         .then((response) => {
@@ -1290,7 +1282,7 @@ export default {
       this.$axios
         .get("/admin/api/size.php", {
           params: {
-            size: this.size[this.selectSize - 1].SEQ_ID,
+            size: this.size[this.selectSize].SEQ_ID,
           },
         })
         .then((response) => {
@@ -1317,7 +1309,13 @@ export default {
       if (contentsType == "스타일")
         return (this.contentsPath = "./contents/style/");
     },
-    thumbPathFormat() {
+    thumbPathFormat(id) {
+      this.contentsPathFormat();
+      if (id != undefined) {
+        this.thumbPath = id;
+        this.thumbPath = `${this.contentsPath}thumb/${this.thumbPath}.`;
+        return;
+      }
       this.$axios
         .get("/admin/api/theme-thumb-file-name.php")
         .then((response) => {
@@ -1329,11 +1327,14 @@ export default {
           this.thumbPath = `${this.contentsPath}thumb/${this.thumbPath}.`;
         });
     },
-    templateUpload() {
+    validation() {
       if (this.contentsName === "") return (this.invalidContentsName = true);
       if (this.keyword === "") return (this.invalidKeyword = true);
       if (this.thumbnail === null) return (this.invalidThumbnail = true);
       if (this.contentsFile === null) return (this.invalidContents = true);
+    },
+    templateUpload() {
+      if (this.validation()) return;
       this.$loading();
       const fd = new FormData();
       fd.append("CONTENTS_NAME", this.contentsName);
@@ -1348,9 +1349,9 @@ export default {
       }
       fd.append(
         "SIZE_CATEGORY_ID",
-        this.sizeCategory[this.selectWorkingSize - 1].SEQ_ID
+        this.sizeCategory[this.selectWorkingSize].SEQ_ID
       );
-      fd.append("SIZE_INFO_ID", this.size[this.selectSize - 1].SEQ_ID);
+      fd.append("SIZE_INFO_ID", this.size[this.selectSize].SEQ_ID);
       if (this.publicFlage === "true") {
         fd.append("PUBLIC_FLAG", 1);
       } else if (this.publicFlage === "false") {
@@ -1381,24 +1382,46 @@ export default {
     contentsFileUpload() {
       const fd = new FormData();
       fd.append("base64", this.contentsFile);
-      fd.append("contents", this.contentsPath + this.jsonFileName);
+      fd.append("contents", this.contentsPath + this.contentsFileName);
       this.$axios.post("/admin/api/theme-file-upload.php", fd).then(() => {});
     },
     selectContentsList(contents) {
-      console.log(contents);
       this.currentContentsList = contents;
       this.contentsName = contents.CONTENTS_NAME;
       this.keyword = contents.KEYWORD;
-      this.typeCheck = contents.USE_TYPE;
-      this.selectWorkingSize = contents.SIZE_CATEGORY_ID;
-      this.selectSize = contents.SIZE_INFO_ID;
+      // this.thumbnail = contents.THUMB_PATH;
+      this.thumbnail = this.contentsListImg + contents.THUMB_PATH.slice(0); //로컬서버
+      if (contents.USE_TYPE == 1) {
+        this.typeCheck = "web";
+      } else if (contents.USE_TYPE == 2) this.typeCheck = "print";
       this.publicFlage = contents.PUBLIC_FLAG;
+      if (contents.PUBLIC_FLAG == 1) {
+        this.publicFlage = "true";
+      } else if (contents.PUBLIC_FLAG == 0) this.publicFlage = "false";
+      if (this.currentContents.CONTENTS_TYPE_NAME == "템플릿") {
+        this.$axios
+          .get("/admin/api/contents.php", {
+            params: {
+              "size-category": contents.SIZE_CATEGORY_ID,
+            },
+          })
+          .then((response) => {
+            this.selectWorkingSize = response.data[0].ORDER;
+            this.$axios
+              .get("/admin/api/contents.php", {
+                params: {
+                  size: contents.SIZE_INFO_ID,
+                },
+              })
+              .then((response) => {
+                this.selectSize = response.data[0].ORDER;
+              });
+          });
+      }
     },
     contentsListUpdate() {
-      if (this.contentsName === "") return (this.invalidContentsName = true);
-      if (this.keyword === "") return (this.invalidKeyword = true);
-      if (this.thumbnail === null) return (this.invalidThumbnail = true);
-      if (this.contentsFile === null) return (this.invalidContents = true);
+      if (this.validation()) return;
+      console.log(this.thumbPath);
       this.$loading();
       const fd = new FormData();
       fd.append("SEQ_ID", this.currentContentsList.SEQ_ID);
@@ -1413,14 +1436,30 @@ export default {
       }
       fd.append(
         "SIZE_CATEGORY_ID",
-        this.sizeCategory[this.selectWorkingSize - 1].SEQ_ID
+        this.sizeCategory[this.selectWorkingSize].SEQ_ID
       );
-      fd.append("SIZE_INFO_ID", this.size[this.selectSize - 1].SEQ_ID);
+      fd.append("SIZE_INFO_ID", this.size[this.selectSize].SEQ_ID);
       if (this.publicFlage === "true") {
         fd.append("PUBLIC_FLAG", 1);
       } else if (this.publicFlage === "false") {
         fd.append("PUBLIC_FLAG", 0);
       }
+      const img = document.querySelector("#thumbFile");
+      const json = document.querySelector("#contentsFile");
+      this.contentsFileName = this.contentsFileName.substring(2);
+      this.contentsFileName = `${this.currentContentsList.SEQ_ID}_${this.contentsFileName}`;
+      this.$axios.post("/admin/api/theme-update.php", fd).then((response) => {
+        alert(response.data);
+        this.thumbnailUpload();
+        this.contentsFileUpload();
+        // this.contentsName = "";
+        // this.keyword = "";
+        this.thumbnail = null;
+        this.contentsFile = null;
+        img.value = "";
+        json.value = "";
+        this.getContentsList();
+      });
     },
     scaleFormat(value) {
       if (value == 1) return (this.scale = "px");

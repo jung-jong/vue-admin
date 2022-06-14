@@ -25,4 +25,21 @@ export default {
 };
 </script>
 
-<style></style>
+<style>
+.modal-dialog {
+  max-width: none !important;
+  justify-content: center;
+}
+.modal-content {
+  width: auto !important;
+  min-width: 500px;
+}
+.form-select {
+  width: auto !important;
+  display: inline-block !important;
+  margin: 0 1rem;
+}
+.overflow-auto {
+  max-height: 70vh;
+}
+</style>

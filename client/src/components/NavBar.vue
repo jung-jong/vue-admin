@@ -2,8 +2,8 @@
   <div class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
     <!-- Navbar Brand-->
     <a class="navbar-brand ps-3" href="/admin"
-      ><img src="@/assets/logo.png" alt="" /> <router-link to="/"></router-link
-    ></a>
+      ><img src="@/assets/logo.png" alt="" />
+    </a>
 
     <!-- Sidebar Toggle-->
     <button
