@@ -206,6 +206,7 @@
                 thumbPathFormat();
                 contentsName = '';
                 keyword = '';
+                thumbnail = null;
               "
             >
               + 콘텐츠 추가
@@ -254,7 +255,7 @@
               /> -->
               <!-- 로컬서버 -->
               <img
-                :src="contentsListImg + contentsList.THUMB_PATH"
+                :src="local + contentsList.THUMB_PATH"
                 class="img-thumbnail"
                 style="width: 150px; height: 150px"
                 alt=""
@@ -379,17 +380,17 @@
                 </div>
                 <div class="mb-3 row">
                   <div class="col-2 col-form-label fw-bold">썸네일</div>
-                  <div class="col-10">
+                  <div class="col-5">
                     <div class="row flex-column">
                       <img
                         :src="thumbnail"
                         id="thumbnail"
-                        :class="{ thubnail: thumbnail != null }"
-                        class="p-0 m-2"
+                        :class="{ thumbnail: thumbnail != null }"
+                        class="p-0 mb-2 m-auto"
                         alt=""
                         v-if="thumbnail != null ? true : false"
                       />
-                      <div class="input-group w-50">
+                      <div class="input-group">
                         <input
                           type="file"
                           class="form-control"
@@ -663,16 +664,16 @@
                 </div>
                 <div class="mb-3 row">
                   <div class="col-2 col-form-label fw-bold">썸네일</div>
-                  <div class="col-10">
+                  <div class="col-5">
                     <div class="row flex-column">
                       <img
                         :src="thumbnail"
-                        :class="{ thubnail: thumbnail != null }"
-                        class="p-0 m-2"
+                        :class="{ thumbnail: thumbnail != null }"
+                        class="p-0 mb-2 m-auto"
                         alt=""
                         v-if="thumbnail != null ? true : false"
                       />
-                      <div class="input-group w-50">
+                      <div class="input-group w-100">
                         <input
                           type="file"
                           class="form-control"
@@ -686,6 +687,51 @@
                         />
                       </div>
                     </div>
+                  </div>
+                  <div class="col-5">
+                    <ul class="list-group" id="beforeThumb">
+                      <li
+                        class="list-group-item"
+                        v-if="beforeThumb.length != 0"
+                      >
+                        이전 썸네일
+                      </li>
+                      <li
+                        class="list-group-item"
+                        v-if="beforeThumb.length == 0"
+                      >
+                        No other thumbnails
+                      </li>
+                      <li
+                        class="list-group-item"
+                        v-for="(beforeThumb, i) in beforeThumb"
+                        :key="i"
+                      >
+                        <div
+                          class="row justify-content-center align-items-center"
+                        >
+                          <div class="col">
+                            <img :src="beforeThumb" class="thumbnail" alt="" />
+                          </div>
+                          <div class="col position-relative">
+                            <span
+                              class="material-symbols-rounded icon-size"
+                              role="button"
+                            >
+                              delete_forever
+                            </span>
+                          </div>
+                          <div class="col position-relative">
+                            <span
+                              class="material-symbols-rounded icon-size"
+                              role="button"
+                            >
+                              published_with_changes
+                            </span>
+                          </div>
+                        </div>
+                      </li>
+                    </ul>
                   </div>
                 </div>
                 <div class="row mb-3">
@@ -873,7 +919,7 @@ export default {
       warnning: false,
       contentsList: [],
       currentContentsList: {},
-      contentsListImg: "http://localhost/admin", //로컬서버
+      local: "http://localhost/admin", //로컬서버
       contentsListShow: false,
       hover: true,
       useContents: [],
@@ -901,6 +947,8 @@ export default {
       invalidKeyword: false,
       invalidThumbnail: false,
       invalidContents: false,
+      beforeThumb: [],
+      beforeContents: [],
     };
   },
   mixins: [table],
@@ -1219,41 +1267,6 @@ export default {
         });
       }
     },
-    thumbFileSelect(event) {
-      const input = event.target;
-      if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          this.thumbnail = e.target.result;
-        };
-        reader.readAsDataURL(input.files[0]);
-        this.extension = input.files[0].name;
-        this.thumbPath = this.thumbPath + this.extension.split(".", 2)[1];
-      }
-      console.log("select" + this.thumbPath);
-    },
-    contentsFileSelect(event) {
-      const input = event.target;
-      if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          this.contentsFile = e.target.result;
-        };
-        reader.readAsDataURL(input.files[0]);
-        this.contentsFileName = input.files[0].name;
-        this.$axios
-          .get("/admin/api/theme-thumb-file-name.php")
-          .then((response) => {
-            if (response.data.length == 0) {
-              this.contentsFileName = `1_${this.contentsFileName}`;
-            } else {
-              this.contentsFileName = `${
-                parseInt(response.data[0].SEQ_ID) + 1
-              }_${this.contentsFileName}`;
-            }
-          });
-      }
-    },
     getSizeCategory() {
       if (this.currentContents.CONTENTS_TYPE_NAME == "템플릿") {
         this.$axios.get("/admin/api/size_category.php").then((response) => {
@@ -1294,6 +1307,12 @@ export default {
           this.$endloading();
         });
     },
+    scaleFormat(value) {
+      if (value == 1) return (this.scale = "px");
+      if (value == 2) return (this.scale = "mm");
+      if (value == 3) return (this.scale = "cm");
+      if (value == 4) return (this.scale = "inch");
+    },
     contentsPathFormat() {
       const contentsType = this.currentContents.CONTENTS_TYPE_NAME;
       if (contentsType == "템플릿")
@@ -1326,6 +1345,42 @@ export default {
           }
           this.thumbPath = `${this.contentsPath}thumb/${this.thumbPath}.`;
         });
+    },
+    thumbFileSelect(event) {
+      const input = event.target;
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.thumbnail = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+        this.extension = null;
+        this.extension = input.files[0].name;
+        this.thumbPath = this.thumbPath + this.extension.split(".", 2)[1];
+      }
+    },
+    contentsFileSelect(event) {
+      const input = event.target;
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.contentsFile = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+        this.contentsFileName = input.files[0].name;
+        if (this.beforeThumb != []) return;
+        this.$axios
+          .get("/admin/api/theme-thumb-file-name.php")
+          .then((response) => {
+            if (response.data.length == 0) {
+              this.contentsFileName = `1_${this.contentsFileName}`;
+            } else {
+              this.contentsFileName = `${
+                parseInt(response.data[0].SEQ_ID) + 1
+              }_${this.contentsFileName}`;
+            }
+          });
+      }
     },
     validation() {
       if (this.contentsName === "") return (this.invalidContentsName = true);
@@ -1373,6 +1428,7 @@ export default {
         this.getContentsList();
       });
     },
+
     thumbnailUpload() {
       const fd = new FormData();
       fd.append("base64", this.thumbnail);
@@ -1386,11 +1442,42 @@ export default {
       this.$axios.post("/admin/api/theme-file-upload.php", fd).then(() => {});
     },
     selectContentsList(contents) {
+      // 이전 썸네일, 콘텐츠 파일
+      let currentImg = contents.THUMB_PATH.split("/");
+      currentImg = currentImg[currentImg.length - 1];
+      const fd = new FormData();
+      fd.append("thumb-dir", contents.CONTENTS_PATH + "thumb");
+      fd.append("current-img", currentImg);
+      this.$axios
+        .post("/admin/api/theme-before-file.php", fd)
+        .then((response) => {
+          if (response.data.length == 0) {
+            return (this.beforeThumb = []);
+          } else {
+            const filter = response.data.filter((data) => {
+              return data.split(".")[0] == contents.SEQ_ID;
+            });
+            for (const value of filter) {
+              this.beforeThumb.push(`${contents.CONTENTS_PATH}thumb/${value}`);
+            }
+            // 로컬서버
+            this.beforeThumb = [];
+            for (const value of filter) {
+              this.beforeThumb.push(
+                `${this.local}${contents.CONTENTS_PATH.substring(
+                  1
+                )}thumb/${value}`
+              );
+            }
+          }
+        });
+
+      // 선택 콘텐츠 정보
       this.currentContentsList = contents;
       this.contentsName = contents.CONTENTS_NAME;
       this.keyword = contents.KEYWORD;
-      // this.thumbnail = contents.THUMB_PATH;
-      this.thumbnail = this.contentsListImg + contents.THUMB_PATH.slice(0); //로컬서버
+      this.thumbnail = contents.THUMB_PATH;
+      this.thumbnail = this.local + contents.THUMB_PATH.substring(1); // 로컬서버
       if (contents.USE_TYPE == 1) {
         this.typeCheck = "web";
       } else if (contents.USE_TYPE == 2) this.typeCheck = "print";
@@ -1421,7 +1508,6 @@ export default {
     },
     contentsListUpdate() {
       if (this.validation()) return;
-      console.log(this.thumbPath);
       this.$loading();
       const fd = new FormData();
       fd.append("SEQ_ID", this.currentContentsList.SEQ_ID);
@@ -1446,26 +1532,22 @@ export default {
       }
       const img = document.querySelector("#thumbFile");
       const json = document.querySelector("#contentsFile");
-      this.contentsFileName = this.contentsFileName.substring(2);
+      console.log(this.contentsFileName);
+      this.contentsFileName = this.contentsFileName.split("_", 1);
       this.contentsFileName = `${this.currentContentsList.SEQ_ID}_${this.contentsFileName}`;
       this.$axios.post("/admin/api/theme-update.php", fd).then((response) => {
-        alert(response.data);
+        if (response.data.DB !== "success")
+          return alert("API Error: " + response.data);
         this.thumbnailUpload();
         this.contentsFileUpload();
         // this.contentsName = "";
         // this.keyword = "";
-        this.thumbnail = null;
-        this.contentsFile = null;
-        img.value = "";
-        json.value = "";
+        // this.thumbnail = null;
+        // this.contentsFile = null;
+        // img.value = "";
+        // json.value = "";
         this.getContentsList();
       });
-    },
-    scaleFormat(value) {
-      if (value == 1) return (this.scale = "px");
-      if (value == 2) return (this.scale = "mm");
-      if (value == 3) return (this.scale = "cm");
-      if (value == 4) return (this.scale = "inch");
     },
   },
   mounted() {
@@ -1513,7 +1595,7 @@ export default {
 .form-select {
   margin: 0;
 }
-.thubnail {
+.thumbnail {
   width: 100px;
   height: 100px;
 }
@@ -1521,5 +1603,16 @@ export default {
   cursor: pointer;
   background-color: var(--bs-blue);
   color: var(--bs-white);
+}
+.icon-size {
+  font-size: 48px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+#beforeThumb {
+  max-height: 200px;
+  overflow: auto;
 }
 </style>
