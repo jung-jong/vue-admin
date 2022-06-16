@@ -664,7 +664,7 @@
                 </div>
                 <div class="mb-3 row">
                   <div class="col-2 col-form-label fw-bold">썸네일</div>
-                  <div class="col-5">
+                  <div class="col-4">
                     <div class="row flex-column">
                       <img
                         :src="thumbnail"
@@ -688,7 +688,7 @@
                       </div>
                     </div>
                   </div>
-                  <div class="col-5">
+                  <div class="col-6">
                     <ul class="list-group" id="beforeThumb">
                       <li
                         class="list-group-item"
@@ -713,18 +713,23 @@
                           <div class="col">
                             <img :src="beforeThumb" class="thumbnail" alt="" />
                           </div>
-                          <div class="col position-relative">
+                          <div class="col thumbnail position-relative">
+                            <p class="fw-bold text-center">파일 삭제</p>
                             <span
                               class="material-symbols-rounded icon-size"
                               role="button"
+                              @click="deleteBeforeThumb(beforeThumb)"
                             >
                               delete_forever
                             </span>
                           </div>
-                          <div class="col position-relative">
+                          <div class="col thumbnail position-relative">
+                            <p class="fw-bold text-center">썸네일 변경</p>
                             <span
                               class="material-symbols-rounded icon-size"
                               role="button"
+                              data-bs-dismiss="modal"
+                              @click="changeThumb(beforeThumb)"
                             >
                               published_with_changes
                             </span>
@@ -736,9 +741,9 @@
                 </div>
                 <div class="row mb-3">
                   <div class="col-2 col-form-label fw-bold">콘텐츠</div>
-                  <div class="col-10">
+                  <div class="col-4">
                     <div class="row">
-                      <div class="input-group w-50">
+                      <div class="input-group w-100">
                         <input
                           type="file"
                           class="form-control"
@@ -1442,7 +1447,13 @@ export default {
       this.$axios.post("/admin/api/theme-file-upload.php", fd).then(() => {});
     },
     selectContentsList(contents) {
+      const img = document.querySelector("#thumbFile");
+      const json = document.querySelector("#contentsFile");
+      img.value = "";
+      json.value = "";
+      this.contentsFile = null;
       // 이전 썸네일, 콘텐츠 파일
+      this.$loading();
       let currentImg = contents.THUMB_PATH.split("/");
       currentImg = currentImg[currentImg.length - 1];
       const fd = new FormData();
@@ -1470,9 +1481,11 @@ export default {
               );
             }
           }
+          this.$endloading();
         });
 
       // 선택 콘텐츠 정보
+      this.$loading();
       this.currentContentsList = contents;
       this.contentsName = contents.CONTENTS_NAME;
       this.keyword = contents.KEYWORD;
@@ -1502,18 +1515,60 @@ export default {
               })
               .then((response) => {
                 this.selectSize = response.data[0].ORDER;
+                this.$endloading();
               });
           });
       }
     },
+    deleteBeforeThumb(value) {
+      if (window.confirm("완전히 삭제하시겠습니까?")) {
+        value = value.split("admin");
+        value = ".." + value[1];
+        const fd = new FormData();
+        fd.append("deleteBeforeThumb", value);
+        this.$axios
+          .post("/admin/api/theme-before-file.php", fd)
+          .then((response) => {
+            if (response.data !== "success")
+              return alert("API Error :" + response.data);
+            this.selectContentsList(this.currentContentsList);
+          });
+      }
+    },
+    changeThumb(value) {
+      if (window.confirm("썸네일을 변경합니다.")) {
+        value = value.split("admin");
+        value = "." + value[1];
+        let SEQ_ID = value.split("/");
+        SEQ_ID = SEQ_ID[SEQ_ID.length - 1];
+        SEQ_ID = SEQ_ID.split(".")[0];
+        const fd = new FormData();
+        fd.append("changeThumb", value);
+        fd.append("SEQ_ID", SEQ_ID);
+        this.$axios
+          .post("/admin/api/theme-before-file.php", fd)
+          .then((response) => {
+            if (response.data.DB !== "success")
+              return alert("API Error: " + response.data);
+            this.getContentsList();
+            this.selectContentsList(this.currentContentsList);
+            value = this.local + value.substring(1); // 로컬서버
+            this.thumbnail = value;
+          });
+      }
+    },
     contentsListUpdate() {
-      if (this.validation()) return;
-      this.$loading();
+      if (this.contentsName === "") return (this.invalidContentsName = true);
+      if (this.keyword === "") return (this.invalidKeyword = true);
       const fd = new FormData();
       fd.append("SEQ_ID", this.currentContentsList.SEQ_ID);
       fd.append("CONTENTS_NAME", this.contentsName);
       fd.append("KEYWORD", this.keyword);
-      fd.append("THUMB_PATH", this.thumbPath);
+      if (this.extension == null) {
+        fd.append("THUMB_PATH", this.currentContentsList.THUMB_PATH);
+      } else {
+        fd.append("THUMB_PATH", this.thumbPath);
+      }
       fd.append("CONTENTS_PATH", this.contentsPath);
       if (this.typeCheck === "web") {
         fd.append("USE_TYPE", 1);
@@ -1532,21 +1587,17 @@ export default {
       }
       const img = document.querySelector("#thumbFile");
       const json = document.querySelector("#contentsFile");
-      console.log(this.contentsFileName);
-      this.contentsFileName = this.contentsFileName.split("_", 1);
-      this.contentsFileName = `${this.currentContentsList.SEQ_ID}_${this.contentsFileName}`;
+      if (this.contentsFileName !== null) {
+        this.contentsFileName = this.contentsFileName.split("_", 1);
+        this.contentsFileName = `${this.currentContentsList.SEQ_ID}_${this.contentsFileName}`;
+      }
       this.$axios.post("/admin/api/theme-update.php", fd).then((response) => {
         if (response.data.DB !== "success")
           return alert("API Error: " + response.data);
-        this.thumbnailUpload();
-        this.contentsFileUpload();
-        // this.contentsName = "";
-        // this.keyword = "";
-        // this.thumbnail = null;
-        // this.contentsFile = null;
-        // img.value = "";
-        // json.value = "";
+        if (img.value != "") this.thumbnailUpload();
+        if (json.value != "") this.contentsFileUpload();
         this.getContentsList();
+        alert("수정 완료");
       });
     },
   },
