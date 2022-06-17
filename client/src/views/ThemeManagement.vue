@@ -229,7 +229,10 @@
                 <span
                   class="material-symbols-rounded me-1"
                   role="button"
-                  @click="deleteContents(contentsList)"
+                  @click="
+                    beforeFile(contentsList);
+                    deleteContents(contentsList);
+                  "
                 >
                   delete
                 </span>
@@ -240,6 +243,7 @@
                   data-bs-target="#editModal"
                   @click="
                     selectContentsList(contentsList);
+                    beforeFile(contentsList);
                     getSizeCategory();
                     thumbPathFormat(contentsList.SEQ_ID);
                   "
@@ -882,6 +886,7 @@
                 <button
                   type="button"
                   class="btn btn-lg btn-primary m-auto"
+                  data-bs-dismiss="modal"
                   @click="contentsListUpdate()"
                 >
                   수정
@@ -954,6 +959,8 @@ export default {
       invalidContents: false,
       beforeThumb: [],
       beforeContents: [],
+      existsThumb: false,
+      existsContents: false,
     };
   },
   mixins: [table],
@@ -1261,7 +1268,7 @@ export default {
     deleteContents(contents) {
       const fd = new FormData();
       fd.append("deleteContents", contents.SEQ_ID);
-      fd.append("thumbPath", contents.THUMB_PATH);
+      fd.append("thumbPath", this.beforeThumb);
       fd.append("contentsPath", contents.CONTENTS_PATH);
       if (window.confirm("정말 삭제하시겠습니까?")) {
         this.$loading();
@@ -1343,48 +1350,41 @@ export default {
       this.$axios
         .get("/admin/api/theme-thumb-file-name.php")
         .then((response) => {
-          if (response.data.length == 0) {
-            this.thumbPath = 1;
-          } else {
-            this.thumbPath = parseInt(response.data[0].SEQ_ID) + 1;
-          }
+          this.thumbPath = response.data[0].AUTO_INCREMENT;
           this.thumbPath = `${this.contentsPath}thumb/${this.thumbPath}.`;
         });
     },
     thumbFileSelect(event) {
       const input = event.target;
       if (input.files && input.files[0]) {
+        this.existsThumb = true;
         const reader = new FileReader();
         reader.onload = (e) => {
           this.thumbnail = e.target.result;
         };
         reader.readAsDataURL(input.files[0]);
-        this.extension = null;
         this.extension = input.files[0].name;
-        this.thumbPath = this.thumbPath + this.extension.split(".", 2)[1];
+        this.extension = this.extension.split(".", 2)[1];
+        this.thumbPath = this.thumbPath + this.extension;
       }
     },
     contentsFileSelect(event) {
       const input = event.target;
       if (input.files && input.files[0]) {
+        this.existsContents = true;
         const reader = new FileReader();
         reader.onload = (e) => {
           this.contentsFile = e.target.result;
         };
         reader.readAsDataURL(input.files[0]);
         this.contentsFileName = input.files[0].name;
-        if (this.beforeThumb != []) return;
         this.$axios
           .get("/admin/api/theme-thumb-file-name.php")
           .then((response) => {
-            if (response.data.length == 0) {
-              this.contentsFileName = `1_${this.contentsFileName}`;
-            } else {
-              this.contentsFileName = `${
-                parseInt(response.data[0].SEQ_ID) + 1
-              }_${this.contentsFileName}`;
-            }
+            this.contentsFileName = `${response.data[0].AUTO_INCREMENT}_${this.contentsFileName}`;
           });
+        if (this.beforeThumb != [])
+          return (this.contentsFileName = input.files[0].name);
       }
     },
     validation() {
@@ -1433,7 +1433,6 @@ export default {
         this.getContentsList();
       });
     },
-
     thumbnailUpload() {
       const fd = new FormData();
       fd.append("base64", this.thumbnail);
@@ -1446,12 +1445,7 @@ export default {
       fd.append("contents", this.contentsPath + this.contentsFileName);
       this.$axios.post("/admin/api/theme-file-upload.php", fd).then(() => {});
     },
-    selectContentsList(contents) {
-      const img = document.querySelector("#thumbFile");
-      const json = document.querySelector("#contentsFile");
-      img.value = "";
-      json.value = "";
-      this.contentsFile = null;
+    beforeFile(contents) {
       // 이전 썸네일, 콘텐츠 파일
       this.$loading();
       let currentImg = contents.THUMB_PATH.split("/");
@@ -1480,10 +1474,12 @@ export default {
                 )}thumb/${value}`
               );
             }
+            this.$endloading();
+            return this.beforeThumb;
           }
-          this.$endloading();
         });
-
+    },
+    selectContentsList(contents) {
       // 선택 콘텐츠 정보
       this.$loading();
       this.currentContentsList = contents;
@@ -1532,6 +1528,7 @@ export default {
             if (response.data !== "success")
               return alert("API Error :" + response.data);
             this.selectContentsList(this.currentContentsList);
+            this.beforeFile(this.currentContentsList);
           });
       }
     },
@@ -1585,18 +1582,17 @@ export default {
       } else if (this.publicFlage === "false") {
         fd.append("PUBLIC_FLAG", 0);
       }
-      const img = document.querySelector("#thumbFile");
-      const json = document.querySelector("#contentsFile");
       if (this.contentsFileName !== null) {
-        this.contentsFileName = this.contentsFileName.split("_", 1);
+        this.contentsFileName = this.contentsFileName.split("_")[1];
         this.contentsFileName = `${this.currentContentsList.SEQ_ID}_${this.contentsFileName}`;
       }
       this.$axios.post("/admin/api/theme-update.php", fd).then((response) => {
         if (response.data.DB !== "success")
           return alert("API Error: " + response.data);
-        if (img.value != "") this.thumbnailUpload();
-        if (json.value != "") this.contentsFileUpload();
+        if (this.existsThumb === true) this.thumbnailUpload();
+        if (this.existsContents === true) this.contentsFileUpload();
         this.getContentsList();
+        this.beforeFile(this.currentContentsList);
         alert("수정 완료");
       });
     },

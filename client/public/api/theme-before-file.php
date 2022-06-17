@@ -26,9 +26,6 @@ if (isset($_POST['deleteBeforeThumb'])) {
     @unlink($file);
     echo "success";
     return;
-    // $sql = "UPDATE TB_CONTENTS
-    // SET `THUMB_PATH` = '{$_POST['THUMB_PATH']}', `U_DATE` = CURRENT_TIMESTAMP()
-    // WHERE `SEQ_ID` = {$_POST['SEQ_ID']}";
   }
 }
 

@@ -2,16 +2,17 @@
 
 include("connect.php");
 
-$sql = "SELECT `SEQ_ID` FROM `TB_CONTENTS` ORDER BY `SEQ_ID` DESC LIMIT 1";
+$sql = "SELECT AUTO_INCREMENT
+FROM information_schema.tables
+WHERE table_name = 'TB_CONTENTS'
+AND table_schema = DATABASE()";
 
 $result = mysqli_query($conn, $sql);
 $data = array();
-while($row = mysqli_fetch_assoc($result)){
+while ($row = mysqli_fetch_assoc($result)) {
   $data[] = $row;
 }
 
 echo json_encode($data);
 
 mysqli_close($conn);
-
-?>
