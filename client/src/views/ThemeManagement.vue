@@ -207,6 +207,7 @@
                 contentsName = '';
                 keyword = '';
                 thumbnail = null;
+                editContents = false;
               "
             >
               + 콘텐츠 추가
@@ -681,7 +682,7 @@
                         <input
                           type="file"
                           class="form-control"
-                          id="thumbFile"
+                          id="thumbFileEdit"
                           accept="image/*"
                           :class="{ 'is-invalid': invalidThumbnail }"
                           @change="
@@ -751,7 +752,7 @@
                         <input
                           type="file"
                           class="form-control"
-                          id="contentsFile"
+                          id="contentsFileEdit"
                           accept=".json"
                           :class="{ 'is-invalid': invalidContents }"
                           @change="
@@ -961,6 +962,7 @@ export default {
       beforeContents: [],
       existsThumb: false,
       existsContents: false,
+      editContents: false,
     };
   },
   mixins: [table],
@@ -1383,8 +1385,6 @@ export default {
           .then((response) => {
             this.contentsFileName = `${response.data[0].AUTO_INCREMENT}_${this.contentsFileName}`;
           });
-        if (this.beforeThumb != [])
-          return (this.contentsFileName = input.files[0].name);
       }
     },
     validation() {
@@ -1431,6 +1431,7 @@ export default {
         img.value = "";
         json.value = "";
         this.getContentsList();
+        alert("업로드 성공");
       });
     },
     thumbnailUpload() {
@@ -1480,6 +1481,13 @@ export default {
         });
     },
     selectContentsList(contents) {
+      this.editContents = true;
+      this.existsThumb = false;
+      this.existsContents = false;
+      const img = document.querySelector("#thumbFileEdit");
+      const json = document.querySelector("#contentsFileEdit");
+      img.value = "";
+      json.value = "";
       // 선택 콘텐츠 정보
       this.$loading();
       this.currentContentsList = contents;
@@ -1561,7 +1569,7 @@ export default {
       fd.append("SEQ_ID", this.currentContentsList.SEQ_ID);
       fd.append("CONTENTS_NAME", this.contentsName);
       fd.append("KEYWORD", this.keyword);
-      if (this.extension == null) {
+      if (this.editContents === true) {
         fd.append("THUMB_PATH", this.currentContentsList.THUMB_PATH);
       } else {
         fd.append("THUMB_PATH", this.thumbPath);
@@ -1583,8 +1591,9 @@ export default {
         fd.append("PUBLIC_FLAG", 0);
       }
       if (this.contentsFileName !== null) {
+        const json = document.querySelector("#contentsFileEdit");
         this.contentsFileName = this.contentsFileName.split("_")[1];
-        this.contentsFileName = `${this.currentContentsList.SEQ_ID}_${this.contentsFileName}`;
+        this.contentsFileName = `${this.currentContentsList.SEQ_ID}_${json.files[0].name}`;
       }
       this.$axios.post("/admin/api/theme-update.php", fd).then((response) => {
         if (response.data.DB !== "success")
@@ -1592,7 +1601,7 @@ export default {
         if (this.existsThumb === true) this.thumbnailUpload();
         if (this.existsContents === true) this.contentsFileUpload();
         this.getContentsList();
-        this.beforeFile(this.currentContentsList);
+        // this.beforeFile(this.currentContentsList);
         alert("수정 완료");
       });
     },
