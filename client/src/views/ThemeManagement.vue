@@ -231,7 +231,7 @@
                   class="material-symbols-rounded me-1"
                   role="button"
                   @click="
-                    beforeFile(contentsList);
+                    oldThumbFile(contentsList);
                     deleteContents(contentsList);
                   "
                 >
@@ -244,7 +244,8 @@
                   data-bs-target="#editModal"
                   @click="
                     selectContentsList(contentsList);
-                    beforeFile(contentsList);
+                    oldThumbFile(contentsList);
+                    oldContentsFile(contentsList);
                     getSizeCategory();
                     thumbPathFormat(contentsList.SEQ_ID);
                   "
@@ -694,36 +695,30 @@
                     </div>
                   </div>
                   <div class="col-6">
-                    <ul class="list-group" id="beforeThumb">
-                      <li
-                        class="list-group-item"
-                        v-if="beforeThumb.length != 0"
-                      >
+                    <ul class="list-group" id="oldThumb">
+                      <li class="list-group-item" v-if="oldThumb.length != 0">
                         이전 썸네일
                       </li>
-                      <li
-                        class="list-group-item"
-                        v-if="beforeThumb.length == 0"
-                      >
-                        No other thumbnails
+                      <li class="list-group-item" v-if="oldThumb.length == 0">
+                        No other files
                       </li>
                       <li
                         class="list-group-item"
-                        v-for="(beforeThumb, i) in beforeThumb"
+                        v-for="(oldThumb, i) in oldThumb"
                         :key="i"
                       >
                         <div
                           class="row justify-content-center align-items-center"
                         >
                           <div class="col">
-                            <img :src="beforeThumb" class="thumbnail" alt="" />
+                            <img :src="oldThumb" class="thumbnail" alt="" />
                           </div>
                           <div class="col thumbnail position-relative">
                             <p class="fw-bold text-center">파일 삭제</p>
                             <span
                               class="material-symbols-rounded icon-size"
                               role="button"
-                              @click="deleteBeforeThumb(beforeThumb)"
+                              @click="deleteOldThumb(oldThumb)"
                             >
                               delete_forever
                             </span>
@@ -734,7 +729,7 @@
                               class="material-symbols-rounded icon-size"
                               role="button"
                               data-bs-dismiss="modal"
-                              @click="changeThumb(beforeThumb)"
+                              @click="changeThumb(oldThumb)"
                             >
                               published_with_changes
                             </span>
@@ -747,7 +742,13 @@
                 <div class="row mb-3">
                   <div class="col-2 col-form-label fw-bold">콘텐츠</div>
                   <div class="col-4">
-                    <div class="row">
+                    <div class="row flex-column">
+                      <div class="mb-2">
+                        현재 파일:
+                        {{
+                          contentsFileFormat(currentContentsList.CONTENTS_PATH)
+                        }}
+                      </div>
                       <div class="input-group w-100">
                         <input
                           type="file"
@@ -762,6 +763,56 @@
                         />
                       </div>
                     </div>
+                  </div>
+                  <div class="col-6">
+                    <ul class="list-group" id="oldContents">
+                      <li
+                        class="list-group-item"
+                        v-if="oldContents.length != 0"
+                      >
+                        이전 콘텐츠
+                      </li>
+                      <li
+                        class="list-group-item"
+                        v-if="oldContents.length == 0"
+                      >
+                        No other files
+                      </li>
+                      <li
+                        class="list-group-item"
+                        v-for="(oldContents, i) in oldContents"
+                        :key="i"
+                      >
+                        <div
+                          class="row justify-content-center align-items-center"
+                        >
+                          <div class="col">
+                            {{ oldContents }}
+                          </div>
+                          <div class="col oldIcon position-relative">
+                            <p class="fw-bold text-center">파일 삭제</p>
+                            <span
+                              class="material-symbols-rounded icon-size fs-3"
+                              role="button"
+                              @click="deleteOldContents(oldContents)"
+                            >
+                              delete_forever
+                            </span>
+                          </div>
+                          <div class="col oldIcon position-relative">
+                            <p class="fw-bold text-center">콘텐츠 변경</p>
+                            <span
+                              class="material-symbols-rounded icon-size fs-3"
+                              role="button"
+                              data-bs-dismiss="modal"
+                              @click="changeContents(oldContents)"
+                            >
+                              published_with_changes
+                            </span>
+                          </div>
+                        </div>
+                      </li>
+                    </ul>
                   </div>
                 </div>
                 <div class="row align-items-center mb-3">
@@ -958,11 +1009,12 @@ export default {
       invalidKeyword: false,
       invalidThumbnail: false,
       invalidContents: false,
-      beforeThumb: [],
-      beforeContents: [],
+      oldThumb: [],
+      oldContents: [],
       existsThumb: false,
       existsContents: false,
       editContents: false,
+      contentsUpdatePath: null,
     };
   },
   mixins: [table],
@@ -1270,8 +1322,8 @@ export default {
     deleteContents(contents) {
       const fd = new FormData();
       fd.append("deleteContents", contents.SEQ_ID);
-      fd.append("thumbPath", this.beforeThumb);
-      fd.append("contentsPath", contents.CONTENTS_PATH);
+      fd.append("thumbPath", this.oldThumb);
+      fd.append("contentsPath", this.contentsPath);
       if (window.confirm("정말 삭제하시겠습니까?")) {
         this.$loading();
         this.$axios.post("/admin/api/theme-delete.php", fd).then((response) => {
@@ -1401,7 +1453,7 @@ export default {
       fd.append("THEME_ID", this.currentThemeList.SEQ_ID);
       fd.append("KEYWORD", this.keyword);
       fd.append("THUMB_PATH", this.thumbPath);
-      fd.append("CONTENTS_PATH", this.contentsPath);
+      fd.append("CONTENTS_PATH", this.contentsPath + this.contentsFileName);
       if (this.typeCheck === "web") {
         fd.append("USE_TYPE", 1);
       } else if (this.typeCheck === "print") {
@@ -1445,40 +1497,6 @@ export default {
       fd.append("base64", this.contentsFile);
       fd.append("contents", this.contentsPath + this.contentsFileName);
       this.$axios.post("/admin/api/theme-file-upload.php", fd).then(() => {});
-    },
-    beforeFile(contents) {
-      // 이전 썸네일, 콘텐츠 파일
-      this.$loading();
-      let currentImg = contents.THUMB_PATH.split("/");
-      currentImg = currentImg[currentImg.length - 1];
-      const fd = new FormData();
-      fd.append("thumb-dir", contents.CONTENTS_PATH + "thumb");
-      fd.append("current-img", currentImg);
-      this.$axios
-        .post("/admin/api/theme-before-file.php", fd)
-        .then((response) => {
-          if (response.data.length == 0) {
-            return (this.beforeThumb = []);
-          } else {
-            const filter = response.data.filter((data) => {
-              return data.split(".")[0] == contents.SEQ_ID;
-            });
-            for (const value of filter) {
-              this.beforeThumb.push(`${contents.CONTENTS_PATH}thumb/${value}`);
-            }
-            // 로컬서버
-            this.beforeThumb = [];
-            for (const value of filter) {
-              this.beforeThumb.push(
-                `${this.local}${contents.CONTENTS_PATH.substring(
-                  1
-                )}thumb/${value}`
-              );
-            }
-            this.$endloading();
-            return this.beforeThumb;
-          }
-        });
     },
     selectContentsList(contents) {
       this.editContents = true;
@@ -1524,19 +1542,81 @@ export default {
           });
       }
     },
-    deleteBeforeThumb(value) {
+    oldThumbFile(contents) {
+      this.$loading();
+      let currentImg = contents.THUMB_PATH.split("/");
+      currentImg = currentImg[currentImg.length - 1];
+      this.contentsPathFormat();
+      const fd = new FormData();
+      fd.append("thumb-dir", this.contentsPath + "thumb");
+      fd.append("current-img", currentImg);
+      this.$axios.post("/admin/api/theme-old-file.php", fd).then((response) => {
+        if (response.data.length == 0) {
+          return (this.oldThumb = []);
+        } else {
+          const filter = response.data.filter((data) => {
+            return data.split(".")[0] == contents.SEQ_ID;
+          });
+          for (const value of filter) {
+            this.oldThumb.push(`${this.contentsPath}thumb/${value}`);
+          }
+          // 로컬서버
+          this.oldThumb = [];
+          for (const value of filter) {
+            this.oldThumb.push(
+              `${this.local}${this.contentsPath.substring(1)}thumb/${value}`
+            );
+          }
+          this.$endloading();
+          return this.oldThumb;
+        }
+      });
+    },
+    oldContentsFile(contents) {
+      this.$loading();
+      this.contentsPathFormat();
+      let currentContents = contents.CONTENTS_PATH.split("/");
+      currentContents = currentContents[currentContents.length - 1];
+      const fd = new FormData();
+      fd.append("contentsDir", this.contentsPath);
+      fd.append("currentContents", currentContents);
+      fd.append("SEQ_ID", contents.SEQ_ID);
+      this.$axios.post("/admin/api/theme-old-file.php", fd).then((response) => {
+        if (response.data.length == 0) {
+          return (this.oldContents = []);
+        } else {
+          this.oldContents = response.data;
+        }
+      });
+    },
+    deleteOldThumb(value) {
       if (window.confirm("완전히 삭제하시겠습니까?")) {
         value = value.split("admin");
         value = ".." + value[1];
         const fd = new FormData();
-        fd.append("deleteBeforeThumb", value);
+        fd.append("deleteOldThumb", value);
         this.$axios
-          .post("/admin/api/theme-before-file.php", fd)
+          .post("/admin/api/theme-old-file.php", fd)
           .then((response) => {
             if (response.data !== "success")
               return alert("API Error :" + response.data);
             this.selectContentsList(this.currentContentsList);
-            this.beforeFile(this.currentContentsList);
+            this.oldThumbFile(this.currentContentsList);
+          });
+      }
+    },
+    deleteOldContents(value) {
+      if (window.confirm("완전히 삭제하시겠습니까?")) {
+        value = `.${this.contentsPath}${value}`;
+        const fd = new FormData();
+        fd.append("deleteOldContents", value);
+        this.$axios
+          .post("/admin/api/theme-old-file.php", fd)
+          .then((response) => {
+            if (response.data !== "success")
+              return alert("API Error :" + response.data);
+            this.selectContentsList(this.currentContentsList);
+            this.oldContentsFile(this.currentContentsList);
           });
       }
     },
@@ -1544,21 +1624,32 @@ export default {
       if (window.confirm("썸네일을 변경합니다.")) {
         value = value.split("admin");
         value = "." + value[1];
-        let SEQ_ID = value.split("/");
-        SEQ_ID = SEQ_ID[SEQ_ID.length - 1];
-        SEQ_ID = SEQ_ID.split(".")[0];
         const fd = new FormData();
         fd.append("changeThumb", value);
-        fd.append("SEQ_ID", SEQ_ID);
+        fd.append("SEQ_ID", this.currentContentsList.SEQ_ID);
         this.$axios
-          .post("/admin/api/theme-before-file.php", fd)
+          .post("/admin/api/theme-old-file.php", fd)
           .then((response) => {
             if (response.data.DB !== "success")
               return alert("API Error: " + response.data);
             this.getContentsList();
-            this.selectContentsList(this.currentContentsList);
             value = this.local + value.substring(1); // 로컬서버
             this.thumbnail = value;
+          });
+      }
+    },
+    changeContents(value) {
+      if (window.confirm("콘텐츠를 변경합니다.")) {
+        const fd = new FormData();
+        value = `.${this.contentsPath}${value}`;
+        fd.append("changeContents", value);
+        fd.append("SEQ_ID", this.currentContentsList.SEQ_ID);
+        this.$axios
+          .post("/admin/api/theme-old-file.php", fd)
+          .then((response) => {
+            if (response.data.DB !== "success")
+              return alert("API Error: " + response.data);
+            this.getContentsList();
           });
       }
     },
@@ -1569,12 +1660,8 @@ export default {
       fd.append("SEQ_ID", this.currentContentsList.SEQ_ID);
       fd.append("CONTENTS_NAME", this.contentsName);
       fd.append("KEYWORD", this.keyword);
-      if (this.editContents === true) {
-        fd.append("THUMB_PATH", this.currentContentsList.THUMB_PATH);
-      } else {
-        fd.append("THUMB_PATH", this.thumbPath);
-      }
-      fd.append("CONTENTS_PATH", this.contentsPath);
+      fd.append("THUMB_PATH", this.thumbPath);
+      fd.append("CONTENTS_PATH", this.contentsUpdatePath);
       if (this.typeCheck === "web") {
         fd.append("USE_TYPE", 1);
       } else if (this.typeCheck === "print") {
@@ -1595,15 +1682,25 @@ export default {
         this.contentsFileName = this.contentsFileName.split("_")[1];
         this.contentsFileName = `${this.currentContentsList.SEQ_ID}_${json.files[0].name}`;
       }
+      if (this.existsContents === true) {
+        fd.append("CONTENTS_PATH", this.contentsPath + this.contentsFileName);
+      }
       this.$axios.post("/admin/api/theme-update.php", fd).then((response) => {
         if (response.data.DB !== "success")
           return alert("API Error: " + response.data);
         if (this.existsThumb === true) this.thumbnailUpload();
         if (this.existsContents === true) this.contentsFileUpload();
         this.getContentsList();
-        // this.beforeFile(this.currentContentsList);
         alert("수정 완료");
       });
+    },
+    contentsFileFormat(value) {
+      if (value !== undefined) {
+        let file = value.split("/");
+        file = file[file.length - 1];
+        this.contentsUpdatePath = this.contentsPath + file;
+        return file;
+      }
     },
   },
   mounted() {
@@ -1661,14 +1758,21 @@ export default {
   color: var(--bs-white);
 }
 .icon-size {
-  font-size: 48px;
+  font-size: 3rem;
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
 }
-#beforeThumb {
-  max-height: 200px;
+#oldThumb {
+  max-height: 175px;
   overflow: auto;
+}
+#oldContents {
+  max-height: 125px;
+  overflow: auto;
+}
+.oldIcon {
+  height: 60px;
 }
 </style>
