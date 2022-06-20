@@ -253,19 +253,19 @@
                   edit_note
                 </span>
               </div>
-              <img
+              <!-- <img
                 :src="contentsList.THUMB_PATH"
                 class="img-thumbnail"
                 style="width: 150px; height: 150px"
                 alt=""
-              />
+              /> -->
               <!-- 로컬서버 -->
-              <!-- <img
+              <img
                 :src="local + contentsList.THUMB_PATH"
                 class="img-thumbnail"
                 style="width: 150px; height: 150px"
                 alt=""
-              /> -->
+              />
             </div>
           </div>
           <button
@@ -299,7 +299,7 @@
                   aria-label="Close"
                 ></button>
               </div>
-              <div class="modal-body p-5">
+              <div class="modal-body px-5 py-3">
                 <div class="mb-3 row">
                   <label for="conname" class="col-2 col-form-label fw-bold"
                     >콘텐츠 이름</label
@@ -459,7 +459,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="row mb-3">
+                <div class="row mb-3" v-if="workingSizeShow">
                   <div class="col-2 col-form-label fw-bold">작업크기</div>
                   <div class="col-10">
                     <div class="row">
@@ -583,7 +583,7 @@
                   aria-label="Close"
                 ></button>
               </div>
-              <div class="modal-body p-5">
+              <div class="modal-body px-5 py-3">
                 <div class="mb-3 row">
                   <label for="conname" class="col-2 col-form-label fw-bold"
                     >콘텐츠 이름</label
@@ -1015,6 +1015,7 @@ export default {
       existsContents: false,
       editContents: false,
       contentsUpdatePath: null,
+      workingSizeShow: false,
     };
   },
   mixins: [table],
@@ -1231,6 +1232,7 @@ export default {
           fd.append("ORDER", this.themeList.length);
         } else {
           let lastOrder = (this.totalPages - 1) * 10;
+          if (lastOrder < 0) lastOrder = 0;
           fd.append("ORDER", this.themeList.length + lastOrder);
         }
         this.$loading();
@@ -1335,11 +1337,14 @@ export default {
     },
     getSizeCategory() {
       if (this.currentContents.CONTENTS_TYPE_NAME == "템플릿") {
+        this.workingSizeShow = true;
         this.$axios.get("/admin/api/size_category.php").then((response) => {
           this.sizeCategory = response.data;
           this.getSize();
           this.$endloading();
         });
+      } else {
+        this.workingSizeShow = false;
       }
     },
     getSize() {
@@ -1512,7 +1517,7 @@ export default {
       this.contentsName = contents.CONTENTS_NAME;
       this.keyword = contents.KEYWORD;
       this.thumbnail = contents.THUMB_PATH;
-      // this.thumbnail = this.local + contents.THUMB_PATH.substring(1); // 로컬서버
+      this.thumbnail = this.local + contents.THUMB_PATH.substring(1); // 로컬서버
       if (contents.USE_TYPE == 1) {
         this.typeCheck = "web";
       } else if (contents.USE_TYPE == 2) this.typeCheck = "print";
@@ -1561,13 +1566,14 @@ export default {
             this.oldThumb.push(`${this.contentsPath}thumb/${value}`);
           }
           // 로컬서버
-          // this.oldThumb = [];
-          // for (const value of filter) {
-          //   this.oldThumb.push(
-          //     `${this.local}${this.contentsPath.substring(1)}thumb/${value}`
-          //   );
-          // }
-          // this.$endloading();
+          this.oldThumb = [];
+          for (const value of filter) {
+            this.oldThumb.push(
+              `${this.local}${this.contentsPath.substring(1)}thumb/${value}`
+            );
+          }
+
+          this.$endloading();
           return this.oldThumb;
         }
       });
@@ -1591,8 +1597,9 @@ export default {
     },
     deleteOldThumb(value) {
       if (window.confirm("완전히 삭제하시겠습니까?")) {
-        value = value.split("admin");
-        value = ".." + value[1];
+        value = "." + value;
+        value = value.split("admin"); // 로컬서버
+        value = ".." + value[1]; // 로컬서버
         const fd = new FormData();
         fd.append("deleteOldThumb", value);
         this.$axios
@@ -1633,7 +1640,7 @@ export default {
             if (response.data.DB !== "success")
               return alert("API Error: " + response.data);
             this.getContentsList();
-            // value = this.local + value.substring(1); // 로컬서버
+            value = this.local + value.substring(1); // 로컬서버
             this.thumbnail = value;
           });
       }

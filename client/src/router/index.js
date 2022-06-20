@@ -9,7 +9,6 @@ import ThemeManamement from "@/views/ThemeManagement";
 Vue.use(VueRouter);
 
 const routes = [
-  { path: "*", redirect: "/" },
   {
     path: "/",
     component: ProjectList,
@@ -30,6 +29,7 @@ const routes = [
     path: "/theme",
     component: ThemeManamement,
   },
+  { path: "*", redirect: "/" },
 ];
 
 const router = new VueRouter({

@@ -7,8 +7,8 @@ import axios from "axios";
 import "bootstrap";
 
 //url:포트번호
-axios.defaults.baseURL = "http://nemolabs.iptime.org:1080";
-// axios.defaults.baseURL = "http://localhost:3000"; // build전 테마관리 함께 주석
+// axios.defaults.baseURL = "http://nemolabs.iptime.org:1080";
+axios.defaults.baseURL = "http://localhost:3000"; // build전 테마관리 함께 주석
 axios.defaults.headers.post["Content-Type"] = "application/json;charset=utf-8";
 axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
 
