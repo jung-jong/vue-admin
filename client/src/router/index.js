@@ -15,7 +15,7 @@ const routes = [
     component: ProjectList,
   },
   {
-    path: "/user",
+    path: "/user-list",
     component: UserList,
   },
   {

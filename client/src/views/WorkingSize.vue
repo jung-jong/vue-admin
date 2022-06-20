@@ -1,7 +1,7 @@
 <template>
   <div id="layoutSidenav_content">
     <main>
-      <div class="container-fluid px-4">
+      <div class="container-fluid px-5">
         <page-name :mainMenu="main" :subMenu="sub" />
         <table-loading v-if="tableLoading" />
         <div class="row gx-5">

@@ -1,7 +1,7 @@
 <template>
   <div id="layoutSidenav_content">
     <main>
-      <div class="container-fluid px-4">
+      <div class="container-fluid px-5">
         <page-name :mainMenu="main" :subMenu="sub" />
         <table-loading v-if="tableLoading" />
         <div class="mb-3 d-flex justify-content-between align-items-center">
@@ -75,8 +75,8 @@
                     @click="selectProject(projectList)"
                   >
                     <img
-                      width="30"
-                      height="30"
+                      width="20"
+                      height="20"
                       src="@/assets/memo.png"
                       alt="editor"
                     />
@@ -85,8 +85,8 @@
                 <td>
                   <a href="">
                     <img
-                      width="30"
-                      height="30"
+                      width="20"
+                      height="20"
                       src="@/assets/editor.svg"
                       alt="editor"
                     />
@@ -100,8 +100,8 @@
                     @click="selectProject(projectList)"
                   >
                     <img
-                      width="30"
-                      height="30"
+                      width="20"
+                      height="20"
                       src="@/assets/delete.png"
                       alt="delete"
                     />

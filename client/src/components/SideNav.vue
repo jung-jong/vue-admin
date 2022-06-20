@@ -29,7 +29,7 @@
                 <router-link to="/" class="nav-link">
                   프로젝트 현황
                 </router-link>
-                <router-link to="/user" class="nav-link">
+                <router-link to="/user-list" class="nav-link">
                   회원 현황
                 </router-link>
               </nav>

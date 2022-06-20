@@ -1,7 +1,7 @@
 <template>
   <div id="layoutSidenav_content">
     <main>
-      <div class="container-fluid px-4">
+      <div class="container-fluid px-5">
         <page-name :mainMenu="main" />
         <table-loading v-if="tableLoading" />
         <div class="row gx-4 mb-3" id="top">
@@ -253,19 +253,19 @@
                   edit_note
                 </span>
               </div>
-              <!-- <img
+              <img
                 :src="contentsList.THUMB_PATH"
                 class="img-thumbnail"
                 style="width: 150px; height: 150px"
                 alt=""
-              /> -->
+              />
               <!-- 로컬서버 -->
-              <img
+              <!-- <img
                 :src="local + contentsList.THUMB_PATH"
                 class="img-thumbnail"
                 style="width: 150px; height: 150px"
                 alt=""
-              />
+              /> -->
             </div>
           </div>
           <button
@@ -1512,7 +1512,7 @@ export default {
       this.contentsName = contents.CONTENTS_NAME;
       this.keyword = contents.KEYWORD;
       this.thumbnail = contents.THUMB_PATH;
-      this.thumbnail = this.local + contents.THUMB_PATH.substring(1); // 로컬서버
+      // this.thumbnail = this.local + contents.THUMB_PATH.substring(1); // 로컬서버
       if (contents.USE_TYPE == 1) {
         this.typeCheck = "web";
       } else if (contents.USE_TYPE == 2) this.typeCheck = "print";
@@ -1561,13 +1561,13 @@ export default {
             this.oldThumb.push(`${this.contentsPath}thumb/${value}`);
           }
           // 로컬서버
-          this.oldThumb = [];
-          for (const value of filter) {
-            this.oldThumb.push(
-              `${this.local}${this.contentsPath.substring(1)}thumb/${value}`
-            );
-          }
-          this.$endloading();
+          // this.oldThumb = [];
+          // for (const value of filter) {
+          //   this.oldThumb.push(
+          //     `${this.local}${this.contentsPath.substring(1)}thumb/${value}`
+          //   );
+          // }
+          // this.$endloading();
           return this.oldThumb;
         }
       });
@@ -1633,7 +1633,7 @@ export default {
             if (response.data.DB !== "success")
               return alert("API Error: " + response.data);
             this.getContentsList();
-            value = this.local + value.substring(1); // 로컬서버
+            // value = this.local + value.substring(1); // 로컬서버
             this.thumbnail = value;
           });
       }
