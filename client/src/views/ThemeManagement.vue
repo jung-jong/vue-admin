@@ -964,8 +964,8 @@ export default {
   data() {
     return {
       main: "테마 관리",
-      contents: [],
-      currentContents: {},
+      contents: [], // 콘텐츠 타입
+      currentContents: {}, // 현재 콘텐츠 타입
       themeList: [],
       currentThemeList: {},
       selected: 0,
@@ -1402,14 +1402,14 @@ export default {
     thumbPathFormat(id) {
       this.contentsPathFormat();
       if (id != undefined) {
-        this.thumbPath = id;
+        this.thumbPath = `${id}_${this.time()}`;
         this.thumbPath = `${this.contentsPath}thumb/${this.thumbPath}.`;
         return;
       }
       this.$axios
         .get("/admin/api/theme-thumb-file-name.php")
         .then((response) => {
-          this.thumbPath = response.data[0].AUTO_INCREMENT;
+          this.thumbPath = `${response.data[0].AUTO_INCREMENT}_${this.time()}`;
           this.thumbPath = `${this.contentsPath}thumb/${this.thumbPath}.`;
         });
     },
@@ -1443,6 +1443,30 @@ export default {
             this.contentsFileName = `${response.data[0].AUTO_INCREMENT}_${this.contentsFileName}`;
           });
       }
+    },
+    thumbnailUpload() {
+      const fd = new FormData();
+      fd.append("base64", this.thumbnail);
+      fd.append("thumbnail", this.thumbPath);
+      this.$axios
+        .post("/admin/api/theme-file-upload.php", fd)
+        .then((response) => {
+          if (response.data == "error") {
+            return alert("썸네일 저장 실패 :" + response.data);
+          }
+        });
+    },
+    contentsFileUpload() {
+      const fd = new FormData();
+      fd.append("base64", this.contentsFile);
+      fd.append("contents", this.contentsPath + this.contentsFileName);
+      this.$axios
+        .post("/admin/api/theme-file-upload.php", fd)
+        .then((response) => {
+          if (response.data == "error") {
+            return alert("콘텐츠 파일 저장 실패 :" + response.data);
+          }
+        });
     },
     validation() {
       if (this.contentsName === "") return (this.invalidContentsName = true);
@@ -1490,30 +1514,6 @@ export default {
         this.getContentsList();
         alert("업로드 성공");
       });
-    },
-    thumbnailUpload() {
-      const fd = new FormData();
-      fd.append("base64", this.thumbnail);
-      fd.append("thumbnail", this.thumbPath);
-      this.$axios
-        .post("/admin/api/theme-file-upload.php", fd)
-        .then((response) => {
-          if (response.data == "error") {
-            return alert("썸네일 저장 실패 :" + response.data);
-          }
-        });
-    },
-    contentsFileUpload() {
-      const fd = new FormData();
-      fd.append("base64", this.contentsFile);
-      fd.append("contents", this.contentsPath + this.contentsFileName);
-      this.$axios
-        .post("/admin/api/theme-file-upload.php", fd)
-        .then((response) => {
-          if (response.data == "error") {
-            return alert("콘텐츠 파일 저장 실패 :" + response.data);
-          }
-        });
     },
     selectContentsList(contents) {
       this.editContents = true;
@@ -1565,28 +1565,20 @@ export default {
       currentImg = currentImg[currentImg.length - 1];
       this.contentsPathFormat();
       const fd = new FormData();
-      fd.append("thumb-dir", this.contentsPath + "thumb");
-      fd.append("current-img", currentImg);
+      fd.append("thumbDir", this.contentsPath + "thumb");
+      fd.append("currentImg", currentImg);
+      fd.append("SEQ_ID", contents.SEQ_ID);
       this.$axios.post("/admin/api/theme-old-file.php", fd).then((response) => {
+        this.$endloading();
         if (response.data.length == 0) {
           return (this.oldThumb = []);
         } else {
-          const filter = response.data.filter((data) => {
-            return data.split(".")[0] == contents.SEQ_ID;
-          });
-          for (const value of filter) {
-            this.oldThumb.push(`${this.contentsPath}thumb/${value}`);
-          }
-          // 로컬서버
           this.oldThumb = [];
-          for (const value of filter) {
-            this.oldThumb.push(
-              `${this.local}${this.contentsPath.substring(1)}thumb/${value}`
-            );
-          }
-
-          this.$endloading();
-          return this.oldThumb;
+          response.data.forEach((data) => {
+            let oldFile = `${this.contentsPath}thumb/${data}`;
+            oldFile = `${this.local}${oldFile.substring(1)}`; // 로컬서버
+            this.oldThumb.push(oldFile);
+          });
         }
       });
     },
@@ -1600,6 +1592,7 @@ export default {
       fd.append("currentContents", currentContents);
       fd.append("SEQ_ID", contents.SEQ_ID);
       this.$axios.post("/admin/api/theme-old-file.php", fd).then((response) => {
+        this.$endloading();
         if (response.data.length == 0) {
           return (this.oldContents = []);
         } else {
@@ -1641,8 +1634,9 @@ export default {
     },
     changeThumb(value) {
       if (window.confirm("썸네일을 변경합니다.")) {
-        value = value.split("admin");
-        value = "." + value[1];
+        value = "." + value;
+        value = value.split("admin"); // 로컬서버
+        value = "." + value[1]; // 로컬서버
         const fd = new FormData();
         fd.append("changeThumb", value);
         fd.append("SEQ_ID", this.currentContentsList.SEQ_ID);
@@ -1719,6 +1713,17 @@ export default {
         this.contentsUpdatePath = this.contentsPath + file;
         return file;
       }
+    },
+    time() {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = ("0" + (today.getMonth() + 1)).slice(-2);
+      const day = ("0" + today.getDate()).slice(-2);
+      const hours = ("0" + today.getHours()).slice(-2);
+      const minutes = ("0" + today.getMinutes()).slice(-2);
+      const seconds = ("0" + today.getSeconds()).slice(-2);
+      const time = `${year}${month}${day}${hours}${minutes}${seconds}`;
+      return time;
     },
   },
   mounted() {

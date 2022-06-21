@@ -1,13 +1,16 @@
 <?php
 
-if (isset($_POST['thumb-dir'])) {
-  $dir = ".{$_POST['thumb-dir']}";
+if (isset($_POST['thumbDir'])) {
+  $dir = ".{$_POST['thumbDir']}";
   $data = array();
   $name = "";
   if (is_dir($dir)) {
     if ($dh = opendir($dir)) {
       while (($file = readdir($dh)) !== false) {
-        if ($file != "." && $file != ".." && $file != "{$_POST['current-img']}") {
+        if (
+          $file != "." && $file != ".." && $file != "{$_POST['currentImg']}"
+          && preg_match("/{$_POST['SEQ_ID']}_/i", $file)
+        ) {
           $data[] = $file;
         }
       }
