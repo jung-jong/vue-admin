@@ -1495,13 +1495,25 @@ export default {
       const fd = new FormData();
       fd.append("base64", this.thumbnail);
       fd.append("thumbnail", this.thumbPath);
-      this.$axios.post("/admin/api/theme-file-upload.php", fd).then(() => {});
+      this.$axios
+        .post("/admin/api/theme-file-upload.php", fd)
+        .then((response) => {
+          if (response.data == "error") {
+            return alert("썸네일 저장 실패 :" + response.data);
+          }
+        });
     },
     contentsFileUpload() {
       const fd = new FormData();
       fd.append("base64", this.contentsFile);
       fd.append("contents", this.contentsPath + this.contentsFileName);
-      this.$axios.post("/admin/api/theme-file-upload.php", fd).then(() => {});
+      this.$axios
+        .post("/admin/api/theme-file-upload.php", fd)
+        .then((response) => {
+          if (response.data == "error") {
+            return alert("콘텐츠 파일 저장 실패 :" + response.data);
+          }
+        });
     },
     selectContentsList(contents) {
       this.editContents = true;
@@ -1667,7 +1679,7 @@ export default {
       fd.append("SEQ_ID", this.currentContentsList.SEQ_ID);
       fd.append("CONTENTS_NAME", this.contentsName);
       fd.append("KEYWORD", this.keyword);
-      fd.append("THUMB_PATH", this.thumbPath);
+      fd.append("THUMB_PATH", this.currentContentsList.THUMB_PATH);
       fd.append("CONTENTS_PATH", this.contentsUpdatePath);
       if (this.typeCheck === "web") {
         fd.append("USE_TYPE", 1);
@@ -1684,12 +1696,11 @@ export default {
       } else if (this.publicFlage === "false") {
         fd.append("PUBLIC_FLAG", 0);
       }
-      if (this.contentsFileName !== null) {
+      if (this.existsThumb === true) fd.append("THUMB_PATH", this.thumbPath);
+      if (this.existsContents === true) {
         const json = document.querySelector("#contentsFileEdit");
         this.contentsFileName = this.contentsFileName.split("_")[1];
         this.contentsFileName = `${this.currentContentsList.SEQ_ID}_${json.files[0].name}`;
-      }
-      if (this.existsContents === true) {
         fd.append("CONTENTS_PATH", this.contentsPath + this.contentsFileName);
       }
       this.$axios.post("/admin/api/theme-update.php", fd).then((response) => {

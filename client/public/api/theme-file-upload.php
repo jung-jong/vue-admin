@@ -1,7 +1,7 @@
 <?php
 
 if (!is_dir("../contents/template/thumb")) {
-    mkdir("../contents/template/thumb", 0777, true);
+  mkdir("../contents/template/thumb", 0777, true);
 }
 
 if (!is_dir("../contents/text/thumb")) {
@@ -26,20 +26,24 @@ if (!is_dir("../contents/style/thumb")) {
 
 if (isset($_POST['thumbnail'])) {
   $data = "{$_POST['base64']}";
-  $src = explode(',',$data);
+  $src = explode(',', $data);
   $result = base64_decode($src[1]);
   $saveDir = ".{$_POST['thumbnail']}";
-  
-  file_put_contents($saveDir, $result);
+
+  $file = file_put_contents($saveDir, $result);
+  if (!$file) {
+    echo "error";
+  }
 }
 
 if (isset($_POST['contents'])) {
   $data = "{$_POST['base64']}";
-  $src = explode(',',$data);
+  $src = explode(',', $data);
   $result = base64_decode($src[1]);
   $saveDir = ".{$_POST['contents']}";
-  
-  file_put_contents($saveDir, $result);
+
+  $file = file_put_contents($saveDir, $result);
+  if (!$file) {
+    echo "error";
+  }
 }
- 
-?>
