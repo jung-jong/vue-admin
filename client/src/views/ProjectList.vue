@@ -68,44 +68,31 @@
                 <td>{{ $dateFormat(projectList.A_DATE) }}</td>
                 <td>{{ $dateFormat(projectList.U_DATE) }}</td>
                 <td>
-                  <a
-                    href=""
+                  <span
+                    class="material-symbols-rounded"
+                    role="button"
                     data-bs-toggle="modal"
                     data-bs-target="#memoModal"
                     @click="selectProject(projectList)"
                   >
-                    <img
-                      width="20"
-                      height="20"
-                      src="@/assets/memo.png"
-                      alt="editor"
-                    />
-                  </a>
+                    comment
+                  </span>
                 </td>
                 <td>
-                  <a href="">
-                    <img
-                      width="20"
-                      height="20"
-                      src="@/assets/editor.svg"
-                      alt="editor"
-                    />
-                  </a>
+                  <span class="material-symbols-rounded" role="button">
+                    add_photo_alternate
+                  </span>
                 </td>
                 <td>
-                  <a
-                    href=""
+                  <span
+                    class="material-symbols-rounded"
+                    role="button"
                     data-bs-toggle="modal"
                     data-bs-target="#deleteModal"
                     @click="selectProject(projectList)"
                   >
-                    <img
-                      width="20"
-                      height="20"
-                      src="@/assets/delete.png"
-                      alt="delete"
-                    />
-                  </a>
+                    delete
+                  </span>
                 </td>
               </tr>
             </tbody>

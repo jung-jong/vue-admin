@@ -63,34 +63,26 @@
                   {{ admin.USER_LEVEL }} ({{ userLevel(admin.USER_LEVEL) }})
                 </td>
                 <td>
-                  <a
-                    href=""
+                  <span
+                    class="material-symbols-rounded"
+                    role="button"
                     data-bs-toggle="modal"
                     data-bs-target="#level"
                     @click="selectAdminID(admin)"
                   >
-                    <img
-                      width="20"
-                      height="20"
-                      src="@/assets/memo.png"
-                      alt="editor"
-                    />
-                  </a>
+                    edit_note
+                  </span>
                 </td>
                 <td>
-                  <a
-                    href=""
+                  <span
+                    class="material-symbols-rounded"
+                    role="button"
                     data-bs-toggle="modal"
                     data-bs-target="#deleteModal"
                     @click="selectAdminID(admin)"
                   >
-                    <img
-                      width="20"
-                      height="20"
-                      src="@/assets/delete.png"
-                      alt="delete"
-                    />
-                  </a>
+                    delete
+                  </span>
                 </td>
               </tr>
             </tbody>

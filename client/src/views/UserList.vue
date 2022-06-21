@@ -75,8 +75,9 @@
                   }}%)
                 </td>
                 <td>
-                  <a
-                    href=""
+                  <span
+                    class="material-symbols-rounded"
+                    role="button"
                     data-bs-toggle="modal"
                     data-bs-target="#storage"
                     @click="
@@ -84,13 +85,8 @@
                       getFile(userList.USER_ID);
                     "
                   >
-                    <img
-                      width="20"
-                      height="20"
-                      src="@/assets/memo.png"
-                      alt="editor"
-                    />
-                  </a>
+                    folder_open
+                  </span>
                 </td>
               </tr>
             </tbody>
@@ -162,24 +158,22 @@
                         {{ fileSizeFormat(file.FILE_SIZE) }}
                       </td>
                       <td>
-                        <a href="" @click.prevent="fileDownload(file.SEQ_ID)">
-                          <img
-                            width="25"
-                            height="25"
-                            src="@/assets/download.png"
-                            alt=""
-                          />
-                        </a>
+                        <span
+                          class="material-symbols-rounded"
+                          role="button"
+                          @click.prevent="fileDownload(file.SEQ_ID)"
+                        >
+                          download
+                        </span>
                       </td>
                       <td>
-                        <a href="" @click.prevent="fileDelete(file.SEQ_ID)">
-                          <img
-                            width="25"
-                            height="25"
-                            src="@/assets/delete.png"
-                            alt="delete"
-                          />
-                        </a>
+                        <span
+                          class="material-symbols-rounded"
+                          role="button"
+                          @click.prevent="fileDelete(file.SEQ_ID)"
+                        >
+                          delete
+                        </span>
                       </td>
                     </tr>
                   </tbody>

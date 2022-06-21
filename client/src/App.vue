@@ -42,4 +42,7 @@ export default {
 .overflow-auto {
   max-height: 70vh;
 }
+td {
+  vertical-align: middle;
+}
 </style>
