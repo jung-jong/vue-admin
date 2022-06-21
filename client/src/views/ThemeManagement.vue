@@ -285,7 +285,6 @@
           data-bs-backdrop="static"
           data-bs-keyboard="false"
         >
-          <!-- 템플릿 -->
           <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
               <div class="modal-header">
@@ -299,9 +298,9 @@
                   aria-label="Close"
                 ></button>
               </div>
-              <div class="modal-body px-5 py-3">
+              <div class="modal-body pe-5 py-3">
                 <div class="mb-3 row">
-                  <label for="conname" class="col-2 col-form-label fw-bold"
+                  <label for="conname" class="col-2 col-form-label fw-bold ps-5"
                     >콘텐츠 이름</label
                   >
                   <div class="col-10 position-relative">
@@ -329,7 +328,7 @@
                   </div>
                 </div>
                 <div class="mb-3 row">
-                  <label for="contype" class="col-2 col-form-label fw-bold"
+                  <label for="contype" class="col-2 col-form-label fw-bold ps-5"
                     >콘텐츠 타입</label
                   >
                   <div class="col-10">
@@ -343,7 +342,9 @@
                   </div>
                 </div>
                 <div class="mb-3 row">
-                  <label for="contheme" class="col-2 col-form-label fw-bold"
+                  <label
+                    for="contheme"
+                    class="col-2 col-form-label fw-bold ps-5"
                     >콘텐츠 테마</label
                   >
                   <div class="col-10">
@@ -357,7 +358,7 @@
                   </div>
                 </div>
                 <div class="mb-3 row">
-                  <label for="keyword" class="col-2 col-form-label fw-bold"
+                  <label for="keyword" class="col-2 col-form-label fw-bold ps-5"
                     >키워드</label
                   >
                   <div class="col-10 position-relative">
@@ -385,7 +386,7 @@
                   </div>
                 </div>
                 <div class="mb-3 row">
-                  <div class="col-2 col-form-label fw-bold">썸네일</div>
+                  <div class="col-2 col-form-label fw-bold ps-5">썸네일</div>
                   <div class="col-5">
                     <div class="row flex-column">
                       <img
@@ -413,7 +414,7 @@
                   </div>
                 </div>
                 <div class="row mb-3">
-                  <div class="col-2 col-form-label fw-bold">콘텐츠</div>
+                  <div class="col-2 col-form-label fw-bold ps-5">콘텐츠</div>
                   <div class="col-10">
                     <div class="row">
                       <div class="input-group w-50">
@@ -432,10 +433,24 @@
                     </div>
                   </div>
                 </div>
+                <div class="row mb-3">
+                  <div class="col-2 col-form-label fw-bold ps-5">RGB</div>
+                  <div class="col-10">
+                    <button
+                      type="button"
+                      class="btn btn-secondary"
+                      @click="addColor()"
+                    >
+                      + 추가
+                    </button>
+                  </div>
+                </div>
                 <div class="row align-items-center mb-3">
-                  <div class="col-2 col-form-label fw-bold">콘텐츠 용도</div>
+                  <div class="col-2 col-form-label fw-bold ps-5">
+                    콘텐츠 용도
+                  </div>
                   <div class="col-10 position-relative">
-                    <div class="form-check form-check-inline">
+                    <div class="form-check form-check-inline col-form-label">
                       <input
                         class="form-check-input"
                         type="radio"
@@ -445,7 +460,7 @@
                       />
                       <label class="form-check-label" for="useWeb">웹용</label>
                     </div>
-                    <div class="form-check form-check-inline">
+                    <div class="form-check form-check-inline col-form-label">
                       <input
                         class="form-check-input"
                         type="radio"
@@ -460,7 +475,7 @@
                   </div>
                 </div>
                 <div class="row mb-3" v-if="workingSizeShow">
-                  <div class="col-2 col-form-label fw-bold">작업크기</div>
+                  <div class="col-2 col-form-label fw-bold ps-5">작업크기</div>
                   <div class="col-10">
                     <div class="row">
                       <div class="col">
@@ -522,9 +537,9 @@
                   </div>
                 </div>
                 <div class="row align-items-center mb-3">
-                  <div class="col-2 col-form-label fw-bold">사용여부</div>
+                  <div class="col-2 col-form-label fw-bold ps-5">사용여부</div>
                   <div class="col-10 position-relative">
-                    <div class="form-check form-check-inline">
+                    <div class="form-check form-check-inline col-form-label">
                       <input
                         class="form-check-input"
                         type="radio"
@@ -536,7 +551,7 @@
                         >사용</label
                       >
                     </div>
-                    <div class="form-check form-check-inline">
+                    <div class="form-check form-check-inline col-form-label">
                       <input
                         class="form-check-input"
                         type="radio"
@@ -583,9 +598,9 @@
                   aria-label="Close"
                 ></button>
               </div>
-              <div class="modal-body px-5 py-3">
+              <div class="modal-body pe-5 py-3">
                 <div class="mb-3 row">
-                  <label for="conname" class="col-2 col-form-label fw-bold"
+                  <label for="conname" class="col-2 col-form-label fw-bold ps-5"
                     >콘텐츠 이름</label
                   >
                   <div class="col-10 position-relative">
@@ -613,7 +628,7 @@
                   </div>
                 </div>
                 <div class="mb-3 row">
-                  <label for="contype" class="col-2 col-form-label fw-bold"
+                  <label for="contype" class="col-2 col-form-label fw-bold ps-5"
                     >콘텐츠 타입</label
                   >
                   <div class="col-10">
@@ -627,7 +642,9 @@
                   </div>
                 </div>
                 <div class="mb-3 row">
-                  <label for="contheme" class="col-2 col-form-label fw-bold"
+                  <label
+                    for="contheme"
+                    class="col-2 col-form-label fw-bold ps-5"
                     >콘텐츠 테마</label
                   >
                   <div class="col-10">
@@ -641,7 +658,7 @@
                   </div>
                 </div>
                 <div class="mb-3 row">
-                  <label for="keyword" class="col-2 col-form-label fw-bold"
+                  <label for="keyword" class="col-2 col-form-label fw-bold ps-5"
                     >키워드</label
                   >
                   <div class="col-10 position-relative">
@@ -669,7 +686,7 @@
                   </div>
                 </div>
                 <div class="mb-3 row">
-                  <div class="col-2 col-form-label fw-bold">썸네일</div>
+                  <div class="col-2 col-form-label fw-bold ps-5">썸네일</div>
                   <div class="col-4">
                     <div class="row flex-column">
                       <img
@@ -740,7 +757,7 @@
                   </div>
                 </div>
                 <div class="row mb-3">
-                  <div class="col-2 col-form-label fw-bold">콘텐츠</div>
+                  <div class="col-2 col-form-label fw-bold ps-5">콘텐츠</div>
                   <div class="col-4">
                     <div class="row flex-column">
                       <div class="mb-2">
@@ -816,9 +833,11 @@
                   </div>
                 </div>
                 <div class="row align-items-center mb-3">
-                  <div class="col-2 col-form-label fw-bold">콘텐츠 용도</div>
+                  <div class="col-2 col-form-label fw-bold ps-5">
+                    콘텐츠 용도
+                  </div>
                   <div class="col-10 position-relative">
-                    <div class="form-check form-check-inline">
+                    <div class="form-check form-check-inline col-form-label">
                       <input
                         class="form-check-input"
                         type="radio"
@@ -828,7 +847,7 @@
                       />
                       <label class="form-check-label" for="useWeb">웹용</label>
                     </div>
-                    <div class="form-check form-check-inline">
+                    <div class="form-check form-check-inline col-form-label">
                       <input
                         class="form-check-input"
                         type="radio"
@@ -843,7 +862,7 @@
                   </div>
                 </div>
                 <div class="row mb-3" v-if="workingSizeShow">
-                  <div class="col-2 col-form-label fw-bold">작업크기</div>
+                  <div class="col-2 col-form-label fw-bold ps-5">작업크기</div>
                   <div class="col-10">
                     <div class="row">
                       <div class="col">
@@ -905,9 +924,9 @@
                   </div>
                 </div>
                 <div class="row align-items-center mb-3">
-                  <div class="col-2 col-form-label fw-bold">사용여부</div>
+                  <div class="col-2 col-form-label fw-bold ps-5">사용여부</div>
                   <div class="col-10 position-relative">
-                    <div class="form-check form-check-inline">
+                    <div class="form-check form-check-inline col-form-label">
                       <input
                         class="form-check-input"
                         type="radio"
@@ -919,7 +938,7 @@
                         >사용</label
                       >
                     </div>
-                    <div class="form-check form-check-inline">
+                    <div class="form-check form-check-inline col-form-label">
                       <input
                         class="form-check-input"
                         type="radio"
@@ -1016,6 +1035,7 @@ export default {
       editContents: false,
       contentsUpdatePath: null,
       workingSizeShow: false,
+      rgb: [],
     };
   },
   mixins: [table],
@@ -1736,6 +1756,22 @@ export default {
       const seconds = ("0" + today.getSeconds()).slice(-2);
       const time = `${year}${month}${day}${hours}${minutes}${seconds}`;
       return time;
+    },
+    addColor() {
+      // create a new div element
+      const input = document.createElement("input");
+      input.innerHTML =
+        '<input type="color" class="form-control form-control-color" id="exampleColorInput" value="#563d7c" title="Choose your color">';
+
+      // and give it some content
+      const newContent = document.createTextNode("Hi there and greetings!");
+
+      // add the text node to the newly created div
+      input.appendChild(newContent);
+
+      // add the newly created element and its content into the DOM
+      const currentDiv = document.getElementById("div1");
+      document.body.insertBefore(input, currentDiv);
     },
   },
   mounted() {
