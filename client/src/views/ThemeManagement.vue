@@ -421,7 +421,7 @@
                           type="file"
                           class="form-control"
                           id="contentsFile"
-                          accept=".json"
+                          accept=".json, .woff"
                           :class="{ 'is-invalid': invalidContents }"
                           @change="
                             contentsFileSelect($event);
@@ -555,7 +555,7 @@
                 <button
                   type="button"
                   class="btn btn-lg btn-primary m-auto"
-                  @click="templateUpload()"
+                  @click="contentsUpload()"
                 >
                   업로드
                 </button>
@@ -842,7 +842,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="row mb-3">
+                <div class="row mb-3" v-if="workingSizeShow">
                   <div class="col-2 col-form-label fw-bold">작업크기</div>
                   <div class="col-10">
                     <div class="row">
@@ -1037,7 +1037,8 @@ export default {
           contentsType == "도형" ||
           contentsType == "표" ||
           contentsType == "차트" ||
-          contentsType == "스타일";
+          contentsType == "스타일" ||
+          contentsType == "폰트";
         if (warnning) return (this.warnning = true);
       }
       this.activeContents = i;
@@ -1076,7 +1077,8 @@ export default {
         (this.listCheck == "1" && i == 13) ||
         (this.listCheck == "1" && i == 14) ||
         (this.listCheck == "1" && i == 15) ||
-        (this.listCheck == "1" && i == 16)
+        (this.listCheck == "1" && i == 16) ||
+        (this.listCheck == "1" && i == 17)
       ) {
         return (this.warnning = true);
       } else {
@@ -1474,7 +1476,7 @@ export default {
       if (this.thumbnail === null) return (this.invalidThumbnail = true);
       if (this.contentsFile === null) return (this.invalidContents = true);
     },
-    templateUpload() {
+    contentsUpload() {
       if (this.validation()) return;
       this.$loading();
       const fd = new FormData();
@@ -1488,11 +1490,16 @@ export default {
       } else if (this.typeCheck === "print") {
         fd.append("USE_TYPE", 2);
       }
-      fd.append(
-        "SIZE_CATEGORY_ID",
-        this.sizeCategory[this.selectWorkingSize].SEQ_ID
-      );
-      fd.append("SIZE_INFO_ID", this.size[this.selectSize].SEQ_ID);
+      if (this.currentContents.CONTENTS_TYPE_NAME == "템플릿") {
+        fd.append(
+          "SIZE_CATEGORY_ID",
+          this.sizeCategory[this.selectWorkingSize].SEQ_ID
+        );
+        fd.append("SIZE_INFO_ID", this.size[this.selectSize].SEQ_ID);
+      } else {
+        fd.append("SIZE_CATEGORY_ID", null);
+        fd.append("SIZE_INFO_ID", null);
+      }
       if (this.publicFlage === "true") {
         fd.append("PUBLIC_FLAG", 1);
       } else if (this.publicFlage === "false") {
@@ -1680,11 +1687,16 @@ export default {
       } else if (this.typeCheck === "print") {
         fd.append("USE_TYPE", 2);
       }
-      fd.append(
-        "SIZE_CATEGORY_ID",
-        this.sizeCategory[this.selectWorkingSize].SEQ_ID
-      );
-      fd.append("SIZE_INFO_ID", this.size[this.selectSize].SEQ_ID);
+      if (this.currentContents.CONTENTS_TYPE_NAME == "템플릿") {
+        fd.append(
+          "SIZE_CATEGORY_ID",
+          this.sizeCategory[this.selectWorkingSize].SEQ_ID
+        );
+        fd.append("SIZE_INFO_ID", this.size[this.selectSize].SEQ_ID);
+      } else {
+        fd.append("SIZE_CATEGORY_ID", null);
+        fd.append("SIZE_INFO_ID", null);
+      }
       if (this.publicFlage === "true") {
         fd.append("PUBLIC_FLAG", 1);
       } else if (this.publicFlage === "false") {
