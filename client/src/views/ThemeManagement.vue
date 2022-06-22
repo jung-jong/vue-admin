@@ -413,7 +413,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="row mb-3">
+                <div class="row mb-3" v-if="!rgbShow">
                   <div class="col-2 col-form-label fw-bold ps-5">콘텐츠</div>
                   <div class="col-10">
                     <div class="row">
@@ -433,12 +433,19 @@
                     </div>
                   </div>
                 </div>
-                <div class="row mb-3">
+                <div class="row mb-3" v-if="rgbShow">
                   <div class="col-2 col-form-label fw-bold ps-5">RGB</div>
                   <div class="col-10">
+                    <color-picker
+                      v-for="(colors, i) in colors"
+                      :key="i"
+                      :index="i"
+                      @index="rgbFindIndex"
+                      @input="changeColor"
+                    ></color-picker>
                     <button
                       type="button"
-                      class="btn btn-secondary"
+                      class="btn btn-primary"
                       @click="addColor()"
                     >
                       + 추가
@@ -976,10 +983,11 @@ import PageName from "../components/PageName.vue";
 import TableLoading from "../components/TableLoading.vue";
 import table from "@/mixins.js";
 import vPagination from "vue-plain-pagination";
+import ColorPicker from "@/components/ColorPicker.vue";
 
 export default {
   name: "ThemeManagement",
-  components: { PageName, TableLoading, vPagination },
+  components: { PageName, TableLoading, vPagination, ColorPicker },
   data() {
     return {
       main: "테마 관리",
@@ -1035,7 +1043,10 @@ export default {
       editContents: false,
       contentsUpdatePath: null,
       workingSizeShow: false,
+      rgbShow: false,
+      colors: [],
       rgb: [],
+      rgbIndex: 0,
     };
   },
   mixins: [table],
@@ -1111,6 +1122,11 @@ export default {
       this.getTheme();
     },
     getTheme() {
+      if (this.currentContents.CONTENTS_TYPE_NAME == "스타일") {
+        this.rgbShow = true;
+      } else {
+        this.rgbShow = false;
+      }
       if (this.listCheck == "2") {
         this.themeList = [];
         this.$loading();
@@ -1428,12 +1444,12 @@ export default {
         this.thumbPath = `${this.contentsPath}thumb/${this.thumbPath}.`;
         return;
       }
-      this.$axios
-        .get("/admin/api/theme-thumb-file-name.php")
-        .then((response) => {
-          this.thumbPath = `${response.data[0].AUTO_INCREMENT}_${this.time()}`;
-          this.thumbPath = `${this.contentsPath}thumb/${this.thumbPath}.`;
-        });
+      this.$axios.get("/admin/api/theme-file-name.php").then((response) => {
+        this.thumbPath = `${response.data[0].AUTO_INCREMENT}_${this.time()}`;
+        this.thumbPath = `${this.contentsPath}thumb/${this.thumbPath}.`;
+        if (this.rgbShow === true)
+          this.contentsFileName = `STYLE_${response.data[0].AUTO_INCREMENT}.json`;
+      });
     },
     thumbFileSelect(event) {
       const input = event.target;
@@ -1459,11 +1475,9 @@ export default {
         };
         reader.readAsDataURL(input.files[0]);
         this.contentsFileName = input.files[0].name;
-        this.$axios
-          .get("/admin/api/theme-thumb-file-name.php")
-          .then((response) => {
-            this.contentsFileName = `${response.data[0].AUTO_INCREMENT}_${this.contentsFileName}`;
-          });
+        this.$axios.get("/admin/api/theme-file-name.php").then((response) => {
+          this.contentsFileName = `${response.data[0].AUTO_INCREMENT}_${this.contentsFileName}`;
+        });
       }
     },
     thumbnailUpload() {
@@ -1494,11 +1508,13 @@ export default {
       if (this.contentsName === "") return (this.invalidContentsName = true);
       if (this.keyword === "") return (this.invalidKeyword = true);
       if (this.thumbnail === null) return (this.invalidThumbnail = true);
-      if (this.contentsFile === null) return (this.invalidContents = true);
+      if (this.contentsFile === null && this.rgbShow === false)
+        return (this.invalidContents = true);
     },
     contentsUpload() {
       if (this.validation()) return;
       this.$loading();
+      if (this.rgbShow === true) this.rgbJson();
       const fd = new FormData();
       fd.append("CONTENTS_NAME", this.contentsName);
       fd.append("THEME_ID", this.currentThemeList.SEQ_ID);
@@ -1531,7 +1547,7 @@ export default {
       const json = document.querySelector("#contentsFile");
       this.$axios.post("/admin/api/theme_template_upload.php", fd).then(() => {
         this.thumbnailUpload();
-        this.contentsFileUpload();
+        if (this.rgbShow === false) this.contentsFileUpload();
         this.contentsName = "";
         this.keyword = "";
         this.thumbnail = null;
@@ -1733,7 +1749,8 @@ export default {
         if (response.data.DB !== "success")
           return alert("API Error: " + response.data);
         if (this.existsThumb === true) this.thumbnailUpload();
-        if (this.existsContents === true) this.contentsFileUpload();
+        if (this.existsContents === true && this.rgbShow === false)
+          this.contentsFileUpload();
         this.getContentsList();
         alert("수정 완료");
       });
@@ -1758,20 +1775,24 @@ export default {
       return time;
     },
     addColor() {
-      // create a new div element
-      const input = document.createElement("input");
-      input.innerHTML =
-        '<input type="color" class="form-control form-control-color" id="exampleColorInput" value="#563d7c" title="Choose your color">';
-
-      // and give it some content
-      const newContent = document.createTextNode("Hi there and greetings!");
-
-      // add the text node to the newly created div
-      input.appendChild(newContent);
-
-      // add the newly created element and its content into the DOM
-      const currentDiv = document.getElementById("div1");
-      document.body.insertBefore(input, currentDiv);
+      this.colors.push(ColorPicker);
+    },
+    rgbFindIndex(i) {
+      this.rgbIndex = i;
+    },
+    changeColor(value) {
+      this.rgb[this.rgbIndex] = value;
+    },
+    rgbJson() {
+      console.log(this.rgb);
+      const fd = new FormData();
+      fd.append("rgb", this.rgb);
+      fd.append("saveDir", this.contentsPath + this.contentsFileName);
+      this.$axios.post("/admin/api/theme-rgb-json.php", fd).then((response) => {
+        if (response.data == "error") {
+          return alert("콘텐츠 파일 저장 실패 :" + response.data);
+        }
+      });
     },
   },
   mounted() {
