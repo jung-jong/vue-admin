@@ -1445,7 +1445,7 @@ export default {
         this.thumbPath = `${response.data[0].AUTO_INCREMENT}_${this.time()}`;
         this.thumbPath = `${this.contentsPath}thumb/${this.thumbPath}.`;
         if (this.rgbShow === true)
-          this.contentsFileName = `STYLE_${response.data[0].AUTO_INCREMENT}.json`;
+          this.contentsFileName = `${response.data[0].AUTO_INCREMENT}_STYLE.json`;
       });
     },
     thumbFileSelect(event) {
@@ -1511,7 +1511,6 @@ export default {
     contentsUpload() {
       if (this.validation()) return;
       this.$loading();
-      if (this.rgbShow === true) this.rgbJson();
       const fd = new FormData();
       fd.append("CONTENTS_NAME", this.contentsName);
       fd.append("THEME_ID", this.currentThemeList.SEQ_ID);
@@ -1545,13 +1544,17 @@ export default {
       this.$axios.post("/admin/api/theme_template_upload.php", fd).then(() => {
         this.thumbnailUpload();
         if (this.rgbShow === false) this.contentsFileUpload();
+        if (this.rgbShow === true) this.rgbJson();
         this.contentsName = "";
         this.keyword = "";
         this.thumbnail = null;
         this.contentsFile = null;
         img.value = "";
-        json.value = "";
+        if (this.rgbShow === false) json.value = "";
+        this.ColorPicker = [];
+        this.rgb = [];
         this.getContentsList();
+        this.thumbPathFormat();
         alert("업로드 성공");
       });
     },
@@ -1773,6 +1776,7 @@ export default {
     },
     addColor() {
       this.colors.push(ColorPicker);
+      this.rgb.push("#000000");
     },
     rgbFindIndex(i) {
       this.rgbIndex = i;
@@ -1781,15 +1785,20 @@ export default {
       this.rgb[this.rgbIndex] = value;
     },
     rgbJson() {
-      console.log(this.rgb);
       const fd = new FormData();
-      fd.append("rgb", this.rgb);
+      fd.append(`length`, this.rgb.length);
+      for (const i in this.rgb) {
+        fd.append(`rgb${i}`, this.rgb[i]);
+        console.log(`rgb${i}`);
+      }
       fd.append("saveDir", this.contentsPath + this.contentsFileName);
-      this.$axios.post("/admin/api/theme-rgb-json.php", fd).then((response) => {
-        if (response.data == "error") {
-          return alert("콘텐츠 파일 저장 실패 :" + response.data);
-        }
-      });
+      this.$axios
+        .post("/admin/api/theme-file-upload.php", fd)
+        .then((response) => {
+          if (response.data == "error") {
+            return alert("콘텐츠 파일 저장 실패 :" + response.data);
+          }
+        });
     },
   },
   mounted() {

@@ -47,3 +47,17 @@ if (isset($_POST['contents'])) {
     echo "error";
   }
 }
+
+if (isset($_POST['rgb0'])) {
+  $json = array();
+  $i = 0;
+  $length = $_POST['length'];
+  while ($length > $i++) {
+    array_push($json, "{$_POST['rgb' .$i - 1]}");
+  }
+  $saveDir = ".{$_POST['saveDir']}";
+  $file = file_put_contents($saveDir, json_encode($json));
+  if (!$file) {
+    echo "error";
+  }
+}

@@ -8,7 +8,7 @@
         v-model="color"
         @change="chageColor(color)"
       />
-      <label class="fs-6 ms-2">{{ color }}</label>
+      <label id="color" class="fs-6 ms-2">{{ color }}</label>
     </div>
   </div>
 </template>
