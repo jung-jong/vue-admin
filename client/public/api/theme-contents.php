@@ -1,5 +1,20 @@
 <?php
 
+if (isset($_POST['CONTENTS_PATH'])) {
+  $dir = "." . $_POST['CONTENTS_PATH'];
+
+  if (!file_exists($dir)) {
+    echo "파일을 찾지 못함";
+  }
+
+  $json = json_decode(file_get_contents($dir), true);
+
+  echo json_encode($json);
+
+  exit;
+}
+
+
 include("connect.php");
 
 if (isset($_GET['id'])) {

@@ -208,6 +208,8 @@
                 keyword = '';
                 thumbnail = null;
                 editContents = false;
+                colors = [];
+                rgb = [];
               "
             >
               + 콘텐츠 추가
@@ -430,6 +432,7 @@
                     </div>
                   </div>
                 </div>
+                <!-- 업로드 -->
                 <div class="row mb-3" v-if="rgbShow">
                   <div class="col-2 col-form-label fw-bold ps-5">RGB</div>
                   <div class="col-10">
@@ -439,10 +442,11 @@
                       :index="i"
                       @index="rgbFindIndex"
                       @input="changeColor"
+                      @delete="deleteColor"
                     ></color-picker>
                     <button
                       type="button"
-                      class="btn btn-primary"
+                      class="btn btn-primary mt-2"
                       @click="addColor()"
                     >
                       + 추가
@@ -760,7 +764,7 @@
                     </ul>
                   </div>
                 </div>
-                <div class="row mb-3">
+                <div class="row mb-3" v-if="!rgbShow">
                   <div class="col-2 col-form-label fw-bold ps-5">콘텐츠</div>
                   <div class="col-4">
                     <div class="row flex-column">
@@ -834,6 +838,28 @@
                         </div>
                       </li>
                     </ul>
+                  </div>
+                </div>
+                <!-- 수정 -->
+                <div class="row mb-3" v-if="rgbShow">
+                  <div class="col-2 col-form-label fw-bold ps-5">RGB</div>
+                  <div class="col-10">
+                    <color-picker
+                      v-for="(colors, i) in colors"
+                      :key="i"
+                      :index="i"
+                      :rgb="rgb"
+                      @index="rgbFindIndex"
+                      @input="changeColor"
+                      @delete="deleteColor"
+                    ></color-picker>
+                    <button
+                      type="button"
+                      class="btn btn-primary mt-2"
+                      @click="addColor()"
+                    >
+                      + 추가
+                    </button>
                   </div>
                 </div>
                 <div class="row align-items-center mb-3">
@@ -1290,7 +1316,7 @@ export default {
       this.contentsListShow = true;
       this.$loading();
       this.$axios
-        .get("/admin/api/contents.php", {
+        .get("/admin/api/theme-contents.php", {
           params: {
             id: this.currentThemeList.SEQ_ID,
           },
@@ -1332,7 +1358,7 @@ export default {
           fd.append("PUBLIC_FLAG", 1);
           fd.append("SEQ_ID", this.useContents[i]);
           this.$axios
-            .post("/admin/api/theme-public-contents.php", fd)
+            .post("/admin/api/theme-public-theme-contents.php", fd)
             .then((response) => {
               if (response.data.DB !== "success")
                 return alert("API Error: " + response.data);
@@ -1346,7 +1372,7 @@ export default {
           fd.append("PUBLIC_FLAG", 0);
           fd.append("SEQ_ID", this.unusedContents[i]);
           this.$axios
-            .post("/admin/api/theme-public-contents.php", fd)
+            .post("/admin/api/theme-public-theme-contents.php", fd)
             .then((response) => {
               if (response.data.DB !== "success")
                 return alert("API Error: " + response.data);
@@ -1439,6 +1465,7 @@ export default {
       if (id != undefined) {
         this.thumbPath = `${id}_${this.time()}`;
         this.thumbPath = `${this.contentsPath}thumb/${this.thumbPath}.`;
+        if (this.rgbShow === true) this.contentsFileName = `${id}_STYLE.json`;
         return;
       }
       this.$axios.get("/admin/api/theme-file-name.php").then((response) => {
@@ -1544,7 +1571,7 @@ export default {
       this.$axios.post("/admin/api/theme_template_upload.php", fd).then(() => {
         this.thumbnailUpload();
         if (this.rgbShow === false) this.contentsFileUpload();
-        if (this.rgbShow === true) this.rgbJson();
+        if (this.rgbShow === true) this.rgbJsonUpload();
         this.contentsName = "";
         this.keyword = "";
         this.thumbnail = null;
@@ -1565,7 +1592,7 @@ export default {
       const img = document.querySelector("#thumbFileEdit");
       const json = document.querySelector("#contentsFileEdit");
       img.value = "";
-      json.value = "";
+      if (this.rgbShow === false) json.value = "";
       // 선택 콘텐츠 정보
       this.$loading();
       this.currentContentsList = contents;
@@ -1582,7 +1609,7 @@ export default {
       } else if (contents.PUBLIC_FLAG == 0) this.publicFlage = "false";
       if (this.currentContents.CONTENTS_TYPE_NAME == "템플릿") {
         this.$axios
-          .get("/admin/api/contents.php", {
+          .get("/admin/api/theme-contents.php", {
             params: {
               "size-category": contents.SIZE_CATEGORY_ID,
             },
@@ -1590,7 +1617,7 @@ export default {
           .then((response) => {
             this.selectWorkingSize = response.data[0].ORDER;
             this.$axios
-              .get("/admin/api/contents.php", {
+              .get("/admin/api/theme-contents.php", {
                 params: {
                   size: contents.SIZE_INFO_ID,
                 },
@@ -1599,6 +1626,22 @@ export default {
                 this.selectSize = response.data[0].ORDER;
                 this.$endloading();
               });
+          });
+      }
+      if (this.rgbShow === true) {
+        this.colors = [];
+        this.rgb = [];
+        this.contentsPathFormat();
+        const fd = new FormData();
+        fd.append("CONTENTS_PATH", this.currentContentsList.CONTENTS_PATH);
+        this.$axios
+          .post("/admin/api/theme-contents.php", fd)
+          .then((response) => {
+            const json = response.data;
+            json.forEach((value) => {
+              this.colors.push(ColorPicker);
+              this.rgb.push(value);
+            });
           });
       }
     },
@@ -1718,11 +1761,10 @@ export default {
       fd.append("KEYWORD", this.keyword);
       fd.append("THUMB_PATH", this.currentContentsList.THUMB_PATH);
       fd.append("CONTENTS_PATH", this.contentsUpdatePath);
-      if (this.typeCheck === "web") {
-        fd.append("USE_TYPE", 1);
-      } else if (this.typeCheck === "print") {
-        fd.append("USE_TYPE", 2);
-      }
+      if (this.rgbShow === true)
+        fd.append("CONTENTS_PATH", this.currentContentsList.CONTENTS_PATH);
+      if (this.typeCheck === "web") fd.append("USE_TYPE", 1);
+      else if (this.typeCheck === "print") fd.append("USE_TYPE", 2);
       if (this.currentContents.CONTENTS_TYPE_NAME == "템플릿") {
         fd.append(
           "SIZE_CATEGORY_ID",
@@ -1751,6 +1793,7 @@ export default {
         if (this.existsThumb === true) this.thumbnailUpload();
         if (this.existsContents === true && this.rgbShow === false)
           this.contentsFileUpload();
+        if (this.rgbShow === true) this.rgbJsonUpload();
         this.getContentsList();
         alert("수정 완료");
       });
@@ -1778,18 +1821,21 @@ export default {
       this.colors.push(ColorPicker);
       this.rgb.push("#000000");
     },
+    deleteColor(i) {
+      this.colors.splice(i, 1);
+      this.rgb.splice(i, 1);
+    },
     rgbFindIndex(i) {
       this.rgbIndex = i;
     },
     changeColor(value) {
       this.rgb[this.rgbIndex] = value;
     },
-    rgbJson() {
+    rgbJsonUpload() {
       const fd = new FormData();
       fd.append(`length`, this.rgb.length);
       for (const i in this.rgb) {
         fd.append(`rgb${i}`, this.rgb[i]);
-        console.log(`rgb${i}`);
       }
       fd.append("saveDir", this.contentsPath + this.contentsFileName);
       this.$axios

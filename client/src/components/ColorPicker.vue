@@ -6,9 +6,16 @@
         class="form-control form-control-color color"
         id="color"
         v-model="color"
-        @change="chageColor(color)"
+        @change="changeColor(color)"
       />
       <label id="color" class="fs-6 ms-2">{{ color }}</label>
+      <span
+        class="material-symbols-rounded fs-4 ms-2"
+        role="button"
+        @click="deleteColor"
+      >
+        close
+      </span>
     </div>
   </div>
 </template>
@@ -19,15 +26,23 @@ export default {
   data() {
     return {
       color: "#000000",
-      i: 0,
+      propsRgb: this.rgb,
     };
   },
-  props: { index: Number },
+  props: { index: Number, rgb: Array },
   methods: {
-    chageColor() {
+    changeColor() {
       this.$emit("index", this.index);
       this.$emit("input", this.color);
     },
+    deleteColor() {
+      this.$emit("delete", this.index);
+    },
+  },
+  mounted() {
+    if (this.index !== undefined && this.propsRgb !== undefined) {
+      this.color = this.propsRgb[this.index];
+    }
   },
 };
 </script>
