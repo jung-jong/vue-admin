@@ -230,10 +230,7 @@
                 <span
                   class="material-symbols-rounded me-1"
                   role="button"
-                  @click="
-                    oldThumbFile(contentsList);
-                    deleteContents(contentsList);
-                  "
+                  @click="deleteContents(contentsList)"
                 >
                   delete
                 </span>
@@ -1360,9 +1357,9 @@ export default {
         alert("사용여부 변경됨");
     },
     deleteContents(contents) {
+      this.contentsPathFormat();
       const fd = new FormData();
       fd.append("deleteContents", contents.SEQ_ID);
-      fd.append("thumbPath", this.oldThumb);
       fd.append("contentsPath", this.contentsPath);
       if (window.confirm("정말 삭제하시겠습니까?")) {
         this.$loading();

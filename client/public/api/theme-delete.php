@@ -17,8 +17,7 @@ if (isset($_POST['deleteContents'])) {
     if ($dh = opendir($dir)) {
       while (($file = readdir($dh)) !== false) {
         if ($file != "." && $file != "..") {
-          // echo $file . "\n";
-          $file = (explode(".", $file));
+          $file = (explode("_", $file));
           if ($file[0] == $id) {
             $data[] = $file;
           }
@@ -30,10 +29,10 @@ if (isset($_POST['deleteContents'])) {
   foreach ($data as $key => $data) {
     $i = 0;
     $i++;
-    $data = array($dir . $id . "." . $data[$i]);
+    $data = array($dir . $id . "_" . $data[$i]);
     $data = $data[0];
     if (!file_exists($data)) {
-      echo "컨텐츠 파일 삭제실패\n";
+      echo "썸네일 파일 삭제실패\n";
       return;
     } else {
       unlink($data);
