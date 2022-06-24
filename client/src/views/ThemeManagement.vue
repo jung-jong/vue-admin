@@ -1358,7 +1358,7 @@ export default {
           fd.append("PUBLIC_FLAG", 1);
           fd.append("SEQ_ID", this.useContents[i]);
           this.$axios
-            .post("/admin/api/theme-public-theme-contents.php", fd)
+            .post("/admin/api/theme-public-contents.php", fd)
             .then((response) => {
               if (response.data.DB !== "success")
                 return alert("API Error: " + response.data);
@@ -1372,7 +1372,7 @@ export default {
           fd.append("PUBLIC_FLAG", 0);
           fd.append("SEQ_ID", this.unusedContents[i]);
           this.$axios
-            .post("/admin/api/theme-public-theme-contents.php", fd)
+            .post("/admin/api/theme-public-contents.php", fd)
             .then((response) => {
               if (response.data.DB !== "success")
                 return alert("API Error: " + response.data);

@@ -24,7 +24,11 @@
               <button
                 class="btn btn-secondary"
                 type="button"
-                @click="addTemplate(), (templateName = '')"
+                @click="
+                  addTemplate();
+                  templateName = '';
+                  sizeCategoryUseUnused();
+                "
               >
                 저장
               </button>
@@ -41,38 +45,74 @@
                 템플릿 타입 제목을 입력하세요.
               </div>
             </div>
+            <div class="row">
+              <div class="col-6">
+                <h6 class="ms-3">이름</h6>
+              </div>
+              <div class="col-3">
+                <h6 class="text-center me-3">정렬순</h6>
+              </div>
+              <div class="col-3">
+                <h6 class="text-end">검색 적용 여부</h6>
+              </div>
+            </div>
             <div class="card">
               <ul class="list-group list-group-flush overflow-auto">
+                <li class="list-group-item" v-if="noSizeCategory">
+                  <h6>템플릿 타입을 추가하세요.</h6>
+                </li>
                 <li
                   v-for="(sizeCategory, i) in sizeCategory"
                   :key="i"
                   :class="{ active: i === activeCategory }"
                   @click="activeTemplate(i)"
-                  class="list-group-item d-flex justify-content-between align-items-center hover"
+                  class="list-group-item hover"
                 >
-                  {{ sizeCategory.TEMPLATE_TYPE_NAME }}
-                  <div class="d-flex">
-                    <span
-                      role="button"
-                      class="material-symbols-rounded"
-                      @click="
-                        upCurrentTemplate(i),
-                          orderTemplate(),
-                          orderTemplatePrev()
-                      "
-                    >
-                      arrow_upward
-                    </span>
-                    <span
-                      role="button"
-                      class="material-symbols-rounded"
-                      @click="
-                        downCurrentTemplate(i);
-                        orderTemplate(), orderTemplateNext();
-                      "
-                    >
-                      arrow_downward
-                    </span>
+                  <div class="row justify-content-between align-items-center">
+                    <div class="col-6">
+                      {{ sizeCategory.TEMPLATE_TYPE_NAME }}
+                    </div>
+                    <div class="col-3">
+                      <div class="d-flex justify-content-center">
+                        <span
+                          role="button"
+                          class="material-symbols-rounded"
+                          @click="
+                            upCurrentTemplate(i);
+                            orderTemplate();
+                            orderTemplatePrev();
+                          "
+                        >
+                          arrow_upward
+                        </span>
+                        <span
+                          role="button"
+                          class="material-symbols-rounded"
+                          @click="
+                            downCurrentTemplate(i);
+                            orderTemplate();
+                            orderTemplateNext();
+                          "
+                        >
+                          arrow_downward
+                        </span>
+                      </div>
+                    </div>
+                    <div class="col-3">
+                      <div class="d-flex justify-content-end">
+                        <input
+                          class="form-check-input fs-6"
+                          type="checkbox"
+                          id="checkboxNoLabel"
+                          :value="sizeCategory.SEQ_ID"
+                          v-model="useSizeCategory"
+                          @click.stop="
+                            sizeCategoryCheck($event);
+                            activeTemplate(false);
+                          "
+                        />
+                      </div>
+                    </div>
                   </div>
                 </li>
               </ul>
@@ -98,7 +138,11 @@
               <button
                 class="btn btn-secondary"
                 type="button"
-                @click="addSize(), (sizeName = '')"
+                @click="
+                  addSize();
+                  sizeName = '';
+                  sizeUseUnused();
+                "
               >
                 저장
               </button>
@@ -121,31 +165,74 @@
                 분류 제목을 입력하세요.
               </div>
             </div>
+            <div class="row">
+              <div class="col-6">
+                <h6 class="ms-3">이름</h6>
+              </div>
+              <div class="col-3">
+                <h6 class="text-center me-3">정렬순</h6>
+              </div>
+              <div class="col-3">
+                <h6 class="text-end">검색 적용 여부</h6>
+              </div>
+            </div>
             <div class="card">
               <ul class="list-group list-group-flush overflow-auto">
+                <li class="list-group-item" v-if="noSize">
+                  <h6>분류를 추가하세요.</h6>
+                </li>
                 <li
                   v-for="(size, i) in size"
                   :key="i"
                   :class="{ active: i === activeSize }"
                   @click="activeSizeName(i)"
-                  class="list-group-item d-flex justify-content-between align-items-center hover"
+                  class="list-group-item hover"
                 >
-                  {{ size.SIZE_NAME }}
-                  <div class="d-flex">
-                    <span
-                      role="button"
-                      class="material-symbols-rounded"
-                      @click="upCurrentSize(i), orderSize(), orderSizePrev()"
-                    >
-                      arrow_upward
-                    </span>
-                    <span
-                      role="button"
-                      class="material-symbols-rounded"
-                      @click="downCurrentSize(i), orderSize(), orderSizeNext()"
-                    >
-                      arrow_downward
-                    </span>
+                  <div class="row justify-content-between align-items-center">
+                    <div class="col-6">
+                      {{ size.SIZE_NAME }}
+                    </div>
+                    <div class="col-3">
+                      <div class="d-flex justify-content-center">
+                        <span
+                          role="button"
+                          class="material-symbols-rounded"
+                          @click="
+                            upCurrentSize(i);
+                            orderSize();
+                            orderSizePrev();
+                          "
+                        >
+                          arrow_upward
+                        </span>
+                        <span
+                          role="button"
+                          class="material-symbols-rounded"
+                          @click="
+                            downCurrentSize(i);
+                            orderSize();
+                            orderSizeNext();
+                          "
+                        >
+                          arrow_downward
+                        </span>
+                      </div>
+                    </div>
+                    <div class="col-3">
+                      <div class="d-flex justify-content-end">
+                        <input
+                          class="form-check-input fs-6"
+                          type="checkbox"
+                          id="checkboxNoLabel"
+                          :value="size.SEQ_ID"
+                          v-model="useSize"
+                          @click.stop="
+                            sizeCheck($event);
+                            activeSizeName(false);
+                          "
+                        />
+                      </div>
+                    </div>
                   </div>
                 </li>
               </ul>
@@ -156,7 +243,7 @@
             <div
               class="d-flex flex-wrap justify-content-between alingn-items-center my-3"
             >
-              <h5 class="fw-bold d-flex align-items-end">작업크기</h5>
+              <h5 class="fw-bold">작업크기</h5>
               <button
                 class="btn btn-secondary"
                 type="button"
@@ -183,7 +270,7 @@
                   </div>
                   <div class="col">
                     <h5>단위</h5>
-                    <select v-model="selected" class="form-select m-0">
+                    <select v-model="selected" class="form-select m-0 fs-6">
                       <option value="1">px</option>
                       <option value="2">mm</option>
                       <option value="3">cm</option>
@@ -229,14 +316,30 @@ export default {
       showAddSize: false,
       templateName: "",
       sizeName: "",
+      useSizeCategory: [],
+      unusedSizeCategory: [],
+      useSize: [],
+      unusedSize: [],
+      noSizeCategory: false,
+      noSize: false,
     };
   },
   mixins: [table],
   methods: {
     getSizeCategory() {
       this.$axios.get("/admin/api/size_category.php").then((response) => {
+        if (response.data.length == 0) return (this.noSizeCategory = true);
+        else this.noSizeCategory = false;
         this.sizeCategory = response.data;
         this.$endloading();
+        this.useSizeCategory = [];
+        this.unusedSizeCategory = [];
+        // 사용 컨텐츠 보여줌
+        for (const i in this.sizeCategory) {
+          if (this.sizeCategory[i].PUBLIC_FLAG == 1) {
+            this.useSizeCategory.push(this.sizeCategory[i].SEQ_ID);
+          }
+        }
       });
     },
     addTemplate() {
@@ -307,6 +410,7 @@ export default {
       this.$axios.post("/admin/api/size_category_order.php", fd).then(() => {});
     },
     activeTemplate(i) {
+      if (i === false) return;
       this.activeCategory = i;
       this.currentSizeCategory = this.sizeCategory[i].SEQ_ID;
       this.getSize(i);
@@ -324,8 +428,18 @@ export default {
           },
         })
         .then((response) => {
+          if (response.data.length == 0) this.noSize = true;
+          else this.noSize = false;
           this.size = response.data;
           this.$endloading();
+          this.useSize = [];
+          this.unusedSize = [];
+          // 사용 컨텐츠 보여줌
+          for (const i in this.size) {
+            if (this.size[i].PUBLIC_FLAG == 1) {
+              this.useSize.push(this.size[i].SEQ_ID);
+            }
+          }
         });
     },
     upCurrentSize(i) {
@@ -345,7 +459,7 @@ export default {
       this.indexSize = i;
     },
     addSize() {
-      if ((this.activeCategory !== false) & (this.sizeName !== "")) {
+      if (this.activeCategory !== false && this.sizeName !== "") {
         this.$loading();
         const fd = new FormData();
         fd.append("SIZE_CATEGORY_ID", this.currentSizeCategory);
@@ -391,6 +505,7 @@ export default {
       this.$axios.post("/admin/api/size_order.php", fd).then(() => {});
     },
     activeSizeName(i) {
+      if (i === false) return;
       this.$loading();
       this.activeSize = i;
       this.currentSize = this.size[i].SEQ_ID;
@@ -417,6 +532,97 @@ export default {
       this.$axios.post("/admin/api/size_update.php", fd).then(() => {
         this.activeSizeName(this.activeSize);
       });
+    },
+    sizeCategoryCheck(event) {
+      let value = event.target.value;
+      if (event.target.checked === false) {
+        this.unusedSizeCategory.push(value);
+        let set = new Set(this.unusedSizeCategory);
+        this.unusedSizeCategory = [...set];
+        const index = this.useSizeCategory.indexOf(value);
+        if (index > -1) this.useSizeCategory.splice(index, 1);
+      } else if (event.target.checked === true) {
+        this.useSizeCategory.push(value);
+        let set = new Set(this.useSizeCategory);
+        this.useSizeCategory = [...set];
+        const index = this.unusedSizeCategory.indexOf(value);
+        if (index > -1) this.unusedSizeCategory.splice(index, 1);
+      }
+    },
+    sizeCategoryUseUnused() {
+      if (this.useSizeCategory !== []) {
+        for (const i in this.useSizeCategory) {
+          const fd = new FormData();
+          fd.append("PUBLIC_FLAG", 1);
+          fd.append("SEQ_ID", this.useSizeCategory[i]);
+          this.$axios
+            .post("/admin/api/size_category.php", fd)
+            .then((response) => {
+              if (response.data.DB !== "success")
+                return alert("API Error: " + response.data);
+            });
+        }
+      }
+      if (this.unusedSizeCategory !== []) {
+        for (const i in this.unusedSizeCategory) {
+          const fd = new FormData();
+          fd.append("PUBLIC_FLAG", 0);
+          fd.append("SEQ_ID", this.unusedSizeCategory[i]);
+          this.$axios
+            .post("/admin/api/size_category.php", fd)
+            .then((response) => {
+              if (response.data.DB !== "success")
+                return alert("API Error: " + response.data);
+            });
+        }
+      }
+      if (
+        this.useSizeCategory.length != 0 ||
+        this.unusedSizeCategory.length != 0
+      )
+        alert("검색 적용 여부 변경됨");
+    },
+    sizeCheck(event) {
+      let value = event.target.value;
+      if (event.target.checked === false) {
+        this.unusedSize.push(value);
+        let set = new Set(this.unusedSize);
+        this.unusedSize = [...set];
+        const index = this.useSize.indexOf(value);
+        if (index > -1) this.useSize.splice(index, 1);
+      } else if (event.target.checked === true) {
+        this.useSize.push(value);
+        let set = new Set(this.useSize);
+        this.useSize = [...set];
+        const index = this.unusedSize.indexOf(value);
+        if (index > -1) this.unusedSize.splice(index, 1);
+      }
+    },
+    sizeUseUnused() {
+      if (this.useSize !== []) {
+        for (const i in this.useSize) {
+          const fd = new FormData();
+          fd.append("PUBLIC_FLAG", 1);
+          fd.append("SEQ_ID", this.useSize[i]);
+          this.$axios.post("/admin/api/size.php", fd).then((response) => {
+            if (response.data.DB !== "success")
+              return alert("API Error: " + response.data);
+          });
+        }
+      }
+      if (this.unusedSize !== []) {
+        for (const i in this.unusedSize) {
+          const fd = new FormData();
+          fd.append("PUBLIC_FLAG", 0);
+          fd.append("SEQ_ID", this.unusedSize[i]);
+          this.$axios.post("/admin/api/size.php", fd).then((response) => {
+            if (response.data.DB !== "success")
+              return alert("API Error: " + response.data);
+          });
+        }
+      }
+      if (this.useSize.length != 0 || this.unusedSize.length != 0)
+        alert("검색 적용 여부 변경됨");
     },
   },
   mounted() {
