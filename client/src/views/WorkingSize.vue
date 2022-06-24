@@ -327,7 +327,7 @@ export default {
   mixins: [table],
   methods: {
     getSizeCategory() {
-      this.$axios.get("/admin/api/size_category.php").then((response) => {
+      this.$axios.get("/admin/api/size-category.php").then((response) => {
         if (response.data.length == 0) return (this.noSizeCategory = true);
         else this.noSizeCategory = false;
         this.sizeCategory = response.data;
@@ -348,24 +348,34 @@ export default {
         const fd = new FormData();
         fd.append("TEMPLATE_TYPE_NAME", this.templateName);
         fd.append("ORDER", this.sizeCategory.length);
-        this.$axios.post("/admin/api/size_category_insert.php", fd).then(() => {
-          this.getSizeCategory();
-        });
+        this.$axios
+          .post("/admin/api/size-category.php", fd)
+          .then((response) => {
+            if (response.data.DB !== "success")
+              return alert("API Error: " + response.data);
+            this.getSizeCategory();
+          });
       }
     },
     deleteTemplate() {
       if (this.activeCategory === false) return;
       const fd = new FormData();
-      fd.append("SEQ_ID", this.currentSizeCategory);
+      fd.append("deleteTemplate", this.currentSizeCategory);
       fd.append("SIZE_CATEGORY_ID", this.currentSizeCategory);
       if (window.confirm("정말 삭제하시겠습니까? 분류도 같이 삭제됩니다.")) {
         this.$loading();
-        this.$axios.post("/admin/api/size_category_delete.php", fd).then(() => {
-          this.$axios.post("/admin/api/size_delete.php", fd).then(() => {
-            this.getSizeCategory();
-            this.getSize(this.activeCategory);
+        this.$axios
+          .post("/admin/api/size-category.php", fd)
+          .then((response) => {
+            if (response.data.DB !== "success")
+              return alert("API Error: " + response.data);
+            this.$axios.post("/admin/api/size.php", fd).then((response) => {
+              if (response.data.DB !== "success")
+                return alert("API Error: " + response.data);
+              this.getSizeCategory();
+              this.getSize(this.activeCategory);
+            });
           });
-        });
       }
     },
     upCurrentTemplate(i) {
@@ -391,7 +401,7 @@ export default {
       const fd = new FormData();
       fd.append("ORDER", this.indexTemplate);
       fd.append("SEQ_ID", this.currentSizeCategory);
-      this.$axios.post("/admin/api/size_category_order.php", fd).then(() => {
+      this.$axios.post("/admin/api/size-category-order.php", fd).then(() => {
         this.getSizeCategory();
       });
     },
@@ -400,14 +410,14 @@ export default {
       const fd = new FormData();
       fd.append("ORDER", this.indexTemplate - 1);
       fd.append("NEXT", this.nextSEQ_ID);
-      this.$axios.post("/admin/api/size_category_order.php", fd).then(() => {});
+      this.$axios.post("/admin/api/size-category-order.php", fd).then(() => {});
     },
     orderTemplatePrev() {
       this.$loading();
       const fd = new FormData();
       fd.append("ORDER", this.indexTemplate + 1);
       fd.append("PREV", this.prevSEQ_ID);
-      this.$axios.post("/admin/api/size_category_order.php", fd).then(() => {});
+      this.$axios.post("/admin/api/size-category-order.php", fd).then(() => {});
     },
     activeTemplate(i) {
       if (i === false) return;
@@ -463,9 +473,11 @@ export default {
         this.$loading();
         const fd = new FormData();
         fd.append("SIZE_CATEGORY_ID", this.currentSizeCategory);
-        fd.append("SIZE_NAME", this.sizeName);
+        fd.append("addSize", this.sizeName);
         fd.append("ORDER", this.size.length);
-        this.$axios.post("/admin/api/size_insert.php", fd).then(() => {
+        this.$axios.post("/admin/api/size.php", fd).then((response) => {
+          if (response.data.DB !== "success")
+            return alert("API Error: " + response.data);
           this.getSize(this.activeCategory);
         });
       }
@@ -474,9 +486,11 @@ export default {
       if (this.activeSize === false) return;
       this.$loading();
       const fd = new FormData();
-      fd.append("SIZE", this.currentSize);
+      fd.append("deleteSize", this.currentSize);
       if (window.confirm("정말 삭제하시겠습니까?")) {
-        this.$axios.post("/admin/api/size_delete.php", fd).then(() => {
+        this.$axios.post("/admin/api/size.php", fd).then((response) => {
+          if (response.data.DB !== "success")
+            return alert("API Error: " + response.data);
           this.getSize(this.activeCategory);
         });
       }
@@ -486,7 +500,7 @@ export default {
       const fd = new FormData();
       fd.append("ORDER", this.indexSize);
       fd.append("SEQ_ID", this.currentSize);
-      this.$axios.post("/admin/api/size_order.php", fd).then(() => {
+      this.$axios.post("/admin/api/size-order.php", fd).then(() => {
         this.getSize(this.activeCategory);
       });
     },
@@ -495,14 +509,14 @@ export default {
       const fd = new FormData();
       fd.append("ORDER", this.indexSize - 1);
       fd.append("NEXT", this.nextSEQ_ID);
-      this.$axios.post("/admin/api/size_order.php", fd).then(() => {});
+      this.$axios.post("/admin/api/size-order.php", fd).then(() => {});
     },
     orderSizePrev() {
       this.$loading();
       const fd = new FormData();
       fd.append("ORDER", this.indexSize + 1);
       fd.append("PREV", this.prevSEQ_ID);
-      this.$axios.post("/admin/api/size_order.php", fd).then(() => {});
+      this.$axios.post("/admin/api/size-order.php", fd).then(() => {});
     },
     activeSizeName(i) {
       if (i === false) return;
@@ -529,7 +543,9 @@ export default {
       fd.append("PAGE_WIDTH", this.width);
       fd.append("PAGE_HEIGHT", this.height);
       fd.append("SCALE_CD", this.selected);
-      this.$axios.post("/admin/api/size_update.php", fd).then(() => {
+      this.$axios.post("/admin/api/size.php", fd).then((response) => {
+        if (response.data.DB !== "success")
+          return alert("API Error: " + response.data);
         this.activeSizeName(this.activeSize);
       });
     },
@@ -556,7 +572,7 @@ export default {
           fd.append("PUBLIC_FLAG", 1);
           fd.append("SEQ_ID", this.useSizeCategory[i]);
           this.$axios
-            .post("/admin/api/size_category.php", fd)
+            .post("/admin/api/size-category.php", fd)
             .then((response) => {
               if (response.data.DB !== "success")
                 return alert("API Error: " + response.data);
@@ -569,7 +585,7 @@ export default {
           fd.append("PUBLIC_FLAG", 0);
           fd.append("SEQ_ID", this.unusedSizeCategory[i]);
           this.$axios
-            .post("/admin/api/size_category.php", fd)
+            .post("/admin/api/size-category.php", fd)
             .then((response) => {
               if (response.data.DB !== "success")
                 return alert("API Error: " + response.data);
