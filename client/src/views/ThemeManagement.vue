@@ -1399,7 +1399,7 @@ export default {
     getSizeCategory() {
       if (this.currentContents.CONTENTS_TYPE_NAME == "템플릿") {
         this.workingSizeShow = true;
-        this.$axios.get("/admin/api/size_category.php").then((response) => {
+        this.$axios.get("/admin/api/theme-size.php").then((response) => {
           this.sizeCategory = response.data;
           this.getSize();
           this.$endloading();
@@ -1411,7 +1411,7 @@ export default {
     getSize() {
       this.$loading();
       this.$axios
-        .get("/admin/api/size.php", {
+        .get("/admin/api/theme-size.php", {
           params: {
             template: this.sizeCategory[this.selectWorkingSize].SEQ_ID,
           },
@@ -1425,7 +1425,7 @@ export default {
     activeSizeName() {
       this.$loading();
       this.$axios
-        .get("/admin/api/size.php", {
+        .get("/admin/api/theme-size.php", {
           params: {
             size: this.size[this.selectSize].SEQ_ID,
           },
