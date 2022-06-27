@@ -1,6 +1,7 @@
 <?php
 
 include("connect.php");
+include("axios.php");
 
 if (
   !isset($_POST['TEMPLATE_TYPE_NAME']) &&
@@ -8,11 +9,7 @@ if (
   !isset($_POST['PUBLIC_FLAG'])
 ) {
   $sql = "SELECT * FROM TB_SIZE_CATEGORY ORDER BY `ORDER` ASC";
-  $result = mysqli_query($conn, $sql);
-  $data = array();
-  while ($row = mysqli_fetch_assoc($result)) {
-    $data[] = $row;
-  }
+  get($conn, $sql);
 }
 
 if (isset($_POST['TEMPLATE_TYPE_NAME'])) {
@@ -33,18 +30,6 @@ if (isset($_POST['PUBLIC_FLAG'])) {
   WHERE `SEQ_ID` = {$_POST['SEQ_ID']}";
 
   post($conn, $sql);
-}
-
-function post($conn, $sql)
-{
-  global $data;
-  $result = mysqli_query($conn, $sql);
-  if ($result == false) {
-    error_log(mysqli_error($conn));
-    $data = array('DB' => "error");
-  } else {
-    $data = array('DB' => "success");
-  }
 }
 
 echo json_encode($data);

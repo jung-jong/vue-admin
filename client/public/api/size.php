@@ -1,6 +1,7 @@
 <?php
 
 include("connect.php");
+include("axios.php");
 
 if (isset($_GET['template'])) {
   $sql = "SELECT * FROM TB_SIZE WHERE SIZE_CATEGORY_ID = {$_GET['template']} ORDER BY `ORDER` ASC";
@@ -40,27 +41,6 @@ if (isset($_POST['PAGE_WIDTH'])) {
   SET `PAGE_WIDTH` = {$_POST['PAGE_WIDTH']}, `PAGE_HEIGHT` = {$_POST['PAGE_HEIGHT']}, `SCALE_CD` = {$_POST['SCALE_CD']}
   WHERE `SEQ_ID` = {$_POST['SEQ_ID']}";
   post($conn, $sql);
-}
-
-function get($conn, $sql)
-{
-  global $data;
-  $result = mysqli_query($conn, $sql);
-  while ($row = mysqli_fetch_assoc($result)) {
-    $data[] = $row;
-  }
-}
-
-function post($conn, $sql)
-{
-  global $data;
-  $result = mysqli_query($conn, $sql);
-  if ($result == false) {
-    error_log(mysqli_error($conn));
-    $data = array('DB' => "error");
-  } else {
-    $data = array('DB' => "success");
-  }
 }
 
 echo json_encode($data);

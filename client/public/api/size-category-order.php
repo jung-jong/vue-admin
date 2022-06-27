@@ -1,6 +1,7 @@
 <?php
 
 include("connect.php");
+include("axios.php");
 
 if (isset($_POST['SEQ_ID'])) {
   $sql = "UPDATE `TB_SIZE_CATEGORY`
@@ -20,16 +21,8 @@ if (isset($_POST['PREV'])) {
   WHERE `SEQ_ID` = {$_POST['PREV']}";
 }
 
-$result = mysqli_query($conn, $sql);
-if ($result == false) {
-  error_log(mysqli_error($conn));
-  $data = array('DB'=>"error");
-} else {
-  $data = array('DB'=>"success");
-}
+post($conn, $sql);
 
 echo json_encode($data);
 
 mysqli_close($conn);
-
-?>

@@ -1,6 +1,7 @@
 <?php
 
 include("connect.php");
+include("axios.php");
 
 if (isset($_POST['SEQ_ID'])) {
   $sql = "UPDATE `TB_SIZE`
@@ -20,11 +21,7 @@ if (isset($_POST['PREV'])) {
   WHERE `SEQ_ID` = {$_POST['PREV']}";
 }
 
-$result = mysqli_query($conn, $sql);
-$data = array();
-while($row = mysqli_fetch_assoc($result)){
-  $data[] = $row;
-}
+get($conn, $sql);
 
 echo json_encode($data);
 

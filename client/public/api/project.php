@@ -1,5 +1,6 @@
 <?php
 include("connect.php");
+include("axios.php");
 
 $sql = "SELECT * FROM TB_PROJECT";
 
@@ -36,27 +37,6 @@ if (isset($_GET['start'])) {
 if (isset($_POST['SEQ_ID'])) {
   $sql = "DELETE FROM TB_PROJECT WHERE SEQ_ID = {$_POST['SEQ_ID']}";
   post($conn, $sql);
-}
-
-function get($conn, $sql)
-{
-  global $data;
-  $result = mysqli_query($conn, $sql);
-  while ($row = mysqli_fetch_assoc($result)) {
-    $data[] = $row;
-  }
-}
-
-function post($conn, $sql)
-{
-  global $data;
-  $result = mysqli_query($conn, $sql);
-  if ($result == false) {
-    error_log(mysqli_error($conn));
-    $data = array('DB' => "error");
-  } else {
-    $data = array('DB' => "success");
-  }
 }
 
 echo json_encode($data);
