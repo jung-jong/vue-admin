@@ -250,7 +250,7 @@ export default {
         });
     },
     totalPage() {
-      this.$axios.get("/admin/api/project_page.php").then((response) => {
+      this.$axios.get("/admin/api/project-page.php").then((response) => {
         this.totalPages = response.data;
         this.totalPages = Math.ceil(this.totalPages / this.length);
       });
@@ -330,7 +330,7 @@ export default {
               this.$endloading();
             });
           this.$axios
-            .get("/admin/api/project_page.php", {
+            .get("/admin/api/project-page.php", {
               params: {
                 id: "USER_ID",
                 search: search,
@@ -357,7 +357,7 @@ export default {
               this.$endloading();
             });
           this.$axios
-            .get("/admin/api/project_page.php", {
+            .get("/admin/api/project-page.php", {
               params: {
                 title: "TITLE",
                 search: search,
@@ -384,7 +384,7 @@ export default {
               this.$endloading();
             });
           this.$axios
-            .get("/admin/api/project_page.php", {
+            .get("/admin/api/project-page.php", {
               params: {
                 width: "WIDTH/HEIGHT",
                 search: search,
@@ -403,8 +403,10 @@ export default {
     deleteProject() {
       const fd = this.formData(this.currentProject);
       this.$axios
-        .post("/admin/api/delete.php", fd)
-        .then(() => {
+        .post("/admin/api/project.php", fd)
+        .then((response) => {
+          if (response.data.DB !== "success")
+            return alert("API Error: " + response.data);
           this.currentProject = {};
           this.getProjectList();
         })
