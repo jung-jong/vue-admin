@@ -1,6 +1,7 @@
 <?php
 
 include("connect.php");
+include("axios.php");
 
 if (isset($_POST['deleteTheme'])) {
   $sql = "DELETE FROM `TB_THEME` WHERE `SEQ_ID` = {$_POST['deleteTheme']}";
@@ -72,13 +73,7 @@ if (isset($_POST['deleteContents'])) {
   }
 }
 
-$result = mysqli_query($conn, $sql);
-if ($result == false) {
-  error_log(mysqli_error($conn));
-  $data = array('DB' => "error");
-} else {
-  $data = array('DB' => "success");
-}
+post($conn, $sql);
 
 echo json_encode($data);
 

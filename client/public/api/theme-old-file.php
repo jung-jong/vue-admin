@@ -66,36 +66,26 @@ if (isset($_POST['deleteOldContents'])) {
 
 if (isset($_POST['changeThumb'])) {
   include("connect.php");
+  include("axios.php");
 
   $sql = "UPDATE TB_CONTENTS
   SET `THUMB_PATH` = '{$_POST['changeThumb']}', `U_DATE` = CURRENT_TIMESTAMP()
   WHERE `SEQ_ID` = {$_POST['SEQ_ID']}";
 
-  $result = mysqli_query($conn, $sql);
-  if ($result == false) {
-    error_log(mysqli_error($conn));
-    $data = array('DB' => "error");
-  } else {
-    $data = array('DB' => "success");
-  }
+  post($conn, $sql);
 
   mysqli_close($conn);
 }
 
 if (isset($_POST['changeContents'])) {
   include("connect.php");
+  include("axios.php");
 
   $sql = "UPDATE TB_CONTENTS
   SET `CONTENTS_PATH` = '{$_POST['changeContents']}', `U_DATE` = CURRENT_TIMESTAMP()
   WHERE `SEQ_ID` = {$_POST['SEQ_ID']}";
 
-  $result = mysqli_query($conn, $sql);
-  if ($result == false) {
-    error_log(mysqli_error($conn));
-    $data = array('DB' => "error");
-  } else {
-    $data = array('DB' => "success");
-  }
+  post($conn, $sql);
 
   mysqli_close($conn);
 }

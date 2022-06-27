@@ -14,8 +14,8 @@ if (isset($_POST['CONTENTS_PATH'])) {
   exit;
 }
 
-
 include("connect.php");
+include("axios.php");
 
 if (isset($_GET['id'])) {
   $sql = "SELECT * FROM `TB_CONTENTS` WHERE `THEME_ID` = {$_GET['id']}";
@@ -29,11 +29,7 @@ if (isset($_GET['size'])) {
   $sql = "SELECT * FROM `TB_SIZE` WHERE `SEQ_ID` = {$_GET['size']}";
 }
 
-$result = mysqli_query($conn, $sql);
-$data = array();
-while ($row = mysqli_fetch_assoc($result)) {
-  $data[] = $row;
-}
+get($conn, $sql);
 
 echo json_encode($data);
 

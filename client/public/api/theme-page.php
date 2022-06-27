@@ -6,8 +6,6 @@ $query = $conn->query("SELECT count(SEQ_ID) FROM TB_THEME WHERE CONTENTS_CATEGOR
 
 $totalRecords = $query->fetch_row()[0];
 $total = ceil($totalRecords);
-echo json_encode($total);
+echo json_encode($totalRecords);
 
 mysqli_close($conn);
-
-?>

@@ -1,8 +1,15 @@
 <?php
 
 include("connect.php");
+include("axios.php");
 
-$sql = "SELECT * FROM `TB_THEME` WHERE `CONTENTS_CATEGORY_ID` = {$_GET['contents']} ORDER BY `ORDER` ASC";
+if (!isset($_GET['contents'])) {
+  $sql = "SELECT * FROM TB_CONTENTS_CATEGORY";
+}
+
+if (isset($_GET['contents'])) {
+  $sql = "SELECT * FROM `TB_THEME` WHERE `CONTENTS_CATEGORY_ID` = {$_GET['contents']} ORDER BY `ORDER` ASC";
+}
 
 if (isset($_GET['start'])) {
   $start = $_GET['start'];
@@ -10,11 +17,7 @@ if (isset($_GET['start'])) {
   $sql .= " LIMIT $start, $length";
 }
 
-$result = mysqli_query($conn, $sql);
-$data = array();
-while($row = mysqli_fetch_assoc($result)){
-  $data[] = $row;
-}
+get($conn, $sql);
 
 echo json_encode($data);
 

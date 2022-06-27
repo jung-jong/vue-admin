@@ -1076,7 +1076,7 @@ export default {
   computed: {},
   methods: {
     getContentsType() {
-      this.$axios.get("/admin/api/contents_category.php").then((response) => {
+      this.$axios.get("/admin/api/theme.php").then((response) => {
         this.contents = response.data;
         this.$endloading();
       });
@@ -1177,7 +1177,7 @@ export default {
     totalPage() {
       if (this.listCheck == "2") {
         this.$axios
-          .get("/admin/api/theme_page.php", {
+          .get("/admin/api/theme-page.php", {
             params: { contents: this.currentContents.SEQ_ID },
           })
           .then((response) => {
@@ -1266,7 +1266,9 @@ export default {
       const fd = new FormData();
       fd.append("ORDER", this.indexTheme);
       fd.append("SEQ_ID", this.currentThemeList);
-      this.$axios.post("/admin/api/theme_order.php", fd).then(() => {
+      this.$axios.post("/admin/api/theme-order.php", fd).then((response) => {
+        if (response.data.DB !== "success")
+          return alert("API Error: " + response.data);
         this.getTheme();
       });
     },
@@ -1275,14 +1277,20 @@ export default {
       const fd = new FormData();
       fd.append("ORDER", this.indexTheme - 1);
       fd.append("NEXT", this.nextSEQ_ID);
-      this.$axios.post("/admin/api/theme_order.php", fd).then(() => {});
+      this.$axios.post("/admin/api/theme-order.php", fd).then((response) => {
+        if (response.data.DB !== "success")
+          return alert("API Error: " + response.data);
+      });
     },
     orderThemePrev() {
       this.$loading();
       const fd = new FormData();
       fd.append("ORDER", this.indexTheme + 1);
       fd.append("PREV", this.prevSEQ_ID);
-      this.$axios.post("/admin/api/theme_order.php", fd).then(() => {});
+      this.$axios.post("/admin/api/theme-order.php", fd).then((response) => {
+        if (response.data.DB !== "success")
+          return alert("API Error: " + response.data);
+      });
     },
     addTheme() {
       if ((this.activeContents !== false) & (this.themeName !== "")) {
@@ -1297,7 +1305,9 @@ export default {
           fd.append("ORDER", this.themeList.length + lastOrder);
         }
         this.$loading();
-        this.$axios.post("/admin/api/theme_insert.php", fd).then(() => {
+        this.$axios.post("/admin/api/theme-insert.php", fd).then((response) => {
+          if (response.data.DB !== "success")
+            return alert("API Error: " + response.data);
           this.getTheme();
         });
       }
@@ -1307,7 +1317,9 @@ export default {
       fd.append("deleteTheme", id);
       if (window.confirm("정말 삭제하시겠습니까?")) {
         this.$loading();
-        this.$axios.post("/admin/api/theme-delete.php", fd).then(() => {
+        this.$axios.post("/admin/api/theme-delete.php", fd).then((response) => {
+          if (response.data.DB !== "success")
+            return alert("API Error: " + response.data);
           this.getTheme();
         });
       }
@@ -1358,7 +1370,7 @@ export default {
           fd.append("PUBLIC_FLAG", 1);
           fd.append("SEQ_ID", this.useContents[i]);
           this.$axios
-            .post("/admin/api/theme-public-contents.php", fd)
+            .post("/admin/api/theme-update.php", fd)
             .then((response) => {
               if (response.data.DB !== "success")
                 return alert("API Error: " + response.data);
@@ -1372,7 +1384,7 @@ export default {
           fd.append("PUBLIC_FLAG", 0);
           fd.append("SEQ_ID", this.unusedContents[i]);
           this.$axios
-            .post("/admin/api/theme-public-contents.php", fd)
+            .post("/admin/api/theme-update.php", fd)
             .then((response) => {
               if (response.data.DB !== "success")
                 return alert("API Error: " + response.data);
@@ -1568,7 +1580,10 @@ export default {
       fd.append("U_ID", 0);
       const img = document.querySelector("#thumbFile");
       const json = document.querySelector("#contentsFile");
-      this.$axios.post("/admin/api/theme_template_upload.php", fd).then(() => {
+      this.$axios.post("/admin/api/theme-insert.php", fd).then((response) => {
+        if (response.data == "error") {
+          return alert("콘텐츠 파일 저장 실패 :" + response.data);
+        }
         this.thumbnailUpload();
         if (this.rgbShow === false) this.contentsFileUpload();
         if (this.rgbShow === true) this.rgbJsonUpload();
