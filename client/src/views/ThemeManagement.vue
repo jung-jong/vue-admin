@@ -1435,7 +1435,7 @@ export default {
         });
     },
     activeSizeName() {
-      if (this.size === null) return;
+      if (this.size.length === 0 || this.size === null) return;
       this.$loading();
       this.$axios
         .get("/admin/api/theme-size.php", {

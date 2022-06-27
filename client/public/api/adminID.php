@@ -1,6 +1,7 @@
 <?php
 
 include("connect.php");
+include("axios.php");
 
 $sql = "SELECT * FROM TB_USER_STATUS WHERE USER_LEVEL = '1' OR USER_LEVEL = '2'";
 
@@ -17,15 +18,8 @@ if (isset($_GET['start'])) {
   $sql .= " LIMIT $start, $length";
 }
 
-//전체조회
-$result = mysqli_query($conn, $sql);
-$data = array();
-while($row = mysqli_fetch_assoc($result)){
-  $data[] = $row;
-}
+get($conn, $sql);
 
 echo json_encode($data);
 
 mysqli_close($conn);
-
-?>

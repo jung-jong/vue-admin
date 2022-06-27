@@ -328,7 +328,7 @@ export default {
         });
     },
     totalPage() {
-      this.$axios.get("/admin/api/adminID_page.php").then((response) => {
+      this.$axios.get("/admin/api/adminID-page.php").then((response) => {
         this.totalPages = response.data;
         this.totalPages = Math.ceil(this.totalPages / this.length);
       });
@@ -363,7 +363,7 @@ export default {
     addAdminID() {
       this.$loading();
       this.$axios
-        .get("/admin/api/admin_level.php", {
+        .get("/admin/api/admin-level.php", {
           params: {
             search: this.id,
           },
@@ -376,9 +376,13 @@ export default {
             const fd = new FormData();
             fd.append("id", this.id);
             fd.append("level", this.selected);
-            this.$axios.post("/admin/api/admin_level.php", fd).then(() => {
-              this.getAdminID();
-            });
+            this.$axios
+              .post("/admin/api/admin-level.php", fd)
+              .then((response) => {
+                if (response.data.DB !== "success")
+                  return alert("API Error: " + response.data);
+                this.getAdminID();
+              });
           }
         });
     },
@@ -399,7 +403,7 @@ export default {
             this.$endloading();
           });
         this.$axios
-          .get("/admin/api/adminID_page.php", {
+          .get("/admin/api/adminID-page.php", {
             params: {
               id: "USER_ID",
               search: search,
@@ -422,7 +426,9 @@ export default {
       const fd = new FormData();
       fd.append("id", id);
       fd.append("level", this.selected);
-      this.$axios.post("/admin/api/admin_level.php", fd).then(() => {
+      this.$axios.post("/admin/api/admin-level.php", fd).then((response) => {
+        if (response.data.DB !== "success")
+          return alert("API Error: " + response.data);
         this.getAdminID();
       });
     },
@@ -431,7 +437,9 @@ export default {
       const fd = new FormData();
       fd.append("id", id);
       fd.append("level", 9);
-      this.$axios.post("/admin/api/admin_level.php", fd).then(() => {
+      this.$axios.post("/admin/api/admin-level.php", fd).then((response) => {
+        if (response.data.DB !== "success")
+          return alert("API Error: " + response.data);
         this.getAdminID();
       });
     },
