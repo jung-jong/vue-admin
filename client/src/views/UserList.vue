@@ -233,7 +233,7 @@ export default {
         });
     },
     totalPage() {
-      this.$axios.get("/admin/api/user_page.php").then((response) => {
+      this.$axios.get("/admin/api/user-page.php").then((response) => {
         this.totalPages = response.data;
         this.totalPages = Math.ceil(this.totalPages / this.length);
       });
@@ -358,7 +358,7 @@ export default {
               this.$endloading();
             });
           this.$axios
-            .get("/admin/api/user_page.php", {
+            .get("/admin/api/user-page.php", {
               params: {
                 id: "USER_ID",
                 search: search,
@@ -385,7 +385,7 @@ export default {
               this.$endloading();
             });
           this.$axios
-            .get("/admin/api/user_page.php", {
+            .get("/admin/api/user-page.php", {
               params: {
                 lisense: "LICENSE_TYPE",
                 search: search,
@@ -412,7 +412,7 @@ export default {
               this.$endloading();
             });
           this.$axios
-            .get("/admin/api/user_page.php", {
+            .get("/admin/api/user-page.php", {
               params: {
                 status: "USER_STATUS",
                 search: search,
@@ -439,7 +439,7 @@ export default {
               this.$endloading();
             });
           this.$axios
-            .get("/admin/api/user_page.php", {
+            .get("/admin/api/user-page.php", {
               params: {
                 lastWork: "LAST_WORK_DATE",
                 search: search,
@@ -466,7 +466,7 @@ export default {
               this.$endloading();
             });
           this.$axios
-            .get("/admin/api/user_page.php", {
+            .get("/admin/api/user-page.php", {
               params: {
                 lastDown: "LAST_EDIT_DATE",
                 search: search,
@@ -493,7 +493,7 @@ export default {
               this.$endloading();
             });
           this.$axios
-            .get("/admin/api/user_page.php", {
+            .get("/admin/api/user-page.php", {
               params: {
                 storage: "STORAGE_USE",
                 search: search,
@@ -517,7 +517,7 @@ export default {
       const fd = new FormData();
       fd.append("id", USER_ID);
       this.$axios
-        .post("/admin/api/file.php", fd)
+        .post("/admin/api/user-storage.php", fd)
         .then((response) => {
           this.file = response.data;
           this.$endloading();
@@ -526,48 +526,48 @@ export default {
           console.log(e);
         });
     },
-
     fileDownload(id) {
       const fd = new FormData();
       fd.append("SEQ_ID", id);
       var down_url = "";
-      this.$axios.post("/admin/api/download.php", fd).then((response) => {
-        down_url = response.data; //배포
-        // down_url = "http://localhost/admin/" + response.data;
-
-        var xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function () {
-          if (this.readyState == 4 && this.status == 200) {
-            var a = document.createElement("a");
-            var url = URL.createObjectURL(this.response);
-            a.href = url;
-            a.download = down_url.substring(
-              down_url.lastIndexOf("/") + 1,
-              down_url.lastIndexOf("/") + 30
-            );
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-          }
-        };
-        xhr.open("POST", down_url);
-        xhr.responseType = "blob"; // !!필수!!
-        xhr.send();
-        xhr.onprogress = (e) => {
-          if (e.lengthComputable) {
-            // 다운로드 진행률 계산
-            var percentComplete = Math.floor((e.loaded / e.total) * 100);
-            this.progress = percentComplete;
-            if (this.progress == 100) {
-              this.showProgress = false;
-            } else if (this.progress == 0) {
-              this.showProgress = true;
+      this.$axios
+        .post("/admin/api/user-storage-download.php", fd)
+        .then((response) => {
+          down_url = response.data; //배포
+          // down_url = "http://localhost/admin/" + response.data;
+          var xhr = new XMLHttpRequest();
+          xhr.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+              var a = document.createElement("a");
+              var url = URL.createObjectURL(this.response);
+              a.href = url;
+              a.download = down_url.substring(
+                down_url.lastIndexOf("/") + 1,
+                down_url.lastIndexOf("/") + 30
+              );
+              document.body.appendChild(a);
+              a.click();
+              window.URL.revokeObjectURL(url);
             }
-          }
-        };
-      });
+          };
+          xhr.open("POST", down_url);
+          xhr.responseType = "blob"; // !!필수!!
+          xhr.send();
+          xhr.onprogress = (e) => {
+            if (e.lengthComputable) {
+              // 다운로드 진행률 계산
+              var percentComplete = Math.floor((e.loaded / e.total) * 100);
+              this.progress = percentComplete;
+              if (this.progress == 100) {
+                this.showProgress = false;
+              } else if (this.progress == 0) {
+                this.showProgress = true;
+              }
+            }
+          };
+        });
 
-      // const response = this.$axios.post("/admin/api/download.php", fd, {
+      // const response = this.$axios.post("/admin/api/user-storage-download.php", fd, {
       //   responseType: "blob",
       // });
       // const name = response.headers["content-disposition"]
@@ -587,15 +587,19 @@ export default {
         this.$loading();
         const fd = new FormData();
         fd.append("SEQ_ID", id);
-        this.$axios.post("/admin/api/file_delete.php", fd).then(() => {
-          this.getFile(this.currentStorage.USER_ID);
-          this.storageUse();
-        });
+        this.$axios
+          .post("/admin/api/user-storage-delete.php", fd)
+          .then((response) => {
+            if (response.data.DB !== "success")
+              return alert("API Error: " + response.data);
+            this.getFile(this.currentStorage.USER_ID);
+            this.storageUse();
+          });
       }
     },
     storageUse() {
       this.$axios
-        .get("/admin/api/file_storage_update.php", {
+        .get("/admin/api/user-storage-update.php", {
           params: {
             id: this.currentStorage.USER_ID,
           },
@@ -607,8 +611,10 @@ export default {
           fd.append("STORAGE_USE", storageUse);
           fd.append("USER_ID", this.currentStorage.USER_ID);
           this.$axios
-            .post("/admin/api/file_storage_update.php", fd)
-            .then(() => {
+            .post("/admin/api/user-storage-update.php", fd)
+            .then((response) => {
+              if (response.data.DB !== "success")
+                return alert("API Error: " + response.data);
               this.getUserList();
             });
         });

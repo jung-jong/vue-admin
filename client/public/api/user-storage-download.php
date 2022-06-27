@@ -36,7 +36,3 @@ echo $file_dir;
 
 function utf2euc($str) { return iconv("UTF-8","CP949", $str); }
 // function utf2euc($str) { return iconv("UTF-8","cp949", "한글1234"); }
-
-
-
-?>
