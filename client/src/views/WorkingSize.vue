@@ -80,7 +80,6 @@
                           @click="
                             upCurrentTemplate(i);
                             orderTemplate();
-                            orderTemplatePrev();
                           "
                         >
                           arrow_upward
@@ -91,7 +90,6 @@
                           @click="
                             downCurrentTemplate(i);
                             orderTemplate();
-                            orderTemplateNext();
                           "
                         >
                           arrow_downward
@@ -200,7 +198,6 @@
                           @click="
                             upCurrentSize(i);
                             orderSize();
-                            orderSizePrev();
                           "
                         >
                           arrow_upward
@@ -211,7 +208,6 @@
                           @click="
                             downCurrentSize(i);
                             orderSize();
-                            orderSizeNext();
                           "
                         >
                           arrow_downward
@@ -379,45 +375,65 @@ export default {
       }
     },
     upCurrentTemplate(i) {
-      if (i !== 0) {
-        this.currentSizeCategory = this.sizeCategory[i].SEQ_ID;
-        this.prevSEQ_ID = this.sizeCategory[i - 1].SEQ_ID;
-        i = i - 1;
-        if (i == -1) i = 0;
-        this.indexTemplate = i;
-      }
+      if (i == 0) return;
+      this.currentSizeCategory = this.sizeCategory[i].SEQ_ID;
+      this.prevSEQ_ID = this.sizeCategory[i - 1].SEQ_ID;
+      i = i - 1;
+      if (i == -1) i = 0;
+      this.indexTemplate = i;
+      this.orderTemplatePrev();
     },
     downCurrentTemplate(i) {
       this.currentSizeCategory = this.sizeCategory[i].SEQ_ID;
-      this.nextSEQ_ID = this.sizeCategory[i + 1].SEQ_ID;
+      if (this.sizeCategory.length - 1 == i) {
+        this.nextSEQ_ID = this.sizeCategory[i].SEQ_ID;
+      } else {
+        this.nextSEQ_ID = this.sizeCategory[i + 1].SEQ_ID;
+      }
       i = i + 1;
       if (this.sizeCategory.length == i) {
         i = i - 1;
       }
       this.indexTemplate = i;
+      this.orderTemplateNext();
     },
     orderTemplate() {
+      if (this.indexTemplate === null) return;
       this.$loading();
       const fd = new FormData();
       fd.append("ORDER", this.indexTemplate);
       fd.append("SEQ_ID", this.currentSizeCategory);
-      this.$axios.post("/admin/api/size-category-order.php", fd).then(() => {
-        this.getSizeCategory();
-      });
+      this.$axios
+        .post("/admin/api/size-category-order.php", fd)
+        .then((response) => {
+          if (response.data.DB !== "success")
+            return alert("API Error: " + response.data);
+          this.getSizeCategory();
+        });
     },
     orderTemplateNext() {
       this.$loading();
       const fd = new FormData();
       fd.append("ORDER", this.indexTemplate - 1);
       fd.append("NEXT", this.nextSEQ_ID);
-      this.$axios.post("/admin/api/size-category-order.php", fd).then(() => {});
+      this.$axios
+        .post("/admin/api/size-category-order.php", fd)
+        .then((response) => {
+          if (response.data.DB !== "success")
+            return alert("API Error: " + response.data);
+        });
     },
     orderTemplatePrev() {
       this.$loading();
       const fd = new FormData();
       fd.append("ORDER", this.indexTemplate + 1);
       fd.append("PREV", this.prevSEQ_ID);
-      this.$axios.post("/admin/api/size-category-order.php", fd).then(() => {});
+      this.$axios
+        .post("/admin/api/size-category-order.php", fd)
+        .then((response) => {
+          if (response.data.DB !== "success")
+            return alert("API Error: " + response.data);
+        });
     },
     activeTemplate(i) {
       if (i === false) return;
@@ -458,15 +474,21 @@ export default {
       i = i - 1;
       if (i == -1) i = 0;
       this.indexSize = i;
+      this.orderSizePrev();
     },
     downCurrentSize(i) {
       this.currentSize = this.size[i].SEQ_ID;
-      this.nextSEQ_ID = this.size[i + 1].SEQ_ID;
+      if (this.size.length - 1 == i) {
+        this.nextSEQ_ID = this.size[i].SEQ_ID;
+      } else {
+        this.nextSEQ_ID = this.size[i + 1].SEQ_ID;
+      }
       i = i + 1;
       if (this.size.length == i) {
         i = i - 1;
       }
       this.indexSize = i;
+      this.orderSizeNext();
     },
     addSize() {
       if (this.activeCategory !== false && this.sizeName !== "") {
@@ -496,6 +518,7 @@ export default {
       }
     },
     orderSize() {
+      if (this.indexSize === null) return;
       this.$loading();
       const fd = new FormData();
       fd.append("ORDER", this.indexSize);
@@ -640,9 +663,60 @@ export default {
       if (this.useSize.length != 0 || this.unusedSize.length != 0)
         alert("검색 적용 여부 변경됨");
     },
+    sizeCategoryKeyupEvent() {
+      if (this.activeSize !== false) return;
+      if (window.event.key == "ArrowUp") {
+        if (this.activeCategory > 0) {
+          this.upCurrentTemplate(this.activeCategory);
+          this.orderTemplate();
+          this.activeCategory = this.activeCategory - 1;
+        } else if (this.activeCategory == 0) {
+          return;
+        }
+      } else if (window.event.key == "ArrowDown") {
+        if (this.sizeCategory.length > this.activeCategory + 1) {
+          this.downCurrentTemplate(this.activeCategory);
+          this.orderTemplate();
+          this.activeCategory = this.activeCategory + 1;
+        } else if (this.sizeCategory.length == this.activeCategory + 1) {
+          return;
+        }
+      }
+    },
+    sizeKeyupEvent() {
+      if (window.event.key == "ArrowUp") {
+        if (this.activeSize > 0) {
+          this.upCurrentSize(this.activeSize);
+          this.orderSize();
+          this.activeSize = this.activeSize - 1;
+          console.log(this.activeSize);
+        } else if (this.activeSize == 0) {
+          return;
+        }
+      } else if (window.event.key == "ArrowDown") {
+        if (this.size.length > this.activeSize + 1) {
+          this.downCurrentSize(this.activeSize);
+          this.orderSize();
+          this.activeSize = this.activeSize + 1;
+          console.log(this.activeSize);
+        } else if (this.size.length == this.activeSize + 1) {
+          return;
+        }
+      }
+    },
   },
   mounted() {
     this.getSizeCategory();
+    window.addEventListener("keyup", () => {
+      if (this.tableLoading === false) {
+        this.sizeCategoryKeyupEvent();
+      }
+    });
+    window.addEventListener("keyup", () => {
+      if (this.tableLoading === false) {
+        this.sizeKeyupEvent();
+      }
+    });
   },
 };
 </script>
