@@ -370,8 +370,8 @@ export default {
         })
         .then((response) => {
           if (response.data.length == 0) {
-            alert("존재하지 않는 ID 혹은 관리자 ID 입니다.");
             this.$endloading();
+            return alert("존재하지 않는 ID 혹은 관리자 ID 입니다.");
           } else {
             const fd = new FormData();
             fd.append("id", this.id);
