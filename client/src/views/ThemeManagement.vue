@@ -130,6 +130,9 @@
             </div>
             <div class="card justify-content-between" id="theme">
               <ul class="list-group list-group-flush overflow-auto">
+                <li class="list-group-item" v-if="noTheme">
+                  <h6>테마를 추가하세요.</h6>
+                </li>
                 <li
                   v-for="(themeList, i) in themeList"
                   :key="i"
@@ -1036,7 +1039,7 @@ export default {
       hover: true,
       useContents: [],
       unusedContents: [],
-
+      noTheme: false,
       // 콘텐츠 추가
       contentsName: "",
       keyword: "",
@@ -1145,13 +1148,10 @@ export default {
       this.getTheme();
     },
     getTheme() {
-      if (this.currentContents.CONTENTS_TYPE_NAME == "스타일") {
+      if (this.currentContents.CONTENTS_TYPE_NAME == "스타일")
         this.rgbShow = true;
-      } else {
-        this.rgbShow = false;
-      }
+      else this.rgbShow = false;
       if (this.listCheck == "2") {
-        this.themeList = [];
         this.$loading();
         this.$axios
           .get("/admin/api/theme.php", {
@@ -1162,6 +1162,8 @@ export default {
             },
           })
           .then((response) => {
+            if (response.data.length == 0) this.noTheme = true;
+            else this.noTheme = false;
             this.themeList = response.data;
             this.totalPage();
             this.$endloading();
@@ -1262,6 +1264,7 @@ export default {
       }
     },
     orderTheme() {
+      if (this.indexTheme === null) return;
       this.$loading();
       const fd = new FormData();
       fd.append("ORDER", this.indexTheme);
@@ -1862,9 +1865,51 @@ export default {
           }
         });
     },
+    themeKeyupEvent() {
+      if (window.event.key == "ArrowUp") {
+        if (this.activeThemeList > 0) {
+          let i = this.activeThemeList;
+          this.currentThemeList = this.themeList[i].SEQ_ID;
+          this.prevSEQ_ID = this.themeList[i - 1].SEQ_ID;
+          i = i - 1;
+          if (i == -1) i = 0;
+          this.indexTheme = i + this.start;
+          this.orderThemePrev();
+          this.orderTheme();
+          this.activeThemeList = this.activeThemeList - 1;
+        } else if (this.activeThemeList == 0) {
+          return;
+        }
+      } else if (window.event.key == "ArrowDown") {
+        if (this.themeList.length > this.activeThemeList + 1) {
+          let i = this.activeThemeList;
+          this.currentThemeList = this.themeList[i].SEQ_ID;
+          if (this.themeList.length - 1 == i) {
+            this.nextSEQ_ID = this.themeList[i].SEQ_ID;
+          } else {
+            this.nextSEQ_ID = this.themeList[i + 1].SEQ_ID;
+          }
+          i = i + 1;
+          if (this.themeList.length == i) {
+            i = i - 1;
+          }
+          this.indexTheme = i + this.start;
+          this.orderThemeNext();
+          this.orderTheme();
+          this.activeThemeList = this.activeThemeList + 1;
+        } else if (this.themeList.length == this.activeThemeList + 1) {
+          return;
+        }
+      }
+    },
   },
   mounted() {
     this.getContentsType();
+    window.addEventListener("keyup", () => {
+      if (this.tableLoading === false) {
+        this.themeKeyupEvent();
+      }
+    });
   },
 };
 </script>

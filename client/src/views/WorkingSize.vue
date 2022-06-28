@@ -324,7 +324,7 @@ export default {
   methods: {
     getSizeCategory() {
       this.$axios.get("/admin/api/size-category.php").then((response) => {
-        if (response.data == null) return (this.noSizeCategory = true);
+        if (response.data.length == 0) return (this.noSizeCategory = true);
         else this.noSizeCategory = false;
         this.sizeCategory = response.data;
         this.$endloading();
@@ -454,7 +454,7 @@ export default {
           },
         })
         .then((response) => {
-          if (response.data == null) this.noSize = true;
+          if (response.data.length == 0) this.noSize = true;
           else this.noSize = false;
           this.size = response.data;
           this.$endloading();
@@ -689,7 +689,6 @@ export default {
           this.upCurrentSize(this.activeSize);
           this.orderSize();
           this.activeSize = this.activeSize - 1;
-          console.log(this.activeSize);
         } else if (this.activeSize == 0) {
           return;
         }
@@ -698,7 +697,6 @@ export default {
           this.downCurrentSize(this.activeSize);
           this.orderSize();
           this.activeSize = this.activeSize + 1;
-          console.log(this.activeSize);
         } else if (this.size.length == this.activeSize + 1) {
           return;
         }
