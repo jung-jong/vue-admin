@@ -7,6 +7,12 @@ if (isset($_POST['deleteTheme'])) {
   $sql = "DELETE FROM `TB_THEME` WHERE `SEQ_ID` = {$_POST['deleteTheme']}";
 }
 
+if (isset($_POST['THEME_ID'])) {
+  $sql = "UPDATE `TB_CONTENTS`
+  SET `D_DATE` = CURRENT_TIMESTAMP()
+  WHERE `THEME_ID` = {$_POST['THEME_ID']}";
+}
+
 if (isset($_POST['deleteContents'])) {
   $sql = "DELETE FROM `TB_CONTENTS` WHERE `SEQ_ID` = {$_POST['deleteContents']}";
 

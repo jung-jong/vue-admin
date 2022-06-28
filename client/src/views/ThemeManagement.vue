@@ -148,7 +148,7 @@
                     <span
                       role="button"
                       class="material-symbols-rounded"
-                      @click.stop="deleteTheme(themeList.SEQ_ID)"
+                      @click="deleteTheme(themeList.SEQ_ID)"
                     >
                       delete
                     </span>
@@ -1318,15 +1318,25 @@ export default {
     deleteTheme(id) {
       const fd = new FormData();
       fd.append("deleteTheme", id);
-      fd.append("THEME_ID", id);
       if (window.confirm("정말 삭제하시겠습니까?")) {
         this.$loading();
         this.$axios.post("/admin/api/theme-delete.php", fd).then((response) => {
           if (response.data.DB !== "success")
             return alert("API Error: " + response.data);
+          this.deleteThemeContents(id);
           this.getTheme();
         });
       }
+    },
+    deleteThemeContents(id) {
+      this.contentsList.forEach((value) => {
+        const fd = new FormData();
+        fd.append("THEME_ID", id);
+        this.$axios.post("/admin/api/theme-delete.php", fd).then((response) => {
+          if (response.data.DB !== "success")
+            return alert("API Error: " + response.data);
+        });
+      });
     },
     getContentsList() {
       this.contentsListShow = true;
@@ -1441,8 +1451,6 @@ export default {
     },
     activeSizeName() {
       if (this.size.length === 0 || this.size === null) return;
-      console.log(this.size);
-      console.log(this.selectSize);
       this.$loading();
       this.$axios
         .get("/admin/api/theme-size.php", {
@@ -1763,10 +1771,8 @@ export default {
       fd.append("KEYWORD", this.keyword);
       if (this.existsThumb === true) {
         fd.append("THUMB_PATH", this.thumbPath);
-        console.log("첨부" + this.thumbPath);
       } else if (this.existsThumb === false) {
         fd.append("THUMB_PATH", this.currentContentsList.THUMB_PATH);
-        console.log("파일없음" + this.currentContentsList.THUMB_PATH);
       }
       fd.append("CONTENTS_PATH", this.contentsUpdatePath);
       if (this.rgbShow === true)
