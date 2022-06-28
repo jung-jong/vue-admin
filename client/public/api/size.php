@@ -38,7 +38,8 @@ if (isset($_POST['PUBLIC_FLAG'])) {
 
 if (isset($_POST['PAGE_WIDTH'])) {
   $sql = "UPDATE `TB_SIZE`
-  SET `PAGE_WIDTH` = {$_POST['PAGE_WIDTH']}, `PAGE_HEIGHT` = {$_POST['PAGE_HEIGHT']}, `SCALE_CD` = {$_POST['SCALE_CD']}
+  SET `PAGE_WIDTH` = {$_POST['PAGE_WIDTH']}, `PAGE_HEIGHT` = {$_POST['PAGE_HEIGHT']},
+   `SCALE_CD` = {$_POST['SCALE_CD']}, `U_DATE` = CURRENT_TIMESTAMP()
   WHERE `SEQ_ID` = {$_POST['SEQ_ID']}";
   post($conn, $sql);
 }

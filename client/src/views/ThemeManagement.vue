@@ -1318,6 +1318,7 @@ export default {
     deleteTheme(id) {
       const fd = new FormData();
       fd.append("deleteTheme", id);
+      fd.append("THEME_ID", id);
       if (window.confirm("정말 삭제하시겠습니까?")) {
         this.$loading();
         this.$axios.post("/admin/api/theme-delete.php", fd).then((response) => {
@@ -1371,7 +1372,7 @@ export default {
         for (const i in this.useContents) {
           const fd = new FormData();
           fd.append("PUBLIC_FLAG", 1);
-          fd.append("SEQ_ID", this.useContents[i]);
+          fd.append("contentsUseUnused", this.useContents[i]);
           this.$axios
             .post("/admin/api/theme-update.php", fd)
             .then((response) => {
@@ -1385,7 +1386,7 @@ export default {
         for (const i in this.unusedContents) {
           const fd = new FormData();
           fd.append("PUBLIC_FLAG", 0);
-          fd.append("SEQ_ID", this.unusedContents[i]);
+          fd.append("contentsUseUnused", this.unusedContents[i]);
           this.$axios
             .post("/admin/api/theme-update.php", fd)
             .then((response) => {
@@ -1433,12 +1434,15 @@ export default {
         })
         .then((response) => {
           this.size = response.data;
+          this.selectSize = 0;
           this.activeSizeName();
           this.$endloading();
         });
     },
     activeSizeName() {
       if (this.size.length === 0 || this.size === null) return;
+      console.log(this.size);
+      console.log(this.selectSize);
       this.$loading();
       this.$axios
         .get("/admin/api/theme-size.php", {
@@ -1626,27 +1630,6 @@ export default {
       if (contents.PUBLIC_FLAG == 1) {
         this.publicFlage = "true";
       } else if (contents.PUBLIC_FLAG == 0) this.publicFlage = "false";
-      if (this.currentContents.CONTENTS_TYPE_NAME == "템플릿") {
-        this.$axios
-          .get("/admin/api/theme-contents.php", {
-            params: {
-              "size-category": contents.SIZE_CATEGORY_ID,
-            },
-          })
-          .then((response) => {
-            this.selectWorkingSize = response.data[0].ORDER;
-            this.$axios
-              .get("/admin/api/theme-contents.php", {
-                params: {
-                  size: contents.SIZE_INFO_ID,
-                },
-              })
-              .then((response) => {
-                this.selectSize = response.data[0].ORDER;
-                this.$endloading();
-              });
-          });
-      }
       if (this.rgbShow === true) {
         this.colors = [];
         this.rgb = [];
@@ -1775,10 +1758,16 @@ export default {
       if (this.contentsName === "") return (this.invalidContentsName = true);
       if (this.keyword === "") return (this.invalidKeyword = true);
       const fd = new FormData();
-      fd.append("SEQ_ID", this.currentContentsList.SEQ_ID);
+      fd.append("contentsListUpdate", this.currentContentsList.SEQ_ID);
       fd.append("CONTENTS_NAME", this.contentsName);
       fd.append("KEYWORD", this.keyword);
-      fd.append("THUMB_PATH", this.currentContentsList.THUMB_PATH);
+      if (this.existsThumb === true) {
+        fd.append("THUMB_PATH", this.thumbPath);
+        console.log("첨부" + this.thumbPath);
+      } else if (this.existsThumb === false) {
+        fd.append("THUMB_PATH", this.currentContentsList.THUMB_PATH);
+        console.log("파일없음" + this.currentContentsList.THUMB_PATH);
+      }
       fd.append("CONTENTS_PATH", this.contentsUpdatePath);
       if (this.rgbShow === true)
         fd.append("CONTENTS_PATH", this.currentContentsList.CONTENTS_PATH);
@@ -1799,7 +1788,6 @@ export default {
       } else if (this.publicFlage === "false") {
         fd.append("PUBLIC_FLAG", 0);
       }
-      if (this.existsThumb === true) fd.append("THUMB_PATH", this.thumbPath);
       if (this.existsContents === true) {
         const json = document.querySelector("#contentsFileEdit");
         this.contentsFileName = this.contentsFileName.split("_")[1];

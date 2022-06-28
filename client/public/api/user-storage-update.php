@@ -31,7 +31,7 @@ if (isset($_GET['id'])) {
 
 if (isset($_POST['STORAGE_USE'])) {
   $sql = "UPDATE `TB_USER_STATUS` 
-  SET `STORAGE_USE` = {$_POST['STORAGE_USE']} 
+  SET `STORAGE_USE` = {$_POST['STORAGE_USE']}, `U_DATE` = CURRENT_TIMESTAMP()
   WHERE `USER_ID` = '{$_POST['USER_ID']}'";
   
   
@@ -48,6 +48,3 @@ if (isset($_POST['STORAGE_USE'])) {
 }
 
 mysqli_close($conn);
-
-
-?>

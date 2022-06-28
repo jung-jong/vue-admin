@@ -13,7 +13,6 @@ function get($conn, $sql)
 function post($conn, $sql)
 {
   global $data;
-  $data = array();
   $result = mysqli_query($conn, $sql);
   if ($result == false) {
     error_log(mysqli_error($conn));

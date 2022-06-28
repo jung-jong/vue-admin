@@ -14,7 +14,7 @@ if (isset($_POST['id'])) {
   $id = $_POST['id'];
   $level = $_POST['level'];
   $sql = "UPDATE TB_USER_STATUS
- SET USER_LEVEL = '$level'
+ SET USER_LEVEL = '$level', `U_DATE` = CURRENT_TIMESTAMP()
  WHERE USER_ID LIKE '$id'";
   post($conn, $sql);
 }
