@@ -255,19 +255,20 @@
                   edit_note
                 </span>
               </div>
-              <!-- <img
+              <!-- 배포 -->
+              <img
                 :src="contentsList.THUMB_PATH"
                 class="img-thumbnail"
                 style="width: 150px; height: 150px"
                 alt=""
-              /> -->
+              />
               <!-- 로컬서버 -->
-              <img
+              <!-- <img
                 :src="local + contentsList.THUMB_PATH"
                 class="img-thumbnail"
                 style="width: 150px; height: 150px"
                 alt=""
-              />
+              /> -->
             </div>
           </div>
           <button
@@ -1630,7 +1631,7 @@ export default {
       this.contentsName = contents.CONTENTS_NAME;
       this.keyword = contents.KEYWORD;
       this.thumbnail = contents.THUMB_PATH;
-      this.thumbnail = this.local + contents.THUMB_PATH.substring(1); // 로컬서버
+      // this.thumbnail = this.local + contents.THUMB_PATH.substring(1); // 로컬서버
       if (contents.USE_TYPE == 1) {
         this.typeCheck = "web";
       } else if (contents.USE_TYPE == 2) this.typeCheck = "print";
@@ -1672,7 +1673,7 @@ export default {
           this.oldThumb = [];
           response.data.forEach((data) => {
             let oldFile = `${this.contentsPath}thumb/${data}`;
-            oldFile = `${this.local}${oldFile.substring(1)}`; // 로컬서버
+            // oldFile = `${this.local}${oldFile.substring(1)}`; // 로컬서버
             this.oldThumb.push(oldFile);
           });
         }
@@ -1699,8 +1700,8 @@ export default {
     deleteOldThumb(value) {
       if (window.confirm("완전히 삭제하시겠습니까?")) {
         value = "." + value;
-        value = value.split("admin"); // 로컬서버
-        value = ".." + value[1]; // 로컬서버
+        // value = value.split("admin"); // 로컬서버
+        // value = ".." + value[1]; // 로컬서버
         const fd = new FormData();
         fd.append("deleteOldThumb", value);
         this.$axios
@@ -1731,8 +1732,8 @@ export default {
     changeThumb(value) {
       if (window.confirm("썸네일을 변경합니다.")) {
         value = "." + value;
-        value = value.split("admin"); // 로컬서버
-        value = "." + value[1]; // 로컬서버
+        // value = value.split("admin"); // 로컬서버
+        // value = "." + value[1]; // 로컬서버
         const fd = new FormData();
         fd.append("changeThumb", value);
         fd.append("SEQ_ID", this.currentContentsList.SEQ_ID);
@@ -1742,7 +1743,7 @@ export default {
             if (response.data.DB !== "success")
               return alert("API Error: " + response.data);
             this.getContentsList();
-            value = this.local + value.substring(1); // 로컬서버
+            // value = this.local + value.substring(1); // 로컬서버
             this.thumbnail = value;
           });
       }
